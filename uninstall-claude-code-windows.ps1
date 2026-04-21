@@ -7,6 +7,25 @@ function Write-Step {
 }
 
 $script:UninstallActivity = "Claude Code Uninstall"
+$script:UninstallStartTime = Get-Date
+$script:UninstallProgressBarWidth = 36
+$script:LastUninstallProgressLineLength = 0
+
+function Format-DurationText {
+  param(
+    [int]$TotalSeconds
+  )
+
+  $safeSeconds = [Math]::Max(0, $TotalSeconds)
+  $ts = [TimeSpan]::FromSeconds($safeSeconds)
+  if ($ts.TotalHours -ge 1) {
+    return "{0}h {1}m {2}s" -f [int]$ts.TotalHours, $ts.Minutes, $ts.Seconds
+  }
+  if ($ts.TotalMinutes -ge 1) {
+    return "{0}m {1}s" -f [int]$ts.TotalMinutes, $ts.Seconds
+  }
+  return "{0}s" -f $ts.Seconds
+}
 
 function Set-UninstallProgress {
   param(
@@ -15,11 +34,42 @@ function Set-UninstallProgress {
   )
 
   $boundedPercent = [Math]::Max(0, [Math]::Min($Percent, 100))
-  Write-Progress -Activity $script:UninstallActivity -Status $Status -PercentComplete $boundedPercent
+  $elapsedSeconds = [Math]::Max(0, [int]((Get-Date) - $script:UninstallStartTime).TotalSeconds)
+  $statusText = $Status
+
+  if ($boundedPercent -gt 0 -and $boundedPercent -lt 100 -and $elapsedSeconds -gt 0) {
+    $estimatedTotalSeconds = [int][Math]::Ceiling(($elapsedSeconds * 100.0) / $boundedPercent)
+    $secondsRemaining = [Math]::Max(0, $estimatedTotalSeconds - $elapsedSeconds)
+    $statusText = "{0} | ETA: {1}" -f $Status, (Format-DurationText -TotalSeconds $secondsRemaining)
+  } elseif ($boundedPercent -eq 100) {
+    $statusText = "{0} | Elapsed: {1}" -f $Status, (Format-DurationText -TotalSeconds $elapsedSeconds)
+  }
+
+  $barWidth = [Math]::Max(10, $script:UninstallProgressBarWidth)
+  $filledCount = [int][Math]::Floor(($boundedPercent / 100.0) * $barWidth)
+  if ($filledCount -gt $barWidth) {
+    $filledCount = $barWidth
+  }
+
+  if ($boundedPercent -ge 100) {
+    $barBody = ("=" * $barWidth)
+  } else {
+    $leftFill = "=" * $filledCount
+    $rightPad = " " * ($barWidth - $filledCount - 1)
+    $barBody = "{0}>{1}" -f $leftFill, $rightPad
+  }
+
+  $line = "`r[{0}] {1,3}% | {2}" -f $barBody, $boundedPercent, $statusText
+  if ($line.Length -lt $script:LastUninstallProgressLineLength) {
+    $line = $line + (" " * ($script:LastUninstallProgressLineLength - $line.Length))
+  }
+
+  $script:LastUninstallProgressLineLength = $line.Length
+  Write-Host -NoNewline $line
 }
 
 function Complete-UninstallProgress {
-  Write-Progress -Activity $script:UninstallActivity -Completed
+  Write-Host ""
 }
 
 function Remove-PathIfExists {
@@ -93,6 +143,7 @@ function Uninstall-ClaudeCode {
 }
 
 try {
+  $script:UninstallStartTime = Get-Date
   Set-UninstallProgress -Percent 5 -Status "Preparing uninstall paths..."
   Write-Step "Starting Claude Code uninstall for Windows..."
 
