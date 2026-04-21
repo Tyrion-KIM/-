@@ -162,8 +162,10 @@ try {
   Uninstall-ClaudeCode
 
   Set-UninstallProgress -Percent 75 -Status "Removing local Claude Code configuration..."
-  $launcherPath = Join-Path $configDir "launch-claude-code.ps1"
-  Remove-PathIfExists -Path $launcherPath -Label "Launcher script"
+  $launcherCmdPath = Join-Path $configDir "launch-claude-code.cmd"
+  $launcherPs1Path = Join-Path $configDir "launch-claude-code.ps1"
+  Remove-PathIfExists -Path $launcherCmdPath -Label "Launcher script"
+  Remove-PathIfExists -Path $launcherPs1Path -Label "Legacy PowerShell launcher"
   Remove-PathIfExists -Path $proxyConfigPath -Label "Proxy config"
   Remove-PathIfExists -Path $configDir -Label "Claude Code config directory" -Directory
 

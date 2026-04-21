@@ -274,20 +274,51 @@ function Ensure-GitInstalled {
 }
 
 function Ensure-ClaudeCodeInstalled {
-  if (Get-Command claude -ErrorAction SilentlyContinue) {
-    Set-InstallProgress -Percent 75 -Status "Claude Code is already installed locally."
-    Write-Step "Claude Code is already installed on this machine."
+  Set-InstallProgress -Percent 40 -Status "Checking Node.js and npm..."
+  Ensure-NodeAndNpm
+
+  $installedVersion = $null
+  $latestVersion = $null
+  $hasClaudeCommand = $null -ne (Get-Command claude -ErrorAction SilentlyContinue)
+
+  try {
+    $installedInfo = cmd /d /c npm list -g @anthropic-ai/claude-code --depth=0 2>$null
+    $installedMatch = ($installedInfo | Select-String '@anthropic-ai/claude-code@([0-9A-Za-z\.-]+)' | Select-Object -First 1)
+    if ($installedMatch) {
+      $installedVersion = $installedMatch.Matches[0].Groups[1].Value
+    }
+  } catch {
+    Write-Step "Unable to read current Claude Code version. Will continue with installation check."
+  }
+
+  try {
+    $latestVersion = (cmd /d /c npm view @anthropic-ai/claude-code version 2>$null | Select-Object -First 1).Trim()
+  } catch {
+    Write-Step "Unable to query latest Claude Code version. Will install using npm default tag."
+  }
+
+  if ($hasClaudeCommand -and $installedVersion -and $latestVersion -and ($installedVersion -eq $latestVersion)) {
+    Set-InstallProgress -Percent 75 -Status "Claude Code is already at the latest version."
+    Write-Step "Claude Code is already up to date: $installedVersion"
     return $true
   }
 
-  Set-InstallProgress -Percent 40 -Status "Checking Node.js and npm..."
-  Ensure-NodeAndNpm
+  if ($installedVersion) {
+    Write-Step "Detected Claude Code version: $installedVersion"
+  } else {
+    Write-Step "Claude Code is not currently available. Installing latest version."
+  }
+
+  if ($latestVersion) {
+    Write-Step "Target Claude Code version: $latestVersion"
+  }
 
   Set-InstallProgress -Percent 65 -Status "Installing Claude Code via npm..."
   Write-Step "Installing Claude Code globally via npm..."
   Write-Step "Claude Code install started. This step may take 1-3 minutes."
   $cmdExe = if ($env:ComSpec -and (Test-Path $env:ComSpec)) { $env:ComSpec } else { "cmd.exe" }
-  $npmInstallProcess = Start-Process -FilePath $cmdExe -ArgumentList @("/d", "/c", "npm", "install", "-g", "@anthropic-ai/claude-code") -PassThru
+  $packageSpec = if ($latestVersion) { "@anthropic-ai/claude-code@$latestVersion" } else { "@anthropic-ai/claude-code@latest" }
+  $npmInstallProcess = Start-Process -FilePath $cmdExe -ArgumentList @("/d", "/c", "npm", "install", "-g", $packageSpec) -PassThru
 
   $claudeInstallStartTime = Get-Date
   $tick = 0
@@ -382,38 +413,54 @@ function Write-LauncherScript {
   }
 
   $content = @"
-param(
-  [string]`$TargetDir
+@echo off
+setlocal
+chcp 65001 >nul
+
+set "SETTINGS_PATH=$($ClaudeSettingsPath.Replace('"', ''))"
+set "TARGET_DIR=%~1"
+set "NPM_GLOBAL_BIN=%APPDATA%\npm"
+
+echo %PATH% | find /I "%NPM_GLOBAL_BIN%" >nul
+if errorlevel 1 set "PATH=%NPM_GLOBAL_BIN%;%PATH%"
+
+if not "%TARGET_DIR%"=="" if exist "%TARGET_DIR%\" (
+  cd /d "%TARGET_DIR%"
+) else (
+  cd /d "%USERPROFILE%"
 )
 
-  `$settingsPath = '$($ClaudeSettingsPath.Replace("'", "''"))'
+where claude >nul 2>nul
+if errorlevel 1 (
+  echo Cannot find 'claude' command. Run setup installer again.
+  pause
+  exit /b 1
+)
 
-`$npmGlobalBin = Join-Path `$env:APPDATA "npm"
-if (`$env:Path -notlike "*`$npmGlobalBin*") {
-  `$env:Path = "`$npmGlobalBin;`$env:Path"
-}
-
-if (-not (Get-Command claude -ErrorAction SilentlyContinue)) {
-  Write-Host "Cannot find 'claude' command. Run setup installer again." -ForegroundColor Red
-  Read-Host "Press Enter to exit"
-  exit 1
-}
-
-if (`$TargetDir -and (Test-Path -LiteralPath `$TargetDir -PathType Container)) {
-  Set-Location -LiteralPath `$TargetDir
-} else {
-  Set-Location `$HOME
-}
-
-if (Test-Path `$settingsPath) {
-  claude --bare --settings `$settingsPath
-} else {
-  Write-Host "Claude settings file not found. Launching with default config." -ForegroundColor Yellow
+if exist "%SETTINGS_PATH%" (
+  claude --bare --settings "%SETTINGS_PATH%"
+) else (
   claude --bare
-}
+)
+
+endlocal
 "@
 
-  Set-Content -Path $LauncherPath -Value $content -Encoding UTF8
+  [System.IO.File]::WriteAllText($LauncherPath, $content, [System.Text.Encoding]::ASCII)
+}
+
+function Resolve-TerminalLaunchInfo {
+  param(
+    [string]$LauncherPath,
+    [string]$TargetDirPlaceholder
+  )
+
+  $cmdPath = Join-Path $env:SystemRoot "System32\cmd.exe"
+
+  return @{
+    TargetPath = $cmdPath
+    Arguments  = "/k `"`"$LauncherPath`" `"$TargetDirPlaceholder`"`""
+  }
 }
 
 function Resolve-InstallIconLocation {
@@ -500,10 +547,11 @@ function Register-ExplorerContextMenu {
     [string]$IconLocation
   )
 
-  $powerShellPath = Join-Path $env:SystemRoot "System32\WindowsPowerShell\v1.0\powershell.exe"
   $menuText = "Open Claude Code Here"
   $baseBgKey = "HKCU:\Software\Classes\Directory\Background\shell\ClaudeCode"
   $baseDirKey = "HKCU:\Software\Classes\Directory\shell\ClaudeCode"
+  $backgroundLaunch = Resolve-TerminalLaunchInfo -LauncherPath $LauncherPath -TargetDirPlaceholder "%V"
+  $directoryLaunch = Resolve-TerminalLaunchInfo -LauncherPath $LauncherPath -TargetDirPlaceholder "%1"
 
   if (-not (Test-Path $baseBgKey)) {
     New-Item -Path $baseBgKey -Force | Out-Null
@@ -514,7 +562,7 @@ function Register-ExplorerContextMenu {
   if (-not (Test-Path $bgCommandKey)) {
     New-Item -Path $bgCommandKey -Force | Out-Null
   }
-  Set-ItemProperty -Path $bgCommandKey -Name "(Default)" -Value "`"$powerShellPath`" -NoExit -ExecutionPolicy RemoteSigned -File `"$LauncherPath`" -TargetDir `"%V`""
+  Set-ItemProperty -Path $bgCommandKey -Name "(Default)" -Value "`"$($backgroundLaunch.TargetPath)`" $($backgroundLaunch.Arguments)"
 
   if (-not (Test-Path $baseDirKey)) {
     New-Item -Path $baseDirKey -Force | Out-Null
@@ -525,7 +573,7 @@ function Register-ExplorerContextMenu {
   if (-not (Test-Path $dirCommandKey)) {
     New-Item -Path $dirCommandKey -Force | Out-Null
   }
-  Set-ItemProperty -Path $dirCommandKey -Name "(Default)" -Value "`"$powerShellPath`" -NoExit -ExecutionPolicy RemoteSigned -File `"$LauncherPath`" -TargetDir `"%1`""
+  Set-ItemProperty -Path $dirCommandKey -Name "(Default)" -Value "`"$($directoryLaunch.TargetPath)`" $($directoryLaunch.Arguments)"
 }
 
 function Create-DesktopShortcut {
@@ -536,12 +584,12 @@ function Create-DesktopShortcut {
 
   $desktopPath = [Environment]::GetFolderPath("Desktop")
   $shortcutPath = Join-Path $desktopPath "Claude Code.lnk"
-  $powerShellPath = Join-Path $env:SystemRoot "System32\WindowsPowerShell\v1.0\powershell.exe"
+  $launchInfo = Resolve-TerminalLaunchInfo -LauncherPath $LauncherPath -TargetDirPlaceholder $HOME
 
   $wsh = New-Object -ComObject WScript.Shell
   $shortcut = $wsh.CreateShortcut($shortcutPath)
-  $shortcut.TargetPath = $powerShellPath
-  $shortcut.Arguments = "-NoExit -ExecutionPolicy RemoteSigned -File `"$LauncherPath`""
+  $shortcut.TargetPath = $launchInfo.TargetPath
+  $shortcut.Arguments = $launchInfo.Arguments
   $shortcut.WorkingDirectory = $HOME
   $shortcut.WindowStyle = 1
   $shortcut.Description = "Launch Claude Code"
@@ -559,10 +607,10 @@ try {
   Set-InstallProgress -Percent 10 -Status "Preparing user configuration paths..."
   $configDir = Join-Path $env:APPDATA "ClaudeCode"
   $proxyConfigPath = Join-Path $configDir "proxy-config.json"
-  $launcherPath = Join-Path $configDir "launch-claude-code.ps1"
+  $launcherPath = Join-Path $configDir "launch-claude-code.cmd"
   $claudeSettingsPath = Join-Path (Join-Path $HOME ".claude") "settings.json"
   $installerDir = $PSScriptRoot
-  $defaultIconLocation = "$(Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'),0"
+  $defaultIconLocation = "$(Join-Path $env:SystemRoot 'System32\cmd.exe'),0"
   $iconLocation = $defaultIconLocation
 
   Set-InstallProgress -Percent 20 -Status "Loading existing proxy settings..."
