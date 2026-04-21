@@ -372,10 +372,63 @@ claude --bare
 function Resolve-InstallIconLocation {
   param(
     [string]$InstallerDir,
+    [string]$ConfigDir,
     [string]$FallbackIconLocation
   )
 
+  if (-not (Test-Path $ConfigDir)) {
+    New-Item -ItemType Directory -Path $ConfigDir | Out-Null
+  }
+
+  function Convert-PngToIco {
+    param(
+      [string]$PngPath,
+      [string]$IcoPath
+    )
+
+    Add-Type -AssemblyName System.Drawing
+
+    $sourceImage = $null
+    $canvas = $null
+    $graphics = $null
+    $icon = $null
+    $fileStream = $null
+    try {
+      $sourceImage = [System.Drawing.Image]::FromFile($PngPath)
+      $canvas = New-Object System.Drawing.Bitmap(256, 256)
+      $graphics = [System.Drawing.Graphics]::FromImage($canvas)
+      $graphics.Clear([System.Drawing.Color]::Transparent)
+      $graphics.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+      $graphics.DrawImage($sourceImage, 0, 0, 256, 256)
+
+      $hIcon = $canvas.GetHicon()
+      $icon = [System.Drawing.Icon]::FromHandle($hIcon)
+      $fileStream = [System.IO.File]::Open($IcoPath, [System.IO.FileMode]::Create)
+      $icon.Save($fileStream)
+      return $true
+    } catch {
+      Write-Step "PNG to ICO conversion skipped: $($_.Exception.Message)"
+      return $false
+    } finally {
+      if ($fileStream) { $fileStream.Dispose() }
+      if ($icon) { $icon.Dispose() }
+      if ($graphics) { $graphics.Dispose() }
+      if ($canvas) { $canvas.Dispose() }
+      if ($sourceImage) { $sourceImage.Dispose() }
+    }
+  }
+
   if (Test-Path $InstallerDir) {
+    $pngFile = Get-ChildItem -Path $InstallerDir -Filter "*.png" -File |
+      Sort-Object Name |
+      Select-Object -First 1
+    if ($pngFile) {
+      $generatedIcoPath = Join-Path $ConfigDir "launcher-icon.ico"
+      if (Convert-PngToIco -PngPath $pngFile.FullName -IcoPath $generatedIcoPath) {
+        return $generatedIcoPath
+      }
+    }
+
     $icoFile = Get-ChildItem -Path $InstallerDir -Filter "*.ico" -File |
       Sort-Object Name |
       Select-Object -First 1
@@ -462,7 +515,7 @@ try {
   $launcherPath = Join-Path $configDir "launch-claude-code.ps1"
   $installerDir = $PSScriptRoot
   $defaultIconLocation = "$(Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'),0"
-  $iconLocation = Resolve-InstallIconLocation -InstallerDir $installerDir -FallbackIconLocation $defaultIconLocation
+  $iconLocation = $defaultIconLocation
 
   Set-InstallProgress -Percent 20 -Status "Loading existing proxy settings..."
   $defaultUrl = "http://192.168.160.145:8081"
