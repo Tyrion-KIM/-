@@ -132,20 +132,49 @@ function Ensure-NodeAndNpm {
 }
 
 function Ensure-GitInstalled {
+  param(
+    [string]$InstallerDir
+  )
+
   if (Get-Command git -ErrorAction SilentlyContinue) {
     Set-InstallProgress -Percent 38 -Status "Git is already available."
     Write-Step "Git already exists."
     return
   }
 
-  Set-InstallProgress -Percent 38 -Status "Installing Git for Windows with winget..."
-  Write-Step "git not found. Trying to install Git for Windows with winget..."
-  if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
-    throw "winget not found. Please install Git manually, then rerun this script."
+  Set-InstallProgress -Percent 38 -Status "Installing Git for Windows from local installer..."
+  Write-Step "git not found. Installing Git for Windows from local installer..."
+
+  if (-not (Test-Path $InstallerDir)) {
+    throw "Installer directory not found: $InstallerDir"
   }
 
-  & winget install --id Git.Git --source winget --accept-package-agreements --accept-source-agreements --silent
+  $gitInstaller = Get-ChildItem -Path $InstallerDir -Filter "Git-*-64-bit.exe" -File |
+    Sort-Object Name -Descending |
+    Select-Object -First 1
+
+  if (-not $gitInstaller) {
+    $gitInstaller = Get-ChildItem -Path $InstallerDir -Filter "Git-*.exe" -File |
+      Sort-Object Name -Descending |
+      Select-Object -First 1
+  }
+
+  if (-not $gitInstaller) {
+    throw "Git installer exe not found in: $InstallerDir"
+  }
+
+  Write-Step "Using installer: $($gitInstaller.FullName)"
+  & $gitInstaller.FullName /VERYSILENT /NORESTART /NOCANCEL /SP-
+  $installerExitCode = $LASTEXITCODE
+  if ($installerExitCode -ne 0) {
+    throw "Git installer failed with exit code $installerExitCode"
+  }
+
   Refresh-UserPath
+  $gitCmdPath = "C:\Program Files\Git\cmd"
+  if ((Test-Path $gitCmdPath) -and ($env:Path -notlike "*$gitCmdPath*")) {
+    $env:Path = "$gitCmdPath;$env:Path"
+  }
 
   if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
     throw "Git installation finished but git is still unavailable. Restart terminal and rerun script."
@@ -206,6 +235,10 @@ function Write-LauncherScript {
   }
 
   $content = @"
+param(
+  [string]`$TargetDir
+)
+
 `$configPath = '$($ProxyConfigPath.Replace("'", "''"))'
 if (Test-Path `$configPath) {
   try {
@@ -237,35 +270,49 @@ if (-not (Get-Command claude -ErrorAction SilentlyContinue)) {
   exit 1
 }
 
-Set-Location `$HOME
+if (`$TargetDir -and (Test-Path -LiteralPath `$TargetDir -PathType Container)) {
+  Set-Location -LiteralPath `$TargetDir
+} else {
+  Set-Location `$HOME
+}
+
 claude
 "@
 
   Set-Content -Path $LauncherPath -Value $content -Encoding UTF8
 }
 
-function Create-Shortcut {
+function Register-ExplorerContextMenu {
   param(
-    [string]$ShortcutPath,
     [string]$LauncherPath
   )
 
   $powerShellPath = Join-Path $env:SystemRoot "System32\WindowsPowerShell\v1.0\powershell.exe"
-  $shortcutDir = Split-Path -Parent $ShortcutPath
+  $menuText = "Open Claude Code Here"
+  $baseBgKey = "HKCU:\Software\Classes\Directory\Background\shell\ClaudeCode"
+  $baseDirKey = "HKCU:\Software\Classes\Directory\shell\ClaudeCode"
 
-  if (-not (Test-Path $shortcutDir)) {
-    New-Item -ItemType Directory -Path $shortcutDir | Out-Null
+  if (-not (Test-Path $baseBgKey)) {
+    New-Item -Path $baseBgKey -Force | Out-Null
   }
+  Set-ItemProperty -Path $baseBgKey -Name "(Default)" -Value $menuText
+  Set-ItemProperty -Path $baseBgKey -Name "Icon" -Value $powerShellPath
+  $bgCommandKey = Join-Path $baseBgKey "command"
+  if (-not (Test-Path $bgCommandKey)) {
+    New-Item -Path $bgCommandKey -Force | Out-Null
+  }
+  Set-ItemProperty -Path $bgCommandKey -Name "(Default)" -Value "`"$powerShellPath`" -NoExit -ExecutionPolicy RemoteSigned -File `"$LauncherPath`" -TargetDir `"%V`""
 
-  $wsh = New-Object -ComObject WScript.Shell
-  $shortcut = $wsh.CreateShortcut($ShortcutPath)
-  $shortcut.TargetPath = $powerShellPath
-  $shortcut.Arguments = "-NoExit -ExecutionPolicy RemoteSigned -File `"$LauncherPath`""
-  $shortcut.WorkingDirectory = $HOME
-  $shortcut.WindowStyle = 1
-  $shortcut.Description = "Launch Claude Code"
-  $shortcut.IconLocation = "$powerShellPath,0"
-  $shortcut.Save()
+  if (-not (Test-Path $baseDirKey)) {
+    New-Item -Path $baseDirKey -Force | Out-Null
+  }
+  Set-ItemProperty -Path $baseDirKey -Name "(Default)" -Value $menuText
+  Set-ItemProperty -Path $baseDirKey -Name "Icon" -Value $powerShellPath
+  $dirCommandKey = Join-Path $baseDirKey "command"
+  if (-not (Test-Path $dirCommandKey)) {
+    New-Item -Path $dirCommandKey -Force | Out-Null
+  }
+  Set-ItemProperty -Path $dirCommandKey -Name "(Default)" -Value "`"$powerShellPath`" -NoExit -ExecutionPolicy RemoteSigned -File `"$LauncherPath`" -TargetDir `"%1`""
 }
 
 try {
@@ -276,10 +323,7 @@ try {
   $configDir = Join-Path $env:APPDATA "ClaudeCode"
   $proxyConfigPath = Join-Path $configDir "proxy-config.json"
   $launcherPath = Join-Path $configDir "launch-claude-code.ps1"
-  $desktopPath = [Environment]::GetFolderPath("Desktop")
-  $desktopShortcutPath = Join-Path $desktopPath "Claude Code.lnk"
-  $startMenuProgramsPath = Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs"
-  $startMenuShortcutPath = Join-Path $startMenuProgramsPath "Claude Code.lnk"
+  $installerDir = $PSScriptRoot
 
   Set-InstallProgress -Percent 20 -Status "Loading existing proxy settings..."
   $defaultUrl = "http://192.168.160.145:8081"
@@ -310,21 +354,20 @@ try {
   }
 
   Set-InstallProgress -Percent 35 -Status "Checking local Git installation..."
-  Ensure-GitInstalled
+  Ensure-GitInstalled -InstallerDir $installerDir
 
   Set-InstallProgress -Percent 40 -Status "Checking local Claude Code installation..."
   Ensure-ClaudeCodeInstalled | Out-Null
 
-  Set-InstallProgress -Percent 85 -Status "Creating launcher and shortcuts..."
+  Set-InstallProgress -Percent 85 -Status "Creating launcher and Explorer context menu..."
   Write-LauncherScript -LauncherPath $launcherPath -ProxyConfigPath $proxyConfigPath
-  Create-Shortcut -ShortcutPath $desktopShortcutPath -LauncherPath $launcherPath
-  Create-Shortcut -ShortcutPath $startMenuShortcutPath -LauncherPath $launcherPath
+  Register-ExplorerContextMenu -LauncherPath $launcherPath
 
   Set-InstallProgress -Percent 100 -Status "Setup completed."
-  Write-Step "Setup completed. Double click desktop shortcut: Claude Code"
+  Write-Step "Setup completed. Right click any folder background and choose: Open Claude Code Here"
   Write-Host "Proxy config: $proxyConfigPath"
-  Write-Host "Desktop shortcut: $desktopShortcutPath"
-  Write-Host "Start menu shortcut: $startMenuShortcutPath"
+  Write-Host "Launcher script: $launcherPath"
+  Write-Host "Explorer context menu: Open Claude Code Here"
 }
 finally {
   Complete-InstallProgress

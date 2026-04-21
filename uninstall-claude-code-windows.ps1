@@ -43,6 +43,21 @@ function Remove-PathIfExists {
   Write-Step "$Label removed."
 }
 
+function Remove-RegistryKeyIfExists {
+  param(
+    [string]$RegistryPath,
+    [string]$Label
+  )
+
+  if (-not (Test-Path $RegistryPath)) {
+    Write-Step "$Label not found."
+    return
+  }
+
+  Remove-Item -Path $RegistryPath -Recurse -Force
+  Write-Step "$Label removed."
+}
+
 function Refresh-UserPath {
   $machinePath = [Environment]::GetEnvironmentVariable("Path", "Machine")
   $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
@@ -83,14 +98,12 @@ try {
 
   $configDir = Join-Path $env:APPDATA "ClaudeCode"
   $proxyConfigPath = Join-Path $configDir "proxy-config.json"
-  $desktopPath = [Environment]::GetFolderPath("Desktop")
-  $desktopShortcutPath = Join-Path $desktopPath "Claude Code.lnk"
-  $startMenuProgramsPath = Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs"
-  $startMenuShortcutPath = Join-Path $startMenuProgramsPath "Claude Code.lnk"
+  $dirBgContextMenuKey = "HKCU:\Software\Classes\Directory\Background\shell\ClaudeCode"
+  $dirContextMenuKey = "HKCU:\Software\Classes\Directory\shell\ClaudeCode"
 
-  Set-UninstallProgress -Percent 20 -Status "Removing desktop and Start menu shortcuts..."
-  Remove-PathIfExists -Path $desktopShortcutPath -Label "Desktop shortcut"
-  Remove-PathIfExists -Path $startMenuShortcutPath -Label "Start menu shortcut"
+  Set-UninstallProgress -Percent 20 -Status "Removing Explorer context menu entries..."
+  Remove-RegistryKeyIfExists -RegistryPath $dirBgContextMenuKey -Label "Explorer background context menu"
+  Remove-RegistryKeyIfExists -RegistryPath $dirContextMenuKey -Label "Explorer directory context menu"
 
   Uninstall-ClaudeCode
 
