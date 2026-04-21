@@ -8,6 +8,8 @@ function Write-Step {
 
 $script:InstallActivity = "Claude Code Setup"
 $script:InstallStartTime = Get-Date
+$script:ProgressBarWidth = 36
+$script:LastProgressLineLength = 0
 
 function Format-DurationText {
   param(
@@ -44,11 +46,31 @@ function Set-InstallProgress {
     $statusText = "{0} | Elapsed: {1}" -f $Status, (Format-DurationText -TotalSeconds $elapsedSeconds)
   }
 
-  Write-Progress -Activity $script:InstallActivity -Status $statusText -PercentComplete $boundedPercent -SecondsRemaining $secondsRemaining
+  $barWidth = [Math]::Max(10, $script:ProgressBarWidth)
+  $filledCount = [int][Math]::Floor(($boundedPercent / 100.0) * $barWidth)
+  if ($filledCount -gt $barWidth) {
+    $filledCount = $barWidth
+  }
+
+  if ($boundedPercent -ge 100) {
+    $barBody = ("=" * $barWidth)
+  } else {
+    $leftFill = "=" * $filledCount
+    $rightPad = " " * ($barWidth - $filledCount - 1)
+    $barBody = "{0}>{1}" -f $leftFill, $rightPad
+  }
+
+  $line = "`r[{0}] {1,3}% | {2}" -f $barBody, $boundedPercent, $statusText
+  if ($line.Length -lt $script:LastProgressLineLength) {
+    $line = $line + (" " * ($script:LastProgressLineLength - $line.Length))
+  }
+
+  $script:LastProgressLineLength = $line.Length
+  Write-Host -NoNewline $line
 }
 
 function Complete-InstallProgress {
-  Write-Progress -Activity $script:InstallActivity -Completed
+  Write-Host ""
 }
 
 function Refresh-UserPath {
@@ -341,7 +363,7 @@ if (`$TargetDir -and (Test-Path -LiteralPath `$TargetDir -PathType Container)) {
   Set-Location `$HOME
 }
 
-claude
+claude --bare
 "@
 
   Set-Content -Path $LauncherPath -Value $content -Encoding UTF8
