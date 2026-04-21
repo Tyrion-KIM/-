@@ -223,6 +223,42 @@ function Save-ProxyConfig {
   ($Config | ConvertTo-Json -Depth 5) | Set-Content -Path $ConfigPath -Encoding UTF8
 }
 
+function Save-ClaudeSettings {
+  param(
+    [string]$AuthToken
+  )
+
+  if (-not $AuthToken) {
+    return
+  }
+
+  $claudeDir = Join-Path $HOME ".claude"
+  $settingsPath = Join-Path $claudeDir "settings.json"
+
+  if (-not (Test-Path $claudeDir)) {
+    New-Item -ItemType Directory -Path $claudeDir | Out-Null
+  }
+
+  $settings = [ordered]@{
+    env = [ordered]@{
+      ANTHROPIC_BASE_URL                       = "http://192.168.160.145:8081"
+      ANTHROPIC_AUTH_TOKEN                     = $AuthToken
+      CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1"
+      CLAUDE_CODE_ATTRIBUTION_HEADER           = "0"
+      ANTHROPIC_DEFAULT_HAIKU_MODEL            = "glm-5-turbo"
+      ANTHROPIC_DEFAULT_OPUS_MODEL             = "glm-5.1"
+      ANTHROPIC_DEFAULT_SONNET_MODEL           = "glm-5-turbo"
+      ANTHROPIC_SMALL_FAST_MODEL               = "glm-5-turbo"
+      ANTHROPIC_MODEL                          = "glm-5.1"
+      ANTHROPIC_REASONING_MODEL                = "glm-5.1"
+      API_TIMEOUT_MS                           = "3000000"
+    }
+  }
+
+  ($settings | ConvertTo-Json -Depth 5) | Set-Content -Path $settingsPath -Encoding UTF8
+  Write-Step "Claude settings saved to $settingsPath"
+}
+
 function Write-LauncherScript {
   param(
     [string]$LauncherPath,
@@ -348,6 +384,7 @@ try {
       UpdatedBy = $env:USERNAME
       Machine   = $env:COMPUTERNAME
     }
+    Save-ClaudeSettings -AuthToken $proxyInput.ProxyKey
     Write-Step "Proxy settings saved to $proxyConfigPath"
   } else {
     Write-Step "Proxy settings skipped for this run."
