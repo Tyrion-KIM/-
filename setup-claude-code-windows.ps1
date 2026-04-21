@@ -369,9 +369,35 @@ claude --bare
   Set-Content -Path $LauncherPath -Value $content -Encoding UTF8
 }
 
+function Resolve-InstallIconLocation {
+  param(
+    [string]$InstallerDir,
+    [string]$FallbackIconLocation
+  )
+
+  if (Test-Path $InstallerDir) {
+    $icoFile = Get-ChildItem -Path $InstallerDir -Filter "*.ico" -File |
+      Sort-Object Name |
+      Select-Object -First 1
+    if ($icoFile) {
+      return $icoFile.FullName
+    }
+
+    $exeFile = Get-ChildItem -Path $InstallerDir -Filter "*.exe" -File |
+      Sort-Object Name |
+      Select-Object -First 1
+    if ($exeFile) {
+      return "$($exeFile.FullName),0"
+    }
+  }
+
+  return $FallbackIconLocation
+}
+
 function Register-ExplorerContextMenu {
   param(
-    [string]$LauncherPath
+    [string]$LauncherPath,
+    [string]$IconLocation
   )
 
   $powerShellPath = Join-Path $env:SystemRoot "System32\WindowsPowerShell\v1.0\powershell.exe"
@@ -383,7 +409,7 @@ function Register-ExplorerContextMenu {
     New-Item -Path $baseBgKey -Force | Out-Null
   }
   Set-ItemProperty -Path $baseBgKey -Name "(Default)" -Value $menuText
-  Set-ItemProperty -Path $baseBgKey -Name "Icon" -Value $powerShellPath
+  Set-ItemProperty -Path $baseBgKey -Name "Icon" -Value $IconLocation
   $bgCommandKey = Join-Path $baseBgKey "command"
   if (-not (Test-Path $bgCommandKey)) {
     New-Item -Path $bgCommandKey -Force | Out-Null
@@ -394,7 +420,7 @@ function Register-ExplorerContextMenu {
     New-Item -Path $baseDirKey -Force | Out-Null
   }
   Set-ItemProperty -Path $baseDirKey -Name "(Default)" -Value $menuText
-  Set-ItemProperty -Path $baseDirKey -Name "Icon" -Value $powerShellPath
+  Set-ItemProperty -Path $baseDirKey -Name "Icon" -Value $IconLocation
   $dirCommandKey = Join-Path $baseDirKey "command"
   if (-not (Test-Path $dirCommandKey)) {
     New-Item -Path $dirCommandKey -Force | Out-Null
@@ -404,7 +430,8 @@ function Register-ExplorerContextMenu {
 
 function Create-DesktopShortcut {
   param(
-    [string]$LauncherPath
+    [string]$LauncherPath,
+    [string]$IconLocation
   )
 
   $desktopPath = [Environment]::GetFolderPath("Desktop")
@@ -418,7 +445,7 @@ function Create-DesktopShortcut {
   $shortcut.WorkingDirectory = $HOME
   $shortcut.WindowStyle = 1
   $shortcut.Description = "Launch Claude Code"
-  $shortcut.IconLocation = "$powerShellPath,0"
+  $shortcut.IconLocation = $IconLocation
   $shortcut.Save()
 
   Write-Step "Desktop shortcut created: $shortcutPath"
@@ -434,6 +461,8 @@ try {
   $proxyConfigPath = Join-Path $configDir "proxy-config.json"
   $launcherPath = Join-Path $configDir "launch-claude-code.ps1"
   $installerDir = $PSScriptRoot
+  $defaultIconLocation = "$(Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'),0"
+  $iconLocation = Resolve-InstallIconLocation -InstallerDir $installerDir -FallbackIconLocation $defaultIconLocation
 
   Set-InstallProgress -Percent 20 -Status "Loading existing proxy settings..."
   $defaultUrl = "http://192.168.160.145:8081"
@@ -473,15 +502,16 @@ try {
   Set-InstallProgress -Percent 82 -Status "Creating launcher script..."
   Write-LauncherScript -LauncherPath $launcherPath -ProxyConfigPath $proxyConfigPath
   Set-InstallProgress -Percent 88 -Status "Registering Explorer context menu..."
-  Register-ExplorerContextMenu -LauncherPath $launcherPath
+  Register-ExplorerContextMenu -LauncherPath $launcherPath -IconLocation $iconLocation
   Set-InstallProgress -Percent 94 -Status "Creating desktop shortcut..."
-  Create-DesktopShortcut -LauncherPath $launcherPath
+  Create-DesktopShortcut -LauncherPath $launcherPath -IconLocation $iconLocation
 
   Set-InstallProgress -Percent 100 -Status "Setup completed."
   Write-Step "Setup completed. Use desktop shortcut or right click folder and choose: Open Claude Code Here"
   Write-Host "Proxy config: $proxyConfigPath"
   Write-Host "Launcher script: $launcherPath"
   Write-Host "Desktop shortcut: $([Environment]::GetFolderPath('Desktop'))\Claude Code.lnk"
+  Write-Host "Icon source: $iconLocation"
   Write-Host "Explorer context menu: Open Claude Code Here"
 }
 finally {
