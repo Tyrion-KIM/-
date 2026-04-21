@@ -286,8 +286,8 @@ function Ensure-ClaudeCodeInstalled {
   Set-InstallProgress -Percent 65 -Status "Installing Claude Code via npm..."
   Write-Step "Installing Claude Code globally via npm..."
   Write-Step "Claude Code install started. This step may take 1-3 minutes."
-  $npmExecutable = (Get-Command npm -ErrorAction Stop).Source
-  $npmInstallProcess = Start-Process -FilePath $npmExecutable -ArgumentList @("install", "-g", "@anthropic-ai/claude-code") -PassThru
+  $cmdExe = if ($env:ComSpec -and (Test-Path $env:ComSpec)) { $env:ComSpec } else { "cmd.exe" }
+  $npmInstallProcess = Start-Process -FilePath $cmdExe -ArgumentList @("/d", "/c", "npm", "install", "-g", "@anthropic-ai/claude-code") -PassThru
 
   $claudeInstallStartTime = Get-Date
   $tick = 0
@@ -373,7 +373,7 @@ function Save-ClaudeSettings {
 function Write-LauncherScript {
   param(
     [string]$LauncherPath,
-    [string]$ProxyConfigPath
+    [string]$ClaudeSettingsPath
   )
 
   $launcherDir = Split-Path -Parent $LauncherPath
@@ -386,25 +386,7 @@ param(
   [string]`$TargetDir
 )
 
-`$configPath = '$($ProxyConfigPath.Replace("'", "''"))'
-if (Test-Path `$configPath) {
-  try {
-    `$cfg = Get-Content -Raw -Path `$configPath | ConvertFrom-Json
-    if (`$cfg.ProxyUrl) {
-      `$env:HTTP_PROXY = `$cfg.ProxyUrl
-      `$env:HTTPS_PROXY = `$cfg.ProxyUrl
-      `$env:ALL_PROXY = `$cfg.ProxyUrl
-      `$env:ANTHROPIC_BASE_URL = `$cfg.ProxyUrl
-    }
-    if (`$cfg.ProxyKey) {
-      `$env:PROXY_API_KEY = `$cfg.ProxyKey
-      `$env:ANTHROPIC_API_KEY = `$cfg.ProxyKey
-    }
-  } catch {
-    `$errorMessage = `$_.Exception.Message
-    Write-Host ("Failed to load proxy config: {0}" -f `$errorMessage) -ForegroundColor Yellow
-  }
-}
+  `$settingsPath = '$($ClaudeSettingsPath.Replace("'", "''"))'
 
 `$npmGlobalBin = Join-Path `$env:APPDATA "npm"
 if (`$env:Path -notlike "*`$npmGlobalBin*") {
@@ -423,7 +405,12 @@ if (`$TargetDir -and (Test-Path -LiteralPath `$TargetDir -PathType Container)) {
   Set-Location `$HOME
 }
 
-claude --bare
+if (Test-Path `$settingsPath) {
+  claude --bare --settings `$settingsPath
+} else {
+  Write-Host "Claude settings file not found. Launching with default config." -ForegroundColor Yellow
+  claude --bare
+}
 "@
 
   Set-Content -Path $LauncherPath -Value $content -Encoding UTF8
@@ -573,6 +560,7 @@ try {
   $configDir = Join-Path $env:APPDATA "ClaudeCode"
   $proxyConfigPath = Join-Path $configDir "proxy-config.json"
   $launcherPath = Join-Path $configDir "launch-claude-code.ps1"
+  $claudeSettingsPath = Join-Path (Join-Path $HOME ".claude") "settings.json"
   $installerDir = $PSScriptRoot
   $defaultIconLocation = "$(Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'),0"
   $iconLocation = $defaultIconLocation
@@ -613,7 +601,7 @@ try {
   Ensure-ClaudeCodeInstalled | Out-Null
 
   Set-InstallProgress -Percent 82 -Status "Creating launcher script..."
-  Write-LauncherScript -LauncherPath $launcherPath -ProxyConfigPath $proxyConfigPath
+  Write-LauncherScript -LauncherPath $launcherPath -ClaudeSettingsPath $claudeSettingsPath
   Set-InstallProgress -Percent 88 -Status "Registering Explorer context menu..."
   Register-ExplorerContextMenu -LauncherPath $launcherPath -IconLocation $iconLocation
   Set-InstallProgress -Percent 94 -Status "Creating desktop shortcut..."
