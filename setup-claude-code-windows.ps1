@@ -173,7 +173,33 @@ function Ensure-NodeAndNpm {
     throw "winget not found. Please install Node.js manually, then rerun this script."
   }
 
-  & winget install --id OpenJS.NodeJS.LTS --source winget --accept-package-agreements --accept-source-agreements --scope user --silent
+  Write-Step "Node.js installer started. This step may take 1-3 minutes."
+  $wingetProcess = Start-Process -FilePath "winget" -ArgumentList @(
+    "install",
+    "--id", "OpenJS.NodeJS.LTS",
+    "--source", "winget",
+    "--accept-package-agreements",
+    "--accept-source-agreements",
+    "--scope", "user",
+    "--silent"
+  ) -PassThru
+
+  $nodeInstallStartTime = Get-Date
+  $tick = 0
+  while (-not $wingetProcess.HasExited) {
+    $elapsed = Format-DurationText -TotalSeconds ([int]((Get-Date) - $nodeInstallStartTime).TotalSeconds)
+    $dotCount = ($tick % 3) + 1
+    $dots = "." * $dotCount
+    Set-InstallProgress -Percent 47 -Status "Installing Node.js LTS$dots (elapsed: $elapsed)"
+    $null = $wingetProcess.WaitForExit(1500)
+    $tick++
+  }
+
+  if ($wingetProcess.ExitCode -ne 0) {
+    throw "winget install for Node.js exited with code $($wingetProcess.ExitCode)."
+  }
+
+  Set-InstallProgress -Percent 52 -Status "Node.js installation finished. Refreshing PATH..."
   Refresh-UserPath
 
   Set-InstallProgress -Percent 55 -Status "Validating npm after Node.js installation..."
@@ -215,11 +241,26 @@ function Ensure-GitInstalled {
   }
 
   Write-Step "Using installer: $($gitInstaller.FullName)"
-  & $gitInstaller.FullName /VERYSILENT /NORESTART /NOCANCEL /SP-
-  $installerExitCode = $LASTEXITCODE
+  Write-Step "Git installer started. This step may take 1-3 minutes."
+  $installProcess = Start-Process -FilePath $gitInstaller.FullName -ArgumentList @('/VERYSILENT', '/NORESTART', '/NOCANCEL', '/SP-') -PassThru
+
+  $gitInstallStartTime = Get-Date
+  $tick = 0
+  while (-not $installProcess.HasExited) {
+    $elapsed = Format-DurationText -TotalSeconds ([int]((Get-Date) - $gitInstallStartTime).TotalSeconds)
+    $dotCount = ($tick % 3) + 1
+    $dots = "." * $dotCount
+    Set-InstallProgress -Percent 38 -Status "Installing Git for Windows$dots (elapsed: $elapsed)"
+    $null = $installProcess.WaitForExit(1500)
+    $tick++
+  }
+
+  $installerExitCode = $installProcess.ExitCode
   if ($installerExitCode -ne 0) {
     throw "Git installer failed with exit code $installerExitCode"
   }
+
+  Set-InstallProgress -Percent 39 -Status "Git installer finished. Validating git command..."
 
   Refresh-UserPath
   $gitCmdPath = "C:\Program Files\Git\cmd"
@@ -244,7 +285,26 @@ function Ensure-ClaudeCodeInstalled {
 
   Set-InstallProgress -Percent 65 -Status "Installing Claude Code via npm..."
   Write-Step "Installing Claude Code globally via npm..."
-  & npm install -g @anthropic-ai/claude-code
+  Write-Step "Claude Code install started. This step may take 1-3 minutes."
+  $npmExecutable = (Get-Command npm -ErrorAction Stop).Source
+  $npmInstallProcess = Start-Process -FilePath $npmExecutable -ArgumentList @("install", "-g", "@anthropic-ai/claude-code") -PassThru
+
+  $claudeInstallStartTime = Get-Date
+  $tick = 0
+  while (-not $npmInstallProcess.HasExited) {
+    $elapsed = Format-DurationText -TotalSeconds ([int]((Get-Date) - $claudeInstallStartTime).TotalSeconds)
+    $dotCount = ($tick % 3) + 1
+    $dots = "." * $dotCount
+    Set-InstallProgress -Percent 68 -Status "Installing Claude Code$dots (elapsed: $elapsed)"
+    $null = $npmInstallProcess.WaitForExit(1500)
+    $tick++
+  }
+
+  if ($npmInstallProcess.ExitCode -ne 0) {
+    throw "npm install for Claude Code exited with code $($npmInstallProcess.ExitCode)."
+  }
+
+  Set-InstallProgress -Percent 72 -Status "Claude Code package installed. Updating PATH..."
 
   $npmGlobalBin = Join-Path $env:APPDATA "npm"
   if ($env:Path -notlike "*$npmGlobalBin*") {
