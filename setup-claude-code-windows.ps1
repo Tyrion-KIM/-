@@ -7,6 +7,23 @@ function Write-Step {
 }
 
 $script:InstallActivity = "Claude Code Setup"
+$script:InstallStartTime = Get-Date
+
+function Format-DurationText {
+  param(
+    [int]$TotalSeconds
+  )
+
+  $safeSeconds = [Math]::Max(0, $TotalSeconds)
+  $ts = [TimeSpan]::FromSeconds($safeSeconds)
+  if ($ts.TotalHours -ge 1) {
+    return "{0}h {1}m {2}s" -f [int]$ts.TotalHours, $ts.Minutes, $ts.Seconds
+  }
+  if ($ts.TotalMinutes -ge 1) {
+    return "{0}m {1}s" -f [int]$ts.TotalMinutes, $ts.Seconds
+  }
+  return "{0}s" -f $ts.Seconds
+}
 
 function Set-InstallProgress {
   param(
@@ -15,7 +32,19 @@ function Set-InstallProgress {
   )
 
   $boundedPercent = [Math]::Max(0, [Math]::Min($Percent, 100))
-  Write-Progress -Activity $script:InstallActivity -Status $Status -PercentComplete $boundedPercent
+  $elapsedSeconds = [Math]::Max(0, [int]((Get-Date) - $script:InstallStartTime).TotalSeconds)
+  $secondsRemaining = -1
+  $statusText = $Status
+
+  if ($boundedPercent -gt 0 -and $boundedPercent -lt 100 -and $elapsedSeconds -gt 0) {
+    $estimatedTotalSeconds = [int][Math]::Ceiling(($elapsedSeconds * 100.0) / $boundedPercent)
+    $secondsRemaining = [Math]::Max(0, $estimatedTotalSeconds - $elapsedSeconds)
+    $statusText = "{0} | ETA: {1}" -f $Status, (Format-DurationText -TotalSeconds $secondsRemaining)
+  } elseif ($boundedPercent -eq 100) {
+    $statusText = "{0} | Elapsed: {1}" -f $Status, (Format-DurationText -TotalSeconds $elapsedSeconds)
+  }
+
+  Write-Progress -Activity $script:InstallActivity -Status $statusText -PercentComplete $boundedPercent -SecondsRemaining $secondsRemaining
 }
 
 function Complete-InstallProgress {
@@ -351,7 +380,30 @@ function Register-ExplorerContextMenu {
   Set-ItemProperty -Path $dirCommandKey -Name "(Default)" -Value "`"$powerShellPath`" -NoExit -ExecutionPolicy RemoteSigned -File `"$LauncherPath`" -TargetDir `"%1`""
 }
 
+function Create-DesktopShortcut {
+  param(
+    [string]$LauncherPath
+  )
+
+  $desktopPath = [Environment]::GetFolderPath("Desktop")
+  $shortcutPath = Join-Path $desktopPath "Claude Code.lnk"
+  $powerShellPath = Join-Path $env:SystemRoot "System32\WindowsPowerShell\v1.0\powershell.exe"
+
+  $wsh = New-Object -ComObject WScript.Shell
+  $shortcut = $wsh.CreateShortcut($shortcutPath)
+  $shortcut.TargetPath = $powerShellPath
+  $shortcut.Arguments = "-NoExit -ExecutionPolicy RemoteSigned -File `"$LauncherPath`""
+  $shortcut.WorkingDirectory = $HOME
+  $shortcut.WindowStyle = 1
+  $shortcut.Description = "Launch Claude Code"
+  $shortcut.IconLocation = "$powerShellPath,0"
+  $shortcut.Save()
+
+  Write-Step "Desktop shortcut created: $shortcutPath"
+}
+
 try {
+  $script:InstallStartTime = Get-Date
   Set-InstallProgress -Percent 5 -Status "Starting setup..."
   Write-Step "Starting Claude Code setup for Windows..."
 
@@ -396,14 +448,18 @@ try {
   Set-InstallProgress -Percent 40 -Status "Checking local Claude Code installation..."
   Ensure-ClaudeCodeInstalled | Out-Null
 
-  Set-InstallProgress -Percent 85 -Status "Creating launcher and Explorer context menu..."
+  Set-InstallProgress -Percent 82 -Status "Creating launcher script..."
   Write-LauncherScript -LauncherPath $launcherPath -ProxyConfigPath $proxyConfigPath
+  Set-InstallProgress -Percent 88 -Status "Registering Explorer context menu..."
   Register-ExplorerContextMenu -LauncherPath $launcherPath
+  Set-InstallProgress -Percent 94 -Status "Creating desktop shortcut..."
+  Create-DesktopShortcut -LauncherPath $launcherPath
 
   Set-InstallProgress -Percent 100 -Status "Setup completed."
-  Write-Step "Setup completed. Right click any folder background and choose: Open Claude Code Here"
+  Write-Step "Setup completed. Use desktop shortcut or right click folder and choose: Open Claude Code Here"
   Write-Host "Proxy config: $proxyConfigPath"
   Write-Host "Launcher script: $launcherPath"
+  Write-Host "Desktop shortcut: $([Environment]::GetFolderPath('Desktop'))\Claude Code.lnk"
   Write-Host "Explorer context menu: Open Claude Code Here"
 }
 finally {

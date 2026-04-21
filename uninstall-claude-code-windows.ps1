@@ -98,10 +98,13 @@ try {
 
   $configDir = Join-Path $env:APPDATA "ClaudeCode"
   $proxyConfigPath = Join-Path $configDir "proxy-config.json"
+  $desktopPath = [Environment]::GetFolderPath("Desktop")
+  $desktopShortcutPath = Join-Path $desktopPath "Claude Code.lnk"
   $dirBgContextMenuKey = "HKCU:\Software\Classes\Directory\Background\shell\ClaudeCode"
   $dirContextMenuKey = "HKCU:\Software\Classes\Directory\shell\ClaudeCode"
 
-  Set-UninstallProgress -Percent 20 -Status "Removing Explorer context menu entries..."
+  Set-UninstallProgress -Percent 20 -Status "Removing desktop shortcut and Explorer context menu entries..."
+  Remove-PathIfExists -Path $desktopShortcutPath -Label "Desktop shortcut"
   Remove-RegistryKeyIfExists -RegistryPath $dirBgContextMenuKey -Label "Explorer background context menu"
   Remove-RegistryKeyIfExists -RegistryPath $dirContextMenuKey -Label "Explorer directory context menu"
 
