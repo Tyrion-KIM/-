@@ -178,7 +178,7 @@ def test_load_valid_config(tmp_path):
     assert cfg.filter.long_tail_threshold == 50
 
 def test_missing_apikey_raises(tmp_path):
-    bad = VALID.replace("api_key: abc123\n", "")
+    bad = VALID.replace("  api_key: abc123\n", "")
     import pytest
     with pytest.raises(ValueError):
         load_config(write(tmp_path, bad))
