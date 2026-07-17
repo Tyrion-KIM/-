@@ -1,0 +1,18 @@
+yorky:
+  base_url: https://api.56yorky.com
+  api_key: REPLACE_WITH_YOUR_APIKEY
+  page_size: 100
+  page_sleep_seconds: 2
+
+dingtalk:
+  webhook: https://oapi.dingtalk.com/robot/send?access_token=REPLACE
+  secret: REPLACE_WITH_YOUR_SECRET
+  backend_url: https://www.56yorky.com
+
+filter:
+  exclude_track_status: [2]
+  exclude_delivery_status: ["C"]
+  long_tail_threshold: 50
+
+logging:
+  dir: logs
