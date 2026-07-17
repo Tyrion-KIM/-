@@ -23,3 +23,34 @@ def build_signed_webhook(webhook: str, secret: str, timestamp: int) -> str:
     sign = sign_dingtalk(secret, timestamp)
     sep = "&" if "?" in webhook else "?"
     return f"{webhook}{sep}timestamp={timestamp}&sign={sign}"
+
+
+def send_action_card(webhook: str, secret: str, title: str, markdown: str,
+                     btn_title: str, btn_url: str, timeout: int = 10,
+                     retries: int = 2, now_ms: int | None = None,
+                     poster=requests, sleeper=time.sleep) -> bool:
+    """推送 ActionCard。成功（errcode==0）返回 True；耗尽重试返回 False。"""
+    ts = now_ms if now_ms is not None else int(time.time() * 1000)
+    url = build_signed_webhook(webhook, secret, ts)
+    payload = {
+        "msgtype": "actionCard",
+        "actionCard": {
+            "title": title,
+            "text": markdown,
+            "btnOrientation": "0",
+            "btns": [{"title": btn_title, "actionURL": btn_url}],
+        },
+    }
+    attempts = retries + 1
+    for i in range(attempts):
+        try:
+            resp = poster.post(url, json=payload, timeout=timeout)
+            data = resp.json()
+            if data.get("errcode") == 0:
+                return True
+        except Exception:
+            pass
+        if i < attempts - 1:
+            sleeper(1)
+    return False
+
