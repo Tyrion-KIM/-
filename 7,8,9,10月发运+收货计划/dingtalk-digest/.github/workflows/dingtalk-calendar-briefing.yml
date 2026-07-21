@@ -1,0 +1,24 @@
+name: 钉钉晚报（明日行程）
+
+on:
+  schedule:
+    # 北京时间 18:04，工作日
+    - cron: '4 10 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  send-calendar-briefing:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run calendar briefing
+        env:
+          DINGTALK_CALENDAR_MCP_URL: ${{ secrets.DINGTALK_CALENDAR_MCP_URL }}
+          DINGTALK_ROBOT_WEBHOOK: ${{ secrets.DINGTALK_ROBOT_WEBHOOK }}
+          DINGTALK_ROBOT_SECRET: ${{ secrets.DINGTALK_ROBOT_SECRET }}
+        run: python dingtalk_calendar_briefing.py

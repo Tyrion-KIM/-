@@ -1,0 +1,26 @@
+name: 钉钉周报（团队任务）
+
+on:
+  schedule:
+    # 北京时间周一 10:30
+    - cron: '30 2 * * 1'
+  workflow_dispatch:
+
+jobs:
+  send-task-weekly:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run task weekly
+        env:
+          DINGTALK_TABLE_MCP_URL: ${{ secrets.DINGTALK_TABLE_MCP_URL }}
+          DINGTALK_BASE_ID: ${{ secrets.DINGTALK_BASE_ID }}
+          DINGTALK_TABLE_ID: ${{ secrets.DINGTALK_TABLE_ID }}
+          DINGTALK_ROBOT_WEBHOOK: ${{ secrets.DINGTALK_ROBOT_WEBHOOK }}
+          DINGTALK_ROBOT_SECRET: ${{ secrets.DINGTALK_ROBOT_SECRET }}
+        run: python dingtalk_task_weekly.py

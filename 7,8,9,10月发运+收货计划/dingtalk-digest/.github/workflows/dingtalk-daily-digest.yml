@@ -1,0 +1,24 @@
+name: 钉钉早报（待办日报）
+
+on:
+  schedule:
+    # 北京时间 10:07，工作日
+    - cron: '7 2 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  send-daily-digest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run daily digest
+        env:
+          DINGTALK_MCP_URL: ${{ secrets.DINGTALK_MCP_URL }}
+          DINGTALK_ROBOT_WEBHOOK: ${{ secrets.DINGTALK_ROBOT_WEBHOOK }}
+          DINGTALK_ROBOT_SECRET: ${{ secrets.DINGTALK_ROBOT_SECRET }}
+        run: python dingtalk_daily_digest.py
