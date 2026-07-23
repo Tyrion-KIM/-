@@ -5,5 +5,7 @@
   "base_id": "<你的AI表格BaseID>",
   "table_id": "<你的AI表格TableID>",
   "robot_webhook": "https://oapi.dingtalk.com/robot/send?access_token=<你的机器人token>",
-  "robot_secret": "SEC<你的加签密钥>"
+  "robot_secret": "SEC<你的加签密钥>",
+  "feishu_app_id": "<飞书应用的App ID>",
+  "feishu_app_secret": "<飞书应用的App Secret>"
 }

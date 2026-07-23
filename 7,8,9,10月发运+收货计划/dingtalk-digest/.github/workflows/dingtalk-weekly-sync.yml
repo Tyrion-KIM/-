@@ -2,7 +2,7 @@ name: 物流周会信息同步
 
 on:
   schedule:
-    # 北京时间周三 18:00
+    # 北京时间周三 18:00（对应 UTC 10:00）
     - cron: '0 10 * * 3'
   workflow_dispatch:
 
@@ -23,4 +23,6 @@ jobs:
         env:
           DINGTALK_ROBOT_WEBHOOK: ${{ secrets.DINGTALK_ROBOT_WEBHOOK }}
           DINGTALK_ROBOT_SECRET: ${{ secrets.DINGTALK_ROBOT_SECRET }}
+          FEISHU_APP_ID: ${{ secrets.FEISHU_APP_ID }}
+          FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
         run: python dingtalk_weekly_sync.py
