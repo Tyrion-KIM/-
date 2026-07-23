@@ -10,7 +10,8 @@ jobs:
   send-daily-digest:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    permissions: contents: read
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 

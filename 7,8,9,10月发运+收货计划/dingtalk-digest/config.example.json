@@ -1,0 +1,9 @@
+{
+  "mcp_url": "https://mcp-gw.dingtalk.com/server/<你的待办MCP网关>?key=<key>",
+  "calendar_mcp_url": "https://mcp-gw.dingtalk.com/server/<你的日历MCP网关>?key=<key>",
+  "table_mcp_url": "https://mcp-gw.dingtalk.com/server/<你的AI表格MCP网关>?key=<key>",
+  "base_id": "<你的AI表格BaseID>",
+  "table_id": "<你的AI表格TableID>",
+  "robot_webhook": "https://oapi.dingtalk.com/robot/send?access_token=<你的机器人token>",
+  "robot_secret": "SEC<你的加签密钥>"
+}
