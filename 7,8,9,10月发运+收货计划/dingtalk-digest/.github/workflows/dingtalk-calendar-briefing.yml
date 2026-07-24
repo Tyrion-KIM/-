@@ -24,4 +24,4 @@ jobs:
           DINGTALK_CALENDAR_MCP_URL: ${{ secrets.DINGTALK_CALENDAR_MCP_URL }}
           DINGTALK_ROBOT_WEBHOOK: ${{ secrets.DINGTALK_ROBOT_WEBHOOK }}
           DINGTALK_ROBOT_SECRET: ${{ secrets.DINGTALK_ROBOT_SECRET }}
-        run: python dingtalk_calendar_briefing.py
+        run: cd "7,8,9,10月发运+收货计划/dingtalk-digest" && python dingtalk_calendar_briefing.py

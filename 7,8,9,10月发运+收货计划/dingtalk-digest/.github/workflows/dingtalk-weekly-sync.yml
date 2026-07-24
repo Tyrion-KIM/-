@@ -25,4 +25,4 @@ jobs:
           DINGTALK_ROBOT_SECRET: ${{ secrets.DINGTALK_ROBOT_SECRET }}
           FEISHU_APP_ID: ${{ secrets.FEISHU_APP_ID }}
           FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
-        run: python dingtalk_weekly_sync.py
+        run: cd "7,8,9,10月发运+收货计划/dingtalk-digest" && python dingtalk_weekly_sync.py
