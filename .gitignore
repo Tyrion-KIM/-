@@ -1,0 +1,22 @@
+# 敏感凭证
+*飞书ID*
+*credentials*
+*.pem
+*.key
+
+# 截图和临时文件
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.log
+~$*
+
+# 系统文件
+desktop.ini
+Thumbs.db
+
+# 敏感配置（各子项目自行管理）
+*/config.json
+*/user_map.json
