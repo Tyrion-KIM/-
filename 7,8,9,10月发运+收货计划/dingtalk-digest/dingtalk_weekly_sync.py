@@ -400,17 +400,26 @@ def main():
         return 0
 
     print("\n[1/2] 创建飞书文档 ...")
+    print("      [DEBUG] 尝试获取飞书 token ...")
+    _cfg = load_config()
+    _app_id = os.environ.get("FEISHU_APP_ID") or _cfg.get("feishu_app_id", "")
+    _app_secret = os.environ.get("FEISHU_APP_SECRET") or _cfg.get("feishu_app_secret", "")
+    print(f"      [DEBUG] app_id={'已设置' if _app_id else '为空'}, app_secret={'已设置' if _app_secret else '为空'}")
+    print(f"      [DEBUG] 开始构建 blocks ...")
     try:
         blocks = build_blocks(meeting_date)
-        print(f"      生成 {len(blocks)} 个 blocks")
+        print(f"      [DEBUG] blocks 构建完成，共 {len(blocks)} 个")
     except Exception as e:
         print(f"      [ERROR] build_blocks 失败: {type(e).__name__}: {e}", flush=True)
+        import traceback; traceback.print_exc()
         raise
+    print("      [DEBUG] 调用飞书 API 创建文档 ...")
     try:
         doc_url, doc_id = create_feishu_doc(title, blocks)
-        print(f"      文档已创建: {doc_url}")
+        print(f"      [DEBUG] doc_id={doc_id}, 文档已创建: {doc_url}")
     except Exception as e:
         print(f"      [ERROR] create_feishu_doc 失败: {type(e).__name__}: {e}", flush=True)
+        import traceback; traceback.print_exc()
         raise
 
     print("\n[2/2] 发送文档链接到钉钉机器人 ...")
