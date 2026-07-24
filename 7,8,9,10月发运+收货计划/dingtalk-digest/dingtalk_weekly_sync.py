@@ -400,17 +400,25 @@ def main():
         return 0
 
     print("\n[1/2] 创建飞书文档 ...")
-    blocks = build_blocks(meeting_date)
-    print(f"      生成 {len(blocks)} 个 blocks")
-    doc_url, doc_id = create_feishu_doc(title, blocks)
-    print(f"      文档已创建: {doc_url}")
+    try:
+        blocks = build_blocks(meeting_date)
+        print(f"      生成 {len(blocks)} 个 blocks")
+    except Exception as e:
+        print(f"      [ERROR] build_blocks 失败: {type(e).__name__}: {e}", flush=True)
+        raise
+    try:
+        doc_url, doc_id = create_feishu_doc(title, blocks)
+        print(f"      文档已创建: {doc_url}")
+    except Exception as e:
+        print(f"      [ERROR] create_feishu_doc 失败: {type(e).__name__}: {e}", flush=True)
+        raise
 
     print("\n[2/2] 发送文档链接到钉钉机器人 ...")
     robot_md = (
         f"## 📋 物流团队周会信息同步\n\n"
         f"**会议时间**：{meeting_date.month}月{meeting_date.day}日（周四）\n"
         f"**本月第 {week_num} 周**\n\n"
-        f"👉 [点击查看并填写周会文档]({doc_url})\n\n"
+        f"📄 [点击查看并填写周会文档]({doc_url})\n\n"
         f"> 请各负责人在会前 1 小时完成本模块内容，会议时逐项过堂。"
     )
     result = send_via_robot(cfg["robot_webhook"], cfg["robot_secret"], title, robot_md)
