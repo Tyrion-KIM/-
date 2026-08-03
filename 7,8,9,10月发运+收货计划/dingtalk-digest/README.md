@@ -11,7 +11,7 @@
 | 早报 | `dingtalk_daily_digest.py` | 工作日 10:07 | 今日到期 + 近7天逾期的未完成待办 |
 | 晚报 | `dingtalk_calendar_briefing.py` | 工作日 18:04 | 明天日历里的所有行程 |
 | 周报 | `dingtalk_task_weekly.py` | 周一 10:30 | AI表格未完成任务，按负责人分组+截止天数 |
-| 周会文档 | `dingtalk_weekly_sync.py` | 周三 18:00 | 飞书在线文档（含上周闭环、5模块维度表、异常/重点事项） |
+| 周会文档 | `dingtalk_weekly_sync.py` | 周三 18:00 | 周会信息同步模板（上周闭环 + 5 模块维度表 + 异常/重点），钉钉机器人推送；本地装有 dws 时额外创建在线文档 |
 
 ---
 
@@ -40,11 +40,6 @@
 打开你的团队任务表，复制 URL：
 `https://ai.dingtalk.com/aiHome#/data/app/<这里填 base_id>/table/<这里填 table_id>`
 
-**4. 飞书应用凭证（仅周会文档需要）**
-
-在飞书开放平台 → 你的应用 → 凭证与基础信息，获取 App ID 和 App Secret。
-需确保应用已开通 `docs:document:import` 或 `drive:drive` 权限。
-
 ### 第二步：填写配置文件
 
 ```bash
@@ -62,9 +57,7 @@ cp user_map.example.json user_map.json
   "base_id": "<AI表格的base_id>",
   "table_id": "<AI表格的table_id>",
   "robot_webhook": "https://oapi.dingtalk.com/robot/send?access_token=<你的机器人token>",
-  "robot_secret": "SEC<你的加签密钥>",
-  "feishu_app_id": "<飞书App ID>",
-  "feishu_app_secret": "<飞书App Secret>"
+  "robot_secret": "SEC<你的加签密钥>"
 }
 ```
 
@@ -131,7 +124,7 @@ Register-ScheduledTask -TaskName "钉钉周报" -Trigger $trigger3 -Action $acti
 # ===== 周会文档 - 周三 18:00 =====
 $action4 = New-ScheduledTaskAction -Execute "python" -Argument "dingtalk_weekly_sync.py" -WorkingDirectory "C:\你的路径\dingtalk-digest"
 $trigger4 = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Wednesday -At "18:00"
-Register-ScheduledTask -TaskName "物流周会文档" -Trigger $trigger4 -Action $action4 -Description "周三18:00发送物流周会飞书文档链接"
+Register-ScheduledTask -TaskName "物流周会文档" -Trigger $trigger4 -Action $action4 -Description "周三18:00发送物流周会信息同步模板"
 ```
 
 > 把 `C:\你的路径\` 替换为你解压本工具的实际路径。
@@ -150,7 +143,7 @@ dingtalk-digest/
 ├── dingtalk_daily_digest.py        # 早报：今日到期 + 近7天逾期待办
 ├── dingtalk_calendar_briefing.py   # 晚报：明日日历行程
 ├── dingtalk_task_weekly.py         # 周报：AI表格未完成任务汇总
-├── dingtalk_weekly_sync.py         # 周会文档：飞书在线文档 + 钉钉链接
+├── dingtalk_weekly_sync.py         # 周会文档：周会模板（机器人推送；本地有 dws 时另建在线文档）
 └── .github/workflows/              # GitHub Actions 配置
     ├── dingtalk-daily-digest.yml
     ├── dingtalk-calendar-briefing.yml
@@ -185,8 +178,8 @@ A: 检查 Windows 任务计划程序中该任务的上次运行结果，确保 P
 **Q: 团队里每个人都用这个工具，推送会不会重复？**
 A: 不会。因为每个人的 `robot_webhook` 是独立的，各自推送到自己的群。不会互相干扰。
 
-**Q: 周会文档创建失败**
-A: 确认飞书应用已开通 `docs:document:import` 或 `drive:drive` 权限，且飞书凭证（App ID + App Secret）配置正确。
+**Q: 周会没有创建在线文档，只发了模板**
+A: 在线文档由本地 dws CLI 创建（需已安装并登录钉钉）；CI 环境没有 dws，会自动改为把完整模板直接推送到机器人。如需在线文档，在本地运行 `python dingtalk_weekly_sync.py` 即可。
 
 ---
 
@@ -205,7 +198,7 @@ git push -u origin master
 
 ### 第二步：配置 Secrets
 
-在仓库页面 → Settings → Secrets and variables → Actions，添加以下 9 个 Secret：
+在仓库页面 → Settings → Secrets and variables → Actions，添加以下 7 个 Secret：
 
 | Secret 名 | 来源 |
 |-----------|------|
@@ -216,8 +209,6 @@ git push -u origin master
 | `DINGTALK_TABLE_ID` | 来自 config.json 的 `table_id` |
 | `DINGTALK_ROBOT_WEBHOOK` | 来自 config.json 的 `robot_webhook` |
 | `DINGTALK_ROBOT_SECRET` | 来自 config.json 的 `robot_secret` |
-| `FEISHU_APP_ID` | 来自飞书开放平台的 App ID |
-| `FEISHU_APP_SECRET` | 来自飞书开放平台的 App Secret |
 
 ### 第三步：验证
 
@@ -230,6 +221,6 @@ git push -u origin master
 | 钉钉早报 | 工作日 10:07 | 自动 |
 | 钉钉晚报 | 工作日 18:04 | 自动 |
 | 钉钉周报 | 周一 10:30 | 自动 |
-| 物流周会文档 | 周三 18:00 | 自动（飞书文档 + 钉钉链接） |
+| 物流周会文档 | 周三 18:00 | 自动（机器人推送模板） |
 
 也可以手动触发（workflow_dispatch）：仓库 → Actions → 选择 workflow → Run workflow。

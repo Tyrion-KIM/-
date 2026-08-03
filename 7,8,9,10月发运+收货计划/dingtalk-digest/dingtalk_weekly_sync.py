@@ -3,19 +3,21 @@
 """
 物流团队周会信息同步推送
 
-每周三 18:00 生成周会信息文档（飞书在线文档），通过钉钉机器人发送链接。
-文档内容通过飞书 Blocks API 构建，支持 text/heading/bullet/divider 四种块类型。
+每周三 18:00 生成「物流团队周会信息同步」模板，通过钉钉机器人推送：
+- 若本地已安装 dws CLI：额外创建一份钉钉在线文档，消息里附带文档链接。
+- CI 环境通常没有 dws：直接把完整模板推送到机器人，便于查看与复制。
+模板内容（Markdown）由 build_markdown 生成；在线文档通过 dws doc CLI 写入。
 
 用法：
     python dingtalk_weekly_sync.py --dry-run   # 只预览，不发消息
-    python dingtalk_weekly_sync.py             # 正式创建文档并发送链接
+    python dingtalk_weekly_sync.py             # 正式推送（有 dws 则同时建文档）
 """
 
 import argparse
 import json
 import os
-import urllib.error
-import urllib.request
+import subprocess
+import tempfile
 from datetime import date, timedelta
 
 from dingtalk_common import send_via_robot, load_config, setup_utf8_console
@@ -39,337 +41,229 @@ def week_of_month(d):
 
 
 # ---------------------------------------------------------------------------
-# 飞书 API
+# dws doc CLI 封装
 # ---------------------------------------------------------------------------
 
-def get_feishu_token(app_id, app_secret):
-    """通过 App ID + App Secret 获取 tenant_access_token。"""
-    url = "https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal"
-    payload = json.dumps({"app_id": app_id, "app_secret": app_secret}).encode("utf-8")
-    req = urllib.request.Request(url, data=payload, headers={"Content-Type": "application/json"}, method="POST")
+def _extract_json(text):
+    """
+    从 dws 输出里提取 JSON 对象。
+    dws 可能带 [INFO] 日志行，且 --format json 返回美化过的多行 JSON，
+    因此不能简单逐行 json.loads。按 整体 → 首尾大括号切片 → 逐行 依次尝试。
+    """
+    if not text:
+        return None
+    # 1. 整体解析
     try:
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            result = json.loads(resp.read().decode("utf-8"))
-    except urllib.error.HTTPError as e:
-        detail = e.read().decode("utf-8", errors="replace")
-        raise RuntimeError(f"飞书 token API HTTP {e.code}: {detail}") from e
-    if result.get("code") != 0:
-        raise RuntimeError(f"飞书 token 获取失败: {result}")
-    token = result.get("tenant_access_token", "")
-    if not token:
-        raise RuntimeError("飞书 token 为空")
-    return token
+        return json.loads(text)
+    except (ValueError, json.JSONDecodeError):
+        pass
+    # 2. 取首个 { 到末个 } 的切片（剥离前面的 [INFO] 日志行）
+    start = text.find("{")
+    end = text.rfind("}")
+    if start != -1 and end > start:
+        try:
+            return json.loads(text[start:end + 1])
+        except (ValueError, json.JSONDecodeError):
+            pass
+    # 3. 逐行解析（兼容历史单行 JSON 输出）
+    for line in text.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            return json.loads(line)
+        except (ValueError, json.JSONDecodeError):
+            continue
+    return None
 
 
-def feishu_api(method, path, token, payload=None):
-    """通用飞书 API 请求。"""
-    url = f"https://open.feishu.cn{path}"
-    data = json.dumps(payload, ensure_ascii=False).encode("utf-8") if payload else None
-    req = urllib.request.Request(
-        url, data=data,
-        headers={"Content-Type": "application/json", "Authorization": f"Bearer {token}"},
-        method=method,
+def run_dws(args, timeout=60):
+    """
+    调用 dws 命令，返回 parsed JSON。
+    args: list of str, e.g. ["doc", "create", "--name", "xxx"]
+    """
+    cmd = ["dws"] + args + ["--format", "json"]
+    # Windows 默认按 GBK 解码子进程输出，dws 返回 UTF-8（含中文）会解码失败导致 stdout=None，
+    # 显式指定 UTF-8 + replace 兜底。
+    result = subprocess.run(
+        cmd, capture_output=True, text=True, encoding="utf-8", errors="replace",
+        timeout=timeout,
     )
+    stdout = (result.stdout or "").strip()
+    stderr = (result.stderr or "").strip()
+
+    parsed = _extract_json(stdout)
+    if parsed is not None:
+        return parsed
+
+    # 无 JSON 输出
+    if stderr:
+        raise RuntimeError(f"dws 命令执行失败: {stderr[:500]}")
+    raise RuntimeError(f"dws 命令无有效输出: {stdout[:200]}")
+
+
+def create_dingtalk_doc(title, markdown_content):
+    """
+    通过 dws doc create 创建钉钉在线文档，写入 Markdown 内容。
+    返回文档 nodeId 和访问 URL。
+    """
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".md", encoding="utf-8", delete=False
+    ) as f:
+        f.write(markdown_content)
+        tmp_path = f.name
+
     try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            return json.loads(resp.read().decode("utf-8"))
-    except urllib.error.HTTPError as e:
-        detail = e.read().decode("utf-8", errors="replace")
-        raise RuntimeError(f"飞书 API {method} {path} HTTP {e.code}: {detail}") from e
-
-
-def create_feishu_doc(title, blocks):
-    """
-    通过飞书 Blocks API 创建在线文档，返回文档链接。
-    blocks: list of Feishu block dict
-    """
-    _cfg = {}
-    _path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
-    if os.path.exists(_path):
-        with open(_path, "r", encoding="utf-8") as _f:
-            _cfg = json.load(_f)
-
-    app_id = os.environ.get("FEISHU_APP_ID") or _cfg.get("feishu_app_id", "")
-    app_secret = os.environ.get("FEISHU_APP_SECRET") or _cfg.get("feishu_app_secret", "")
-    if not app_id or not app_secret:
-        raise RuntimeError(
-            "未配置飞书凭证。请在 config.json 中填写 feishu_app_id 和 feishu_app_secret，"
-            "或在环境变量中设置 FEISHU_APP_ID 和 FEISHU_APP_SECRET。"
+        # 写入内容较长，用 --content-file 避免 shell escape 问题
+        result = run_dws(
+            ["doc", "create", "--name", title, "--content-file", tmp_path],
+            timeout=120,
         )
+    finally:
+        os.unlink(tmp_path)
 
-    token = get_feishu_token(app_id, app_secret)
+    node_id = result.get("nodeId", "")
+    if not node_id:
+        raise RuntimeError(f"钉钉文档创建失败，未返回 nodeId: {result}")
 
-    # 1. 创建空文档
-    doc_result = feishu_api("POST", "/open-apis/docx/v1/documents", token, {"title": title})
-    doc_id = doc_result.get("data", {}).get("document", {}).get("document_id", "")
-    if not doc_id:
-        raise RuntimeError(f"文档创建失败: {doc_result}")
-
-    # 2. 获取文档根 block_id
-    doc_info = feishu_api("GET", f"/open-apis/docx/v1/documents/{doc_id}", token)
-    root_id = doc_info.get("data", {}).get("document", {}).get("document_id", doc_id)
-
-    # 3. 批量添加子块（每次最多 50 个）
-    blocks_url = f"/open-apis/docx/v1/documents/{doc_id}/blocks/{root_id}/children"
-    for i in range(0, len(blocks), 50):
-        batch = blocks[i:i + 50]
-        result = feishu_api("POST", blocks_url, token, {"children": batch, "index": i})
-        if result.get("code") != 0:
-            raise RuntimeError(f"添加 blocks 失败: {result}")
-
-    return f"https://my.feishu.cn/docx/{doc_id}", doc_id
+    doc_url = f"https://alidocs.dingtalk.com/i/nodes/{node_id}"
+    return doc_url, node_id
 
 
 # ---------------------------------------------------------------------------
-# Feishu Block 构建器
+# Markdown 内容构建器
 # ---------------------------------------------------------------------------
 
-# Block type constants
-T_TEXT   = 2
-T_H1     = 3
-T_H2     = 4
-T_H3     = 5
-T_BULLET = 12
-T_DIV    = 22
-
-
-def bold(text):
-    return {"bold": True}
-
-
-def run(text, **style):
-    return {"text_run": {"content": text, "text_element_style": style}}
-
-
-def text_block(*parts):
-    """纯文本段落。parts 可以是 (text,) 或 (text, style_dict)"""
-    elements = []
-    for p in parts:
-        if isinstance(p, dict):
-            elements.append(p)
-        else:
-            elements.append(run(p))
-    return {"block_type": T_TEXT, "text": {"elements": elements, "style": {"align": 1, "folded": False}}}
-
-
-def h1(text):
-    return {"block_type": T_H1, "heading1": {
-        "elements": [run(text, bold=True)],
-        "style": {"align": 1, "folded": False}
-    }}
-
-
-def h2(text):
-    return {"block_type": T_H2, "heading2": {
-        "elements": [run(text, bold=True)],
-        "style": {"align": 1, "folded": False}
-    }}
-
-
-def h3(text):
-    return {"block_type": T_H3, "heading3": {
-        "elements": [run(text, bold=True)],
-        "style": {"align": 1, "folded": False}
-    }}
-
-
-def bullet(text, indent=1):
-    return {"block_type": T_BULLET, "bullet": {
-        "elements": [run(text)],
-        "style": {"align": 1, "folded": False, "indent_level": indent}
-    }}
-
-
-def bullet_bold(text, indent=1):
-    return {"block_type": T_BULLET, "bullet": {
-        "elements": [run(text, bold=True)],
-        "style": {"align": 1, "folded": False, "indent_level": indent}
-    }}
-
-
-def divider():
-    return {"block_type": T_DIV, "divider": {"style": 1}}
-
-
-def blank():
-    return text_block(" ")
-
-
-def dim_row(dim_text, this_week="", next_week=""):
-    """生成一个维度表格行（用 bullet list 模拟）。"""
-    return bullet(f"{dim_text}  |  {this_week}  |  {next_week}", indent=1)
-
-
-# ---------------------------------------------------------------------------
-# 文档内容构建
-# ---------------------------------------------------------------------------
-
-def build_blocks(meeting_date):
-    """
-    直接构建 Feishu blocks，返回列表。
-    """
+def build_markdown(meeting_date):
+    """构建周会文档的 Markdown 内容。"""
     week_num = week_of_month(meeting_date)
     date_short = f"{meeting_date.year} / {meeting_date.month:02d}/{meeting_date.day:02d}"
 
-    blocks = []
+    md = f"""# 物流团队周会信息同步文档
 
-    # 标题
-    blocks.append(h1("物流团队周会信息同步文档"))
-    blocks.append(blank())
-    blocks.append(h1(f"{date_short} - {meeting_date.month}月第{week_num}周"))
-    blocks.append(blank())
+## {date_short} — {meeting_date.month}月第{week_num}周
 
-    # 使用说明
-    blocks.append(bullet_bold("使用说明", indent=0))
-    blocks.append(bullet("本文档用于物流团队每周内部例会，会前 1 小时由各模块负责人填写，会中 20 分钟快速过进度。"))
-    blocks.append(bullet("填写原则：数据先行、异常必报、闭环上周、明确下周，没有数据支撑的结论不写。"))
-    blocks.append(bullet("红色 / 加粗项为必填；黄色高亮用于标注异常或需决策事项。"))
-    blocks.append(bullet("会后将本页内容归档到共享盘，并生成《本周行动项》跟踪表。"))
-    blocks.append(blank())
-    blocks.append(divider())
-    blocks.append(blank())
+---
 
-    # 上周行动项闭环
-    blocks.append(h2("上周行动项闭环"))
-    blocks.append(bullet("上周会议产出的 action items，必须逐项回复状态；未完成需说明原因和新 deadline。"))
-    blocks.append(blank())
-    blocks.append(bullet_bold("序号 | 行动项 | 责任人 | Deadline | 完成状态 | 备注", indent=0))
-    blocks.append(bullet("1 |  |  |  | / 进行中 / | "))
-    blocks.append(bullet("2 |  |  |  | / 进行中 / | "))
-    blocks.append(bullet("3 |  |  |  | / 进行中 / | "))
-    blocks.append(bullet("4 |  |  |  | / 进行中 / | "))
-    blocks.append(blank())
-    blocks.append(divider())
-    blocks.append(blank())
+### 使用说明
 
-    # 头程
-    blocks.append(h2("头程 @郑舒漫"))
-    blocks.append(text_block("负责人：郑舒漫    填写说明：本周关键进展、数据、异常、下周动作，用要点呈现，避免大段文字。"))
-    blocks.append(blank())
-    blocks.append(bullet_bold("维度 | 本周情况 | 下周计划 / 需协调事项", indent=0))
-    blocks.append(dim_row("本周发运情况"))
-    blocks.append(dim_row("在途/到港货物"))
-    blocks.append(dim_row("海运船期与市场价"))
-    blocks.append(dim_row("发运计划（下周）"))
-    blocks.append(dim_row("成本与异常"))
-    blocks.append(dim_row("其他补充"))
-    blocks.append(blank())
-    blocks.append(divider())
-    blocks.append(blank())
+> - 本文档用于物流团队每周内部例会，**会前 1 小时**由各模块负责人填写，会中 20 分钟快速过进度。
+> - **填写原则**：数据先行、异常必报、闭环上周、明确下周，没有数据支撑的结论不写。
+> - **加粗 / 红色**项为必填；黄色高亮用于标注异常或需决策事项。
+> - 会后将本页内容归档到共享盘，并生成《本周行动项》跟踪表。
 
-    # 尾程-B端
-    blocks.append(h2("尾程 — B 端 @黄婷"))
-    blocks.append(text_block("负责人：黄婷    填写说明：本周关键进展、数据、异常、下周动作，用要点呈现，避免大段文字。"))
-    blocks.append(blank())
-    blocks.append(bullet_bold("维度 | 本周情况 | 下周计划 / 需协调事项", indent=0))
-    blocks.append(dim_row("本周发货量"))
-    blocks.append(dim_row("签收与时效"))
-    blocks.append(dim_row("单台费用"))
-    blocks.append(dim_row("订单流程卡点"))
-    blocks.append(dim_row("库存可视度"))
-    blocks.append(dim_row("其他补充"))
-    blocks.append(blank())
-    blocks.append(divider())
-    blocks.append(blank())
+---
 
-    # 尾程+库存-C端
-    blocks.append(h2("尾程+库存 — C 端 @吴定佳"))
-    blocks.append(text_block("负责人：吴定佳    填写说明：本周关键进展、数据、异常、下周动作，用要点呈现，避免大段文字。"))
-    blocks.append(blank())
-    blocks.append(bullet_bold("维度 | 本周情况 | 下周计划 / 需协调事项", indent=0))
-    blocks.append(dim_row("本周发货量"))
-    blocks.append(dim_row("渠道拆分"))
-    blocks.append(dim_row("单台费用"))
-    blocks.append(dim_row("异常订单"))
-    blocks.append(dim_row("缺货/库存"))
-    blocks.append(dim_row("售后衔接"))
-    blocks.append(dim_row("其他补充"))
-    blocks.append(blank())
-    blocks.append(divider())
-    blocks.append(blank())
+## 上周行动项闭环
 
-    # 账单
-    blocks.append(h2("账单 / 财务 @张雨洁"))
-    blocks.append(text_block("负责人：张雨洁    填写说明：本周关键进展、数据、异常、下周动作，用要点呈现，避免大段文字。"))
-    blocks.append(blank())
-    blocks.append(bullet_bold("维度 | 本周情况 | 下周计划 / 需协调事项", indent=0))
-    blocks.append(dim_row("本月到账单据"))
-    blocks.append(dim_row("对账差异"))
-    blocks.append(dim_row("付款计划"))
-    blocks.append(dim_row("费用异常"))
-    blocks.append(dim_row("需支持事项"))
-    blocks.append(dim_row("其他补充"))
-    blocks.append(blank())
-    blocks.append(divider())
-    blocks.append(blank())
+> 上周会议产出的 action items，必须逐项回复状态；未完成需说明原因和新 deadline。
 
-    # 数字化
-    blocks.append(h2("数字化 / 系统 @王娜"))
-    blocks.append(text_block("负责人：王娜    填写说明：本周关键进展、数据、异常、下周动作，用要点呈现，避免大段文字。"))
-    blocks.append(blank())
-    blocks.append(bullet_bold("维度 | 本周情况 | 下周计划 / 需协调事项", indent=0))
-    blocks.append(dim_row("系统上线进展"))
-    blocks.append(dim_row("数据看板"))
-    blocks.append(dim_row("流程自动化"))
-    blocks.append(dim_row("异常与支持"))
-    blocks.append(dim_row("下周计划"))
-    blocks.append(dim_row("其他补充"))
-    blocks.append(blank())
-    blocks.append(divider())
-    blocks.append(blank())
+| 序号 | 行动项 | 责任人 | Deadline | 完成状态 | 备注 |
+|------|--------|--------|----------|----------|------|
+| 1 |  |  |  | 进行中 / 已完成 / 已取消 / |  |
+| 2 |  |  |  | 进行中 / 已完成 / 已取消 / |  |
+| 3 |  |  |  | 进行中 / 已完成 / 已取消 / |  |
+| 4 |  |  |  | 进行中 / 已完成 / 已取消 / |  |
 
-    # 异常/风险
-    blocks.append(h2("异常 / 风险 / 卡点（本周必须讨论）"))
-    blocks.append(bullet("请各模块负责人填写本周遇到的异常、风险或需会议决策的卡点事项"))
-    blocks.append(blank())
-    blocks.append(divider())
-    blocks.append(blank())
+---
 
-    # 本周重点事项
-    blocks.append(h2("本周重点事项"))
-    blocks.append(bullet("请填写本周最重要的 1-3 项事项"))
-    blocks.append(blank())
-    blocks.append(divider())
-    blocks.append(blank())
-    blocks.append(text_block("💡 请各负责人在会前 1 小时完成本模块内容，会议时逐项过堂。"))
+## 头程 @郑舒漫
 
-    return blocks
+> 负责人：郑舒漫    填写说明：本周关键进展、数据、异常、下周动作，用要点呈现，避免大段文字。
 
+| 维度 | 本周情况 | 下周计划 / 需协调事项 |
+|------|----------|------------------------|
+| 本周发运情况 |  |  |
+| 在途 / 到港货物 |  |  |
+| 海运船期与市场价 |  |  |
+| 发运计划（下周） |  |  |
+| 成本与异常 |  |  |
+| 其他补充 |  |  |
 
-def build_plain(meeting_date):
-    """构建纯文本预览（控制台 dry-run 输出）。"""
-    week_num = week_of_month(meeting_date)
-    date_short = f"{meeting_date.year}/{meeting_date.month:02d}/{meeting_date.day:02d}"
-    lines = [
-        f"=== 物流团队周会信息同步 {date.today().isoformat()} ===",
-        f"会议时间：{meeting_date}（周四），本月第 {week_num} 周",
-        "",
-        f"# {date_short} - {meeting_date.month}月第{week_num}周",
-        "",
-        "## 上周行动项闭环",
-        "| 序号 | 行动项 | 责任人 | Deadline | 完成状态 | 备注 |",
-        "| 1 | | | | / 进行中 / | |",
-        "| 2 | | | | / 进行中 / | |",
-        "",
-        "## 头程 @郑舒漫",
-        "| 本周发运情况 | 在途/到港货物 | 海运船期 | 发运计划 | 成本与异常 |",
-        "",
-        "## 尾程 — B 端 @黄婷",
-        "| 本周发货量 | 签收与时效 | 单台费用 | 订单流程卡点 |",
-        "",
-        "## 尾程+库存 — C 端 @吴定佳",
-        "| 本周发货量 | 渠道拆分 | 单台费用 | 异常订单 | 缺货/库存 |",
-        "",
-        "## 账单 / 财务 @张雨洁",
-        "| 本月到账单据 | 对账差异 | 付款计划 | 费用异常 |",
-        "",
-        "## 数字化 / 系统 @王娜",
-        "| 系统上线进展 | 数据看板 | 流程自动化 | 下周计划 |",
-        "",
-        "## 异常 / 风险 / 卡点（请填写）",
-        "## 本周重点事项（请填写）",
-    ]
-    return "\n".join(lines)
+---
+
+## 尾程 — B 端 @黄婷
+
+> 负责人：黄婷    填写说明：本周关键进展、数据、异常、下周动作，用要点呈现，避免大段文字。
+
+| 维度 | 本周情况 | 下周计划 / 需协调事项 |
+|------|----------|------------------------|
+| 本周发货量 |  |  |
+| 签收与时效 |  |  |
+| 单台费用 |  |  |
+| 订单流程卡点 |  |  |
+| 库存可视度 |  |  |
+| 其他补充 |  |  |
+
+---
+
+## 尾程 + 库存 — C 端 @吴定佳
+
+> 负责人：吴定佳    填写说明：本周关键进展、数据、异常、下周动作，用要点呈现，避免大段文字。
+
+| 维度 | 本周情况 | 下周计划 / 需协调事项 |
+|------|----------|------------------------|
+| 本周发货量 |  |  |
+| 渠道拆分 |  |  |
+| 单台费用 |  |  |
+| 异常订单 |  |  |
+| 缺货 / 库存 |  |  |
+| 售后衔接 |  |  |
+| 其他补充 |  |  |
+
+---
+
+## 账单 / 财务 @张雨洁
+
+> 负责人：张雨洁    填写说明：本周关键进展、数据、异常、下周动作，用要点呈现，避免大段文字。
+
+| 维度 | 本周情况 | 下周计划 / 需协调事项 |
+|------|----------|------------------------|
+| 本月到账单据 |  |  |
+| 对账差异 |  |  |
+| 付款计划 |  |  |
+| 费用异常 |  |  |
+| 需支持事项 |  |  |
+| 其他补充 |  |  |
+
+---
+
+## 数字化 / 系统 @王娜
+
+> 负责人：王娜    填写说明：本周关键进展、数据、异常、下周动作，用要点呈现，避免大段文字。
+
+| 维度 | 本周情况 | 下周计划 / 需协调事项 |
+|------|----------|------------------------|
+| 系统上线进展 |  |  |
+| 数据看板 |  |  |
+| 流程自动化 |  |  |
+| 异常与支持 |  |  |
+| 下周计划 |  |  |
+| 其他补充 |  |  |
+
+---
+
+## 异常 / 风险 / 卡点（本周必须讨论）
+
+> 请各模块负责人填写本周遇到的异常、风险或需会议决策的卡点事项。
+
+| 模块 | 异常描述 | 影响范围 | 建议对策 |
+|------|----------|----------|----------|
+|  |  |  |  |
+
+---
+
+## 本周重点事项
+
+> 请填写本周最重要的 1-3 项事项。
+
+1.
+
+---
+
+> **提示**：请各负责人在会前 1 小时完成本模块内容，会议时逐项过堂。
+"""
+    return md
 
 
 # ---------------------------------------------------------------------------
@@ -393,46 +287,52 @@ def main():
     if args.dry_run:
         print("[模式] dry-run（仅预览，不发消息）")
     print(f"\n会议时间：{meeting_date}（周四），本月第 {week_num} 周\n")
-    print(build_plain(meeting_date))
+
+    markdown = build_markdown(meeting_date)
+    print(markdown)
 
     if args.dry_run:
-        print("\n[dry-run] 未发送。")
+        print("\n[dry-run] 仅预览，未发送。")
         return 0
 
-    print("\n[1/2] 创建飞书文档 ...")
-    print("      [DEBUG] 尝试获取飞书 token ...")
-    _cfg = load_config()
-    _app_id = os.environ.get("FEISHU_APP_ID") or _cfg.get("feishu_app_id", "")
-    _app_secret = os.environ.get("FEISHU_APP_SECRET") or _cfg.get("feishu_app_secret", "")
-    print(f"      [DEBUG] app_id={'已设置' if _app_id else '为空'}, app_secret={'已设置' if _app_secret else '为空'}")
-    print(f"      [DEBUG] 开始构建 blocks ...")
+    # [1/2] 尽力创建钉钉在线文档（需本地安装 dws CLI；CI 环境通常没有，会自动跳过）
+    print("\n[1/2] 尝试创建钉钉在线文档 ...")
+    doc_url = None
     try:
-        blocks = build_blocks(meeting_date)
-        print(f"      [DEBUG] blocks 构建完成，共 {len(blocks)} 个")
+        doc_url, _node_id = create_dingtalk_doc(title, markdown)
+        print(f"      文档已创建: {doc_url}")
+    except FileNotFoundError:
+        print("      [INFO] 未检测到 dws CLI（CI 环境），跳过在线文档创建，将模板直接推送至机器人。")
     except Exception as e:
-        print(f"      [ERROR] build_blocks 失败: {type(e).__name__}: {e}", flush=True)
-        import traceback; traceback.print_exc()
-        raise
-    print("      [DEBUG] 调用飞书 API 创建文档 ...")
-    try:
-        doc_url, doc_id = create_feishu_doc(title, blocks)
-        print(f"      [DEBUG] doc_id={doc_id}, 文档已创建: {doc_url}")
-    except Exception as e:
-        print(f"      [ERROR] create_feishu_doc 失败: {type(e).__name__}: {e}", flush=True)
-        import traceback; traceback.print_exc()
-        raise
+        print(f"      [WARN] 钉钉文档创建失败: {type(e).__name__}: {e}", flush=True)
+        print(f"      将模板直接推送至机器人，继续 ...")
 
-    print("\n[2/2] 发送文档链接到钉钉机器人 ...")
-    robot_md = (
-        f"## 📋 物流团队周会信息同步\n\n"
-        f"**会议时间**：{meeting_date.month}月{meeting_date.day}日（周四）\n"
-        f"**本月第 {week_num} 周**\n\n"
-        f"📄 [点击查看并填写周会文档]({doc_url})\n\n"
-        f"> 请各负责人在会前 1 小时完成本模块内容，会议时逐项过堂。"
-    )
+    # [2/2] 发送周会内容到钉钉机器人
+    #   - 有在线文档：推送「文档链接 + 议程」，引导大家在文档里填写
+    #   - 无在线文档（CI）：直接把完整模板推送到机器人，便于查看与复制
+    print("\n[2/2] 发送周会内容到钉钉机器人 ...")
+    if doc_url:
+        robot_md = (
+            f"## 📋 物流团队周会信息同步\n\n"
+            f"**会议时间**：{meeting_date.month}月{meeting_date.day}日（周四）· 本月第 {week_num} 周\n\n"
+            f"📄 [点击打开周会文档并填写]({doc_url})\n\n"
+            f"**议程**：上周行动项闭环 → 头程 → 尾程(B端/C端) → 账单 → 数字化 → 异常/风险 → 本周重点\n\n"
+            f"> 请各负责人会前 1 小时完成本模块填写，会议时逐项过堂。"
+        )
+    else:
+        robot_md = (
+            f"## 📋 物流团队周会信息同步\n\n"
+            f"**会议时间**：{meeting_date.month}月{meeting_date.day}日（周四）· 本月第 {week_num} 周\n\n"
+            f"> 请各负责人会前 1 小时完成本模块填写，会议时逐项过堂。\n\n"
+            f"---\n\n{markdown}"
+        )
+
     result = send_via_robot(cfg["robot_webhook"], cfg["robot_secret"], title, robot_md)
     print(f"      发送成功: {result}")
-    print(f"\nSUMMARY: 周会同步文档已创建并链接已发送到钉钉机器人。")
+    if doc_url:
+        print(f"\nSUMMARY: 周会在线文档已创建，链接已发送到钉钉机器人。")
+    else:
+        print(f"\nSUMMARY: 周会模板已直接发送到钉钉机器人（未创建在线文档）。")
     return 0
 
 
