@@ -4,6 +4,7 @@
 ============================
 数据源: full_table.json (从物流中心费用汇总表导出)
 输出:
+  - 物流成本全景.html             (★ 主输出: KPI + 目标对比 + 云图 + 结论)
   - 成本云图_G系列_M系列.html    (G/M/N系列气泡云图 + 德/美分线卡片)
   - 物流中心费用_汇报.html        (DAP全路线单台成本汇总 + 目标对比)
 
@@ -21,12 +22,14 @@
 """
 
 import json, sys, os
+from build_panorama import build as build_panorama
 
 # ---- config ----
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_FILE = os.path.join(BASE_DIR, 'data', 'full_table.json')
 OUT_CLOUD = os.path.join(BASE_DIR, 'output', '成本云图_G系列_M系列.html')
 OUT_REPORT = os.path.join(BASE_DIR, 'output', '物流中心费用_汇报.html')
+OUT_PANORAMA = os.path.join(BASE_DIR, 'output', '物流成本全景.html')
 
 # ---- helpers ----
 def num(v):
@@ -514,6 +517,8 @@ def build_report(rows):
 '''
     return html
 
+
+
 # ---- main ----
 if __name__ == '__main__':
     sys.stdout.reconfigure(encoding='utf-8')
@@ -532,5 +537,11 @@ if __name__ == '__main__':
     with open(OUT_REPORT, 'w', encoding='utf-8') as f:
         f.write(report_html)
     print(f'  -> {OUT_REPORT} ({len(report_html):,} chars)')
+
+    print('Building combined panorama...')
+    panorama_html = build_panorama()
+    with open(OUT_PANORAMA, 'w', encoding='utf-8') as f:
+        f.write(panorama_html)
+    print(f'  -> {OUT_PANORAMA} ({len(panorama_html):,} chars)')
 
     print('Done.')
