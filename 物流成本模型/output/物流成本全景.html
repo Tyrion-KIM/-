@@ -3,110 +3,225 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DAP 成本月报 | 2026年08月</title>
+<title>DAP 成本全景</title>
+<style>
+:root{--bg:#f0f2f5;--card:#fff;--text:#1a1a2e;--muted:#6b7280;--blue:#2563eb;--blue-bg:#eff6ff;--red:#ef4444;--red-bg:#fef2f2;--amber:#d97706;--amber-bg:#fffbeb;--shadow:0 1px 3px rgba(0,0,0,.06)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+.container{max-width:1400px;margin:0 auto;padding:24px}
+.page-title{text-align:center;margin-bottom:22px}
+.page-title h1{font-size:24px;font-weight:700}
+.page-title .meta{font-size:13px;color:var(--muted);margin-top:2px}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--card);border-radius:10px;padding:14px 16px;box-shadow:var(--shadow)}
+.kpi-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.kpi-value{font-size:26px;font-weight:700}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.kpi.blue .kpi-value{color:var(--blue)}.kpi.amber .kpi-value{color:var(--amber)}.kpi.red .kpi-value{color:var(--red)}
+.card{background:var(--card);border-radius:10px;padding:18px 20px;margin-bottom:16px;box-shadow:var(--shadow)}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.card-title{font-size:14px;font-weight:600}
+.tag{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.tag-blue{background:var(--blue-bg);color:var(--blue)}.tag-red{background:var(--red-bg);color:var(--red)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{padding:7px;text-align:center;font-weight:600;color:#555;background:#f9fafb;border-bottom:2px solid #e5e7eb;font-size:11px;white-space:nowrap}
+td{padding:5px 7px;text-align:center;border-bottom:1px solid #f3f4f6;white-space:nowrap}
+tr:hover td{background:#fafbfc}
+.tl{text-align:left}.num{font-family:"SF Mono",Consolas,monospace;font-size:11px}.b{font-weight:600}
+.over{color:var(--red);font-weight:600}.under{color:var(--blue);font-weight:600}
+.clouds{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px}
+@media(max-width:1000px){.clouds{grid-template-columns:1fr}}
+.cloud-card{background:var(--card);border-radius:12px;padding:20px;box-shadow:var(--shadow)}
+.cloud-card h2{font-size:18px;text-align:center;margin-bottom:2px}
+.cloud-card .sub{text-align:center;font-size:11px;color:var(--muted);margin-bottom:12px}
+.cloud-area{position:relative;width:100%;height:380px}
+.cloud-area svg{width:100%;height:100%}
+.legend{display:flex;justify-content:center;gap:16px;margin-top:12px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11px}
+.legend-dot{width:10px;height:10px;border-radius:50%}
+.route-group{margin-top:14px}
+.rgl{font-size:11px;font-weight:700;padding:4px 8px;border-radius:4px;display:inline-block;margin-bottom:6px}
+.rgl.de{background:#dbeafe;color:#1e40af}.rgl.us{background:#fee2e2;color:#991b1b}
+.route-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px}
+.route-item{background:#f9fafb;border-radius:6px;padding:6px 8px;text-align:center}
+.route-item .rl{font-size:9px;color:var(--muted);margin-bottom:1px}
+.route-item .rv{font-size:15px;font-weight:700}
+.route-item .rs{font-size:9px;color:var(--muted)}
+.route-item.de{border-left:3px solid #93c5fd}.route-item.us{border-left:3px solid #fca5a5}
+.conc-block{margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #f3f4f6}
+.conc-block:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.conc-block h4{font-size:13px;margin-bottom:4px}
+.conc-block p{font-size:12px;color:#555;line-height:1.7}
+.hl-r{color:var(--red);font-weight:600}.hl-b{color:var(--blue);font-weight:600}
+footer{text-align:center;color:#aaa;font-size:11px;margin-top:24px;padding-top:16px;border-top:1px solid #e5e7eb}
+</style>
 </head>
-<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:#f5f6f8;margin:0;padding:24px;color:#1a1a2e;line-height:1.6">
-<div style="max-width:800px;margin:0 auto">
-
-  <!-- Header -->
-  <div style="text-align:center;margin-bottom:24px">
-    <h1 style="font-size:22px;font-weight:700;margin:0 0 4px">DAP 成本月报</h1>
-    <div style="font-size:13px;color:#888">2026年08月 | 全路线端到端 | 目标 35EUR</div>
-  </div>
-
-  <!-- KPI -->
-  <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap">
-    <div style="flex:1;min-width:160px;background:#fff;border-radius:10px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
-      <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px">深圳 → 德国 DAP</div>
-      <div style="font-size:28px;font-weight:700;color:#2563eb">339</div>
-      <div style="font-size:11px;color:#888">G/M/N 单台均值 RMB</div>
-    </div>
-    <div style="flex:1;min-width:160px;background:#fff;border-radius:10px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
-      <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px">越南 → 德国 DAP</div>
-      <div style="font-size:28px;font-weight:700;color:#d97706">360</div>
-      <div style="font-size:11px;color:#888">G/M/N 单台均值 RMB</div>
-    </div>
-    <div style="flex:1;min-width:160px;background:#fff;border-radius:10px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
-      <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px">全段目标价 DAP</div>
-      <div style="font-size:28px;font-weight:700;color:#ef4444">35 EUR</div>
-      <div style="font-size:11px;color:#888">= 275 RMB (7.85)</div>
-    </div>
-  </div>
-
-  <!-- Target Comparison Table -->
-  <div style="background:#fff;border-radius:10px;padding:20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
-    <h2 style="font-size:15px;font-weight:600;margin:0 0 14px">目标对比 — 按目的地 x 产品</h2>
-    <table style="width:100%;border-collapse:collapse;font-size:13px">
-      <thead>
-        <tr style="background:#f9fafb">
-          <th style="padding:8px 10px;text-align:left;font-weight:600;color:#555;border-bottom:2px solid #e5e7eb;font-size:12px">目的地</th>
-          <th style="padding:8px 10px;text-align:center;font-weight:600;color:#555;border-bottom:2px solid #e5e7eb;font-size:12px">产品</th>
-          <th style="padding:8px 10px;text-align:center;font-weight:600;color:#555;border-bottom:2px solid #e5e7eb;font-size:12px">单台合计</th>
-          <th style="padding:8px 10px;text-align:center;font-weight:600;color:#555;border-bottom:2px solid #e5e7eb;font-size:12px">目标</th>
-          <th style="padding:8px 10px;text-align:center;font-weight:600;color:#555;border-bottom:2px solid #e5e7eb;font-size:12px">差距</th>
-          <th style="padding:8px 10px;text-align:center;font-weight:600;color:#555;border-bottom:2px solid #e5e7eb;font-size:12px">超幅</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-<td style="text-align:left;font-weight:600;padding:6px 10px;border-bottom:1px solid #eee">德国</td>
-<td style="padding:6px 10px;border-bottom:1px solid #eee">G系列</td>
-<td style="padding:6px 10px;border-bottom:1px solid #eee;color:#ef4444;font-weight:600;font-family:monospace">338</td>
-<td style="padding:6px 10px;border-bottom:1px solid #eee;font-family:monospace">275</td>
-<td style="padding:6px 10px;border-bottom:1px solid #eee;color:#ef4444;font-weight:600;font-family:monospace">+63</td>
-<td style="padding:6px 10px;border-bottom:1px solid #eee;min-width:180px"><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:16px;background:#f0f0f0;border-radius:8px;overflow:hidden"><div style="height:100%;width:12%;background:#ef4444;border-radius:8px"></div></div><span style="color:#ef4444;font-weight:600;font-size:12px;min-width:48px;text-align:right">+23%</span></div></td>
-</tr><tr>
-<td style="text-align:left;font-weight:600;padding:6px 10px;border-bottom:1px solid #eee">德国</td>
-<td style="padding:6px 10px;border-bottom:1px solid #eee">M系列</td>
-<td style="padding:6px 10px;border-bottom:1px solid #eee;color:#2563eb;font-weight:600;font-family:monospace">270</td>
-<td style="padding:6px 10px;border-bottom:1px solid #eee;font-family:monospace">275</td>
-<td style="padding:6px 10px;border-bottom:1px solid #eee;color:#2563eb;font-weight:600;font-family:monospace">-4</td>
-<td style="padding:6px 10px;border-bottom:1px solid #eee;min-width:180px"><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:16px;background:#f0f0f0;border-radius:8px;overflow:hidden"><div style="height:100%;width:1%;background:#2563eb;border-radius:8px"></div></div><span style="color:#2563eb;font-weight:600;font-size:12px;min-width:48px;text-align:right">-2%</span></div></td>
-</tr><tr>
-<td style="text-align:left;font-weight:600;padding:6px 10px;border-bottom:1px solid #eee">德国</td>
-<td style="padding:6px 10px;border-bottom:1px solid #eee">N系列</td>
-<td style="padding:6px 10px;border-bottom:1px solid #eee;color:#ef4444;font-weight:600;font-family:monospace">439</td>
-<td style="padding:6px 10px;border-bottom:1px solid #eee;font-family:monospace">275</td>
-<td style="padding:6px 10px;border-bottom:1px solid #eee;color:#ef4444;font-weight:600;font-family:monospace">+164</td>
-<td style="padding:6px 10px;border-bottom:1px solid #eee;min-width:180px"><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:16px;background:#f0f0f0;border-radius:8px;overflow:hidden"><div style="height:100%;width:30%;background:#ef4444;border-radius:8px"></div></div><span style="color:#ef4444;font-weight:600;font-size:12px;min-width:48px;text-align:right">+60%</span></div></td>
-</tr><tr>
-<td style="text-align:left;font-weight:600;padding:6px 10px;border-bottom:1px solid #eee">美国</td>
-<td style="padding:6px 10px;border-bottom:1px solid #eee">G系列</td>
-<td style="padding:6px 10px;border-bottom:1px solid #eee;color:#ef4444;font-weight:600;font-family:monospace">654</td>
-<td style="padding:6px 10px;border-bottom:1px solid #eee;font-family:monospace">275</td>
-<td style="padding:6px 10px;border-bottom:1px solid #eee;color:#ef4444;font-weight:600;font-family:monospace">+380</td>
-<td style="padding:6px 10px;border-bottom:1px solid #eee;min-width:180px"><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:16px;background:#f0f0f0;border-radius:8px;overflow:hidden"><div style="height:100%;width:70%;background:#ef4444;border-radius:8px"></div></div><span style="color:#ef4444;font-weight:600;font-size:12px;min-width:48px;text-align:right">+138%</span></div></td>
-</tr><tr>
-<td style="text-align:left;font-weight:600;padding:6px 10px;border-bottom:1px solid #eee">美国</td>
-<td style="padding:6px 10px;border-bottom:1px solid #eee">M系列</td>
-<td style="padding:6px 10px;border-bottom:1px solid #eee;color:#ef4444;font-weight:600;font-family:monospace">541</td>
-<td style="padding:6px 10px;border-bottom:1px solid #eee;font-family:monospace">275</td>
-<td style="padding:6px 10px;border-bottom:1px solid #eee;color:#ef4444;font-weight:600;font-family:monospace">+266</td>
-<td style="padding:6px 10px;border-bottom:1px solid #eee;min-width:180px"><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:16px;background:#f0f0f0;border-radius:8px;overflow:hidden"><div style="height:100%;width:49%;background:#ef4444;border-radius:8px"></div></div><span style="color:#ef4444;font-weight:600;font-size:12px;min-width:48px;text-align:right">+97%</span></div></td>
-</tr><tr>
-<td style="text-align:left;font-weight:600;padding:6px 10px;border-bottom:1px solid #eee">美国</td>
-<td style="padding:6px 10px;border-bottom:1px solid #eee">N系列</td>
-<td style="padding:6px 10px;border-bottom:1px solid #eee;color:#ef4444;font-weight:600;font-family:monospace">819</td>
-<td style="padding:6px 10px;border-bottom:1px solid #eee;font-family:monospace">275</td>
-<td style="padding:6px 10px;border-bottom:1px solid #eee;color:#ef4444;font-weight:600;font-family:monospace">+544</td>
-<td style="padding:6px 10px;border-bottom:1px solid #eee;min-width:180px"><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:16px;background:#f0f0f0;border-radius:8px;overflow:hidden"><div style="height:100%;width:100%;background:#ef4444;border-radius:8px"></div></div><span style="color:#ef4444;font-weight:600;font-size:12px;min-width:48px;text-align:right">+198%</span></div></td>
-</tr></tbody>
-    </table>
-  </div>
-
-  <!-- Conclusion -->
-  <div style="background:#fff;border-radius:10px;padding:20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
-    <h2 style="font-size:15px;font-weight:600;margin:0 0 14px">结论</h2>
-    <div style="font-size:13px;color:#555;line-height:1.8">
-      <p style="margin:0 0 10px"><strong style="color:#2563eb">德国路线</strong>：均值 <strong>349 RMB</strong>（+74，+27%），M系列基本达标，整体可控。海运头程成本可控，关注尾程快递费率及末端配送效率。</p>
-      <p style="margin:0"><strong style="color:#ef4444">美国路线</strong>：均值 <strong>672 RMB</strong>（+397，+144%），全线远超目标。头程(海运)+尾程(快递)为核心矛盾，需优先评估美线海运集拼/合约价优化。</p>
-    </div>
-  </div>
-
-  <!-- Footer -->
-  <div style="text-align:center;color:#aaa;font-size:11px;padding-top:16px;border-top:1px solid #e5e7eb">
-    物流中心 DAP 成本模型 | 自动推送 2026-08-04 14:25
-  </div>
-
+<body>
+<div class="container">
+<div class="page-title">
+  <h1>DAP 成本全景</h1>
+  <div class="meta">全路线端到端 | 目标 35EUR | 2026年8月</div>
 </div>
+
+<div class="kpi-grid">
+  <div class="kpi blue"><div class="kpi-label">深圳 → 德国 DAP</div><div class="kpi-value">339</div><div class="kpi-sub">G/M/N单台均值 RMB</div></div>
+  <div class="kpi amber"><div class="kpi-label">越南 → 德国 DAP</div><div class="kpi-value">360</div><div class="kpi-sub">G/M/N单台均值 RMB</div></div>
+  <div class="kpi red"><div class="kpi-label">全段目标价 DAP</div><div class="kpi-value">35 EUR</div><div class="kpi-sub">= 275 RMB (7.85)</div></div>
+</div>
+
+<div class="card">
+  <div class="card-header"><div class="card-title">目标对比 — 按目的地 x 产品</div><span class="tag tag-red">目标: 35EUR = 275 RMB</span></div>
+  <table>
+    <thead><tr><th>目的地</th><th>产品</th><th>单台合计</th><th>目标</th><th>差距</th><th>超幅</th></tr></thead>
+    <tbody>
+<tr><td class="tl b">德国</td><td>G系列</td><td class="num b over">338</td><td class="num">275</td><td class="num over">+63</td><td style="min-width:160px"><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:16px;background:#f3f4f6;border-radius:8px;overflow:hidden"><div style="height:100%;width:12%;background:#ef4444;border-radius:8px"></div></div><span class="over" style="font-size:11px;font-weight:600;min-width:44px;text-align:right">+23%</span></div></td></tr>
+<tr><td class="tl b">德国</td><td>M系列</td><td class="num b under">270</td><td class="num">275</td><td class="num under">-4</td><td style="min-width:160px"><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:16px;background:#f3f4f6;border-radius:8px;overflow:hidden"><div style="height:100%;width:1%;background:#2563eb;border-radius:8px"></div></div><span class="under" style="font-size:11px;font-weight:600;min-width:44px;text-align:right">-2%</span></div></td></tr>
+<tr><td class="tl b">德国</td><td>N系列</td><td class="num b over">439</td><td class="num">275</td><td class="num over">+164</td><td style="min-width:160px"><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:16px;background:#f3f4f6;border-radius:8px;overflow:hidden"><div style="height:100%;width:30%;background:#ef4444;border-radius:8px"></div></div><span class="over" style="font-size:11px;font-weight:600;min-width:44px;text-align:right">+60%</span></div></td></tr>
+<tr><td class="tl b">美国</td><td>G系列</td><td class="num b over">654</td><td class="num">275</td><td class="num over">+380</td><td style="min-width:160px"><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:16px;background:#f3f4f6;border-radius:8px;overflow:hidden"><div style="height:100%;width:70%;background:#ef4444;border-radius:8px"></div></div><span class="over" style="font-size:11px;font-weight:600;min-width:44px;text-align:right">+138%</span></div></td></tr>
+<tr><td class="tl b">美国</td><td>M系列</td><td class="num b over">541</td><td class="num">275</td><td class="num over">+266</td><td style="min-width:160px"><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:16px;background:#f3f4f6;border-radius:8px;overflow:hidden"><div style="height:100%;width:49%;background:#ef4444;border-radius:8px"></div></div><span class="over" style="font-size:11px;font-weight:600;min-width:44px;text-align:right">+97%</span></div></td></tr>
+<tr><td class="tl b">美国</td><td>N系列</td><td class="num b over">819</td><td class="num">275</td><td class="num over">+544</td><td style="min-width:160px"><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:16px;background:#f3f4f6;border-radius:8px;overflow:hidden"><div style="height:100%;width:100%;background:#ef4444;border-radius:8px"></div></div><span class="over" style="font-size:11px;font-weight:600;min-width:44px;text-align:right">+198%</span></div></td></tr>
+</tbody></table></div>
+<div class="clouds">
+
+<div class="cloud-card">
+  <h2 style="color:#2563eb">G系列</h2>
+  <div class="sub">单柜462pcs | 各路线单台成本结构均值</div>
+  <div class="cloud-area" id="gcloud"></div>
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot" style="background:#93c5fd"></span>A 头程</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#60a5fa"></span>B 上架</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#fcd34d"></span>C 仓储</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#fb923c"></span>D 出库</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#c084fc"></span>E 尾程</div>
+  </div>
+  <div id="g-routes"></div>
+</div>
+<div class="cloud-card">
+  <h2 style="color:#d97706">M系列</h2>
+  <div class="sub">单柜574pcs | 各路线单台成本结构均值</div>
+  <div class="cloud-area" id="mcloud"></div>
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot" style="background:#93c5fd"></span>A 头程</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#60a5fa"></span>B 上架</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#fcd34d"></span>C 仓储</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#fb923c"></span>D 出库</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#c084fc"></span>E 尾程</div>
+  </div>
+  <div id="m-routes"></div>
+</div>
+<div class="cloud-card">
+  <h2 style="color:#7c3aed">N系列</h2>
+  <div class="sub">单柜330pcs | 各路线单台成本结构均值</div>
+  <div class="cloud-area" id="ncloud"></div>
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot" style="background:#93c5fd"></span>A 头程</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#60a5fa"></span>B 上架</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#fcd34d"></span>C 仓储</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#fb923c"></span>D 出库</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#c084fc"></span>E 尾程</div>
+  </div>
+  <div id="n-routes"></div>
+</div></div>
+
+<div class="card">
+  <div class="card-header"><div class="card-title">结论与建议</div><span class="tag tag-blue">自检分析</span></div>
+  <div class="conc-block"><h4>德国路线</h4><p>德国路线均值 <strong>349 RMB</strong> (超出目标+74, +27%)，其中 <span class="hl-b">M系列 270 RMB 已低于目标</span>。海运头程占43%、尾程占34%。成本可控，以达标产品M系列为标杆优化N系列；关注尾程快递费率谈判及末端配送效率。</p></div>
+  <div class="conc-block"><h4>美国路线</h4><p>美国路线均值 <strong>672 RMB</strong> (超出目标+397, +144%)，全线远超目标。头程(海运)占51%、尾程(快递)占41%，为德国同段的2-3倍。优先评估美线海运集拼/合约价优化及尾程卡车替代方案。</p></div>
+  <div class="conc-block"><h4>综合结论</h4><p>德国路线整体可控，M系列已达标可作为成本标杆；美国路线头程+尾程为核心矛盾。B/C/D段(仓储操作)占比小，维持现状。</p></div>
+</div>
+
+<footer>物流中心 | DAP成本全景 | 2026-08-04</footer>
+</div>
+<script>
+var colors={A:'#93c5fd',B:'#60a5fa',C:'#fcd34d',D:'#fb923c',E:'#c084fc'};
+var cd={A:'#2563eb',B:'#1d4ed8',C:'#ca8a04',D:'#ea580c',E:'#7c3aed'};
+var keys=['A','B','C','D','E'];
+var labels={A:'头程费用',B:'上架操作',C:'仓储费',D:'出库操作',E:'尾程运费'};
+
+function avgCosts(rs){
+  var s={A:0,B:0,C:0,D:0,E:0};
+  rs.forEach(function(r){keys.forEach(function(k){s[k]+=r[k]})});
+  var t=keys.reduce(function(a,k){return a+s[k]},0);
+  var o={};
+  keys.forEach(function(k){o[k]={val:Math.round(s[k]/rs.length),pct:Math.round(s[k]/t*100)}});
+  return o;
+}
+
+function drawCloud(cid,rs){
+  var c=document.getElementById(cid);
+  var W=c.clientWidth||500,H=380,cx=W/2,cy=H/2;
+  var avg=avgCosts(rs);
+  var items=keys.map(function(k){return{key:k,val:avg[k].val,pct:avg[k].pct,label:labels[k]}}).sort(function(a,b){return b.val-a.val});
+  var maxVal=items[0].val,maxR=90,minR=28;
+  var bubbles=items.map(function(it){var r=minR+Math.sqrt(it.val/maxVal)*(maxR-minR);return{key:it.key,val:it.val,pct:it.pct,label:it.label,r:r}});
+  bubbles[0].x=cx;bubbles[0].y=cy;
+  var pos=[{dx:-100,dy:-65},{dx:110,dy:-40},{dx:-85,dy:85},{dx:95,dy:75}];
+  for(var i=1;i<bubbles.length;i++){bubbles[i].x=cx+pos[i-1].dx;bubbles[i].y=cy+pos[i-1].dy}
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">';
+  for(var i=1;i<bubbles.length;i++){svg+='<line x1="'+bubbles[0].x+'" y1="'+bubbles[0].y+'" x2="'+bubbles[i].x+'" y2="'+bubbles[i].y+'" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4,3"/>'}
+  bubbles.forEach(function(b){
+    var gid='g-'+cid+'-'+b.key;
+    svg+='<defs><radialGradient id="'+gid+'" cx="35%" cy="30%"><stop offset="0%" stop-color="'+colors[b.key]+'" stop-opacity="0.95"/><stop offset="100%" stop-color="'+cd[b.key]+'" stop-opacity="0.9"/></radialGradient></defs>';
+    svg+='<circle cx="'+(b.x+2)+'" cy="'+(b.y+3)+'" r="'+b.r+'" fill="rgba(0,0,0,0.05)"/>';
+    svg+='<circle cx="'+b.x+'" cy="'+b.y+'" r="'+b.r+'" fill="url(#'+gid+')" stroke="'+cd[b.key]+'" stroke-width="1.5"/>';
+    var fs=Math.max(9,b.r*0.22);
+    svg+='<text x="'+b.x+'" y="'+(b.y-b.r*0.12)+'" text-anchor="middle" fill="#fff" font-size="'+(fs+2)+'" font-weight="700">'+b.label+'</text>';
+    svg+='<text x="'+b.x+'" y="'+(b.y+b.r*0.2)+'" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-size="'+(fs-2)+'" font-weight="600">&yen;'+b.val+'</text>';
+    svg+='<text x="'+b.x+'" y="'+(b.y+b.r*0.42)+'" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="'+Math.max(8,fs-4)+'">'+b.pct+'%</text>';
+  });
+  svg+='</svg>';c.innerHTML=svg;
+}
+
+function drawRouteCards(cid,rs){
+  var c=document.getElementById(cid);
+  var deR=rs.filter(function(r){return r.label.indexOf('德国')>=0});
+  var usR=rs.filter(function(r){return r.label.indexOf('美东')>=0||r.label.indexOf('美西')>=0});
+  function at(rs){if(!rs.length)return 0;return Math.round(rs.reduce(function(s,r){return s+keys.reduce(function(a,k){return a+r[k]},0)},0)/rs.length)}
+  var h='';
+  h+='<div class="route-group"><span class="rgl de">德国</span><div class="route-cards">';
+  deR.forEach(function(r){var t=keys.reduce(function(s,k){return s+r[k]},0);h+='<div class="route-item de"><div class="rl">'+r.label.replace('深圳->德国 ','').replace('越南->德国 ','')+'</div><div class="rv">&yen;'+t+'</div><div class="rs">头'+Math.round(r.A/t*100)+'% 尾'+Math.round(r.E/t*100)+'%</div></div>'});
+  h+='<div class="route-item" style="background:#eff6ff;border:2px solid #93c5fd"><div class="rl">德国 均值</div><div class="rv" style="font-size:17px">&yen;'+at(deR)+'</div><div class="rs">'+deR.length+'条</div></div></div></div>';
+  h+='<div class="route-group"><span class="rgl us">美国</span><div class="route-cards">';
+  usR.forEach(function(r){var t=keys.reduce(function(s,k){return s+r[k]},0);var sh=r.label.replace('深圳->美国 ','').replace('越南->美国 ','');h+='<div class="route-item us"><div class="rl">'+sh+'</div><div class="rv">&yen;'+t+'</div><div class="rs">头'+Math.round(r.A/t*100)+'% 尾'+Math.round(r.E/t*100)+'%</div></div>'});
+  h+='<div class="route-item" style="background:#fef2f2;border:2px solid #fca5a5"><div class="rl">美国 均值</div><div class="rv" style="font-size:17px">&yen;'+at(usR)+'</div><div class="rs">'+usR.length+'条</div></div></div></div>';
+  c.innerHTML=h;
+}
+var gData={name:'G系列',routes:[
+    {label:'深圳->德国 C端谷仓', A:132,B:28,C:29,D:27,E:96},
+    {label:'深圳->德国 B端中转', A:132,B:21,C:15,D:39,E:136},
+    {label:'越南->德国 C端谷仓', A:153,B:28,C:29,D:27,E:96},
+    {label:'越南->德国 B端中转', A:153,B:21,C:15,D:39,E:136},
+    {label:'深圳->美国 美东', A:340,B:6,C:31,D:27,E:276},
+    {label:'深圳->美国 美西', A:294,B:6,C:40,D:0,E:276},
+    {label:'越南->美国 美东', A:347,B:6,C:31,D:27,E:276},
+    {label:'越南->美国 美西', A:301,B:6,C:40,D:14,E:276}
+]};
+var mData={name:'M系列',routes:[
+    {label:'深圳->德国 C端谷仓', A:106,B:6,C:39,D:18,E:43},
+    {label:'深圳->德国 B端中转', A:106,B:21,C:15,D:39,E:136},
+    {label:'越南->德国 C端谷仓', A:119,B:6,C:39,D:18,E:43},
+    {label:'越南->德国 B端中转', A:119,B:21,C:15,D:39,E:136},
+    {label:'深圳->美国 美东', A:274,B:5,C:23,D:13,E:240},
+    {label:'深圳->美国 美西', A:237,B:5,C:29,D:13,E:240},
+    {label:'越南->美国 美东', A:279,B:5,C:23,D:13,E:240},
+    {label:'越南->美国 美西', A:242,B:5,C:29,D:13,E:240}
+]};
+var nData={name:'N系列',routes:[
+    {label:'深圳->德国 C端谷仓', A:185,B:10,C:68,D:18,E:149},
+    {label:'深圳->德国 B端中转', A:185,B:21,C:15,D:39,E:160},
+    {label:'越南->德国 C端谷仓', A:214,B:10,C:68,D:18,E:149},
+    {label:'越南->德国 B端中转', A:214,B:21,C:15,D:39,E:160},
+    {label:'深圳->美国 美东', A:476,B:8,C:39,D:16,E:301},
+    {label:'深圳->美国 美西', A:413,B:8,C:51,D:16,E:301},
+    {label:'越南->美国 美东', A:484,B:8,C:39,D:16,E:301},
+    {label:'越南->美国 美西', A:421,B:8,C:51,D:16,E:301}
+]};
+drawCloud('gcloud',gData.routes);
+drawRouteCards('g-routes',gData.routes);
+drawCloud('mcloud',mData.routes);
+drawRouteCards('m-routes',mData.routes);
+drawCloud('ncloud',nData.routes);
+drawRouteCards('n-routes',nData.routes);
+</script>
 </body>
 </html>
