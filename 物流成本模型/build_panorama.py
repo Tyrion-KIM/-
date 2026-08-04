@@ -32,16 +32,22 @@ def load_data():
         dest = str(vals[4]).strip()
         area = str(vals[5]).strip()
         model = str(vals[6]).strip()
-        A = num(vals[7]) + num(vals[8]) + num(vals[11])
-        if 'C端' in area:
-            B = num(vals[13]); C = num(vals[17]); D = num(vals[20]); E = num(vals[21])
-        elif 'B端' in area:
-            B = num(vals[15]); C = num(vals[18]); D = num(vals[19]); E = num(vals[24])
-        else:
-            B = num(vals[13]) if num(vals[13]) else num(vals[15])
-            C = num(vals[17]) if num(vals[17]) else num(vals[18])
-            D = num(vals[20]) if num(vals[20]) else num(vals[19])
-            E = num(vals[21]) if num(vals[21]) else num(vals[24])
+        A = num(vals[7]) + num(vals[8]) + num(vals[11]) + num(vals[12])
+        if 'B端' in area:
+            B = num(vals[15]) + num(vals[16])
+            C = num(vals[18])
+            D = num(vals[19])
+            E = num(vals[24])
+        elif 'C端' in area:
+            B = num(vals[13]) + num(vals[14])
+            C = num(vals[17])
+            D = num(vals[20])
+            E = num(vals[21])
+        else:  # 美东 / 美西
+            B = num(vals[13])
+            C = num(vals[17])
+            D = num(vals[20])
+            E = num(vals[21])
         total = A + B + C + D + E
         pcs = 1
         if 'pcs' in unit:
@@ -63,22 +69,46 @@ def build():
     rows = load_data()
     pu = per_unit_rows(rows)
 
-    TARGET_EUR = 35
+    TARGET_EUR = 36
     EXCHANGE_RATE = 7.85
-    TARGET_RMB = TARGET_EUR * EXCHANGE_RATE
+    TARGET_RMB = round(TARGET_EUR * EXCHANGE_RATE)
+    TARGET_BREAKDOWN = {'head': 15, 'tail': 15, 'other': 6}  # EUR 头程/尾程/其他
 
-    # -- cloud chart data --
+    # -- cloud chart data: grouped by (model, dest) --
     series_data = {}
     for model in ['G系列', 'M系列', 'N系列']:
-        mr = [r for r in pu if r['model'] == model]
-        routes_js = ',\n    '.join(
-            f"{{label:'{r['origin']}->{r['dest']} {r['area']}', A:{r['A']},B:{r['B']},C:{r['C']},D:{r['D']},E:{r['E']}}}"
-            for r in mr
-        )
-        series_data[model] = routes_js
+        for dest in ['德国', '美国']:
+            mr = [r for r in pu if r['model'] == model and r['dest'] == dest]
+            key = f"{model[0].lower()}_{'de' if dest == '德国' else 'us'}"
+            routes_js = ',\n    '.join(
+                f"{{label:'{r['origin']}->{r['dest']} {r['area']}', A:{r['A']},B:{r['B']},C:{r['C']},D:{r['D']},E:{r['E']}}}"
+                for r in mr
+            )
+            series_data[key] = (model, dest, routes_js, len(mr))
 
     pcs_map = {'G系列': '462', 'M系列': '574', 'N系列': '330'}
     model_color = {'G系列': '#2563eb', 'M系列': '#d97706', 'N系列': '#7c3aed'}
+
+    # -- horizontal comparison data --
+    compare_biz = []  # [{model, dest, biz, A, E, BCD, total, aPct, ePct}]
+    for model in ['G系列', 'M系列', 'N系列']:
+        for dest, biz_types in [('德国', ['C端谷仓', 'B端中转']), ('美国', ['美东', '美西'])]:
+            for biz in biz_types:
+                mr = [r for r in pu if r['model'] == model and r['dest'] == dest and r['area'] == biz]
+                if not mr: continue
+                n = len(mr)
+                avgA = sum(r['A'] for r in mr) / n
+                avgE = sum(r['E'] for r in mr) / n
+                avgBCD = sum(r['B'] + r['C'] + r['D'] for r in mr) / n
+                avgTotal = avgA + avgE + avgBCD
+                compare_biz.append({
+                    'model': model, 'dest': dest, 'biz': biz,
+                    'A': round(avgA), 'E': round(avgE), 'BCD': round(avgBCD),
+                    'total': round(avgTotal),
+                    'aPct': round(avgA / avgTotal * 100) if avgTotal else 0,
+                    'ePct': round(avgE / avgTotal * 100) if avgTotal else 0,
+                    'bcdPct': round(avgBCD / avgTotal * 100) if avgTotal else 0,
+                })
 
     # -- KPI --
     def avg_pu(origin, dest):
@@ -86,6 +116,8 @@ def build():
         return sum(vals) / len(vals) if vals else 0
     sz_de_avg = avg_pu('深圳', '德国')
     vn_de_avg = avg_pu('越南', '德国')
+    sz_us_avg = avg_pu('深圳', '美国')
+    vn_us_avg = avg_pu('越南', '美国')
 
     # -- target comparison --
     dest_order = {'德国': 0, '美国': 1}
@@ -182,12 +214,12 @@ td{padding:5px 7px;text-align:center;border-bottom:1px solid #f3f4f6;white-space
 tr:hover td{background:#fafbfc}
 .tl{text-align:left}.num{font-family:"SF Mono",Consolas,monospace;font-size:11px}.b{font-weight:600}
 .over{color:var(--red);font-weight:600}.under{color:var(--blue);font-weight:600}
-.clouds{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px}
+.clouds{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:16px}
 @media(max-width:1000px){.clouds{grid-template-columns:1fr}}
 .cloud-card{background:var(--card);border-radius:12px;padding:20px;box-shadow:var(--shadow)}
 .cloud-card h2{font-size:18px;text-align:center;margin-bottom:2px}
 .cloud-card .sub{text-align:center;font-size:11px;color:var(--muted);margin-bottom:12px}
-.cloud-area{position:relative;width:100%;height:380px}
+.cloud-area{position:relative;width:100%;height:310px}
 .cloud-area svg{width:100%;height:100%}
 .legend{display:flex;justify-content:center;gap:16px;margin-top:12px;flex-wrap:wrap}
 .legend-item{display:flex;align-items:center;gap:6px;font-size:11px}
@@ -213,7 +245,7 @@ footer{text-align:center;color:#aaa;font-size:11px;margin-top:24px;padding-top:1
 <div class="container">
 <div class="page-title">
   <h1>DAP 成本全景</h1>
-  <div class="meta">全路线端到端 | 目标 35EUR | 2026年8月</div>
+  <div class="meta">全路线端到端 | 目标 36EUR (头程15&euro;+尾程15&euro;+其他6&euro;) | 2026年8月</div>
 </div>
 '''
 
@@ -222,7 +254,9 @@ footer{text-align:center;color:#aaa;font-size:11px;margin-top:24px;padding-top:1
 <div class="kpi-grid">
   <div class="kpi blue"><div class="kpi-label">深圳 → 德国 DAP</div><div class="kpi-value">{sz_de_avg:,.0f}</div><div class="kpi-sub">G/M/N单台均值 RMB</div></div>
   <div class="kpi amber"><div class="kpi-label">越南 → 德国 DAP</div><div class="kpi-value">{vn_de_avg:,.0f}</div><div class="kpi-sub">G/M/N单台均值 RMB</div></div>
-  <div class="kpi red"><div class="kpi-label">全段目标价 DAP</div><div class="kpi-value">{TARGET_EUR} EUR</div><div class="kpi-sub">= {TARGET_RMB:,.0f} RMB (7.85)</div></div>
+  <div class="kpi red"><div class="kpi-label">深圳 → 美国 DAP</div><div class="kpi-value">{sz_us_avg:,.0f}</div><div class="kpi-sub">G/M/N单台均值 RMB</div></div>
+  <div class="kpi amber"><div class="kpi-label">越南 → 美国 DAP</div><div class="kpi-value">{vn_us_avg:,.0f}</div><div class="kpi-sub">G/M/N单台均值 RMB</div></div>
+  <div class="kpi blue"><div class="kpi-label">全段目标价 DAP</div><div class="kpi-value">{TARGET_EUR} EUR</div><div class="kpi-sub">头程{TARGET_BREAKDOWN["head"]}€ + 尾程{TARGET_BREAKDOWN["tail"]}€ + 其他{TARGET_BREAKDOWN["other"]}€ = {TARGET_RMB:,.0f} RMB (7.85)</div></div>
 </div>
 '''
 
@@ -242,24 +276,106 @@ footer{text-align:center;color:#aaa;font-size:11px;margin-top:24px;padding-top:1
         html += f'<tr><td class="tl b">{cr["dest"]}</td><td>{cr["model"]}</td><td class="num b {oc}">{cr["total"]:,}</td><td class="num">{TARGET_RMB:,.0f}</td><td class="num {oc}">{cr["gap"]:+,}</td><td style="min-width:160px"><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:16px;background:#f3f4f6;border-radius:8px;overflow:hidden"><div style="height:100%;width:{bp:.0f}%;background:{bc};border-radius:8px"></div></div><span class="{oc}" style="font-size:11px;font-weight:600;min-width:44px;text-align:right">{cr["gapPct"]:+,}%</span></div></td></tr>\n'
     html += '</tbody></table></div>\n'
 
-    # -- Cloud charts --
+    # -- Cloud charts: 3 models × 2 destinations = 6 cards --
     html += '<div class="clouds">\n'
+    dest_colors = {'德国': '#2563eb', '美国': '#ef4444'}
     for model in ['G系列', 'M系列', 'N系列']:
-        mid = model[0].lower()
-        html += f'''
+        for dest in ['德国', '美国']:
+            key = f"{model[0].lower()}_{'de' if dest == '德国' else 'us'}"
+            _, _, _, n_routes = series_data[key]
+            mid = key
+            html += f'''
 <div class="cloud-card">
-  <h2 style="color:{model_color[model]}">{model}</h2>
-  <div class="sub">单柜{pcs_map[model]}pcs | 各路线单台成本结构均值</div>
+  <h2 style="color:{dest_colors[dest]}">{model} — {dest}</h2>
+  <div class="sub">{n_routes}条路线 | 单产品单台成本结构</div>
   <div class="cloud-area" id="{mid}cloud"></div>
   <div class="legend">
-    <div class="legend-item"><span class="legend-dot" style="background:#93c5fd"></span>A 头程</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#60a5fa"></span>B 上架</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#fcd34d"></span>C 仓储</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#fb923c"></span>D 出库</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#c084fc"></span>E 尾程</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#93c5fd"></span>A 头程运费</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#60a5fa"></span>B 上架费</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#fcd34d"></span>C 仓储费</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#fb923c"></span>D 出库操作费</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#c084fc"></span>E 尾程运费</div>
   </div>
   <div id="{mid}-routes"></div>
 </div>'''
+    html += '</div>\n'
+
+    # -- Cost breakdown reference --
+    html += '''
+<div class="card" style="padding:16px 20px">
+  <div class="card-header"><div class="card-title">费用构成说明</div><span class="tag tag-blue">A/B/C/D/E 五段明细</span></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;font-size:12px;line-height:1.8">
+    <div><strong style="color:#2563eb">A 头程运费</strong><br><span style="color:#6b7280">内陆运费 + 报关费 + 港杂费 + 海运费 + 目的港港杂费 + 目的港拖车费</span></div>
+    <div><strong style="color:#1d4ed8">B 海外仓上架费</strong><br><span style="color:#6b7280">海外仓卸柜费 + 入库清点费 + 海外仓上架费</span></div>
+    <div><strong style="color:#ca8a04">C 仓储费</strong><br><span style="color:#6b7280">按货物存放<strong>90天</strong>计算得出</span></div>
+    <div><strong style="color:#ea580c">D 出库操作费</strong><br><span style="color:#6b7280">C端仓库：下架 + 贴面单 + 收集SN<br>B端仓库：下架 + 收集SN + 打托 + 装柜</span></div>
+    <div><strong style="color:#7c3aed">E 尾程运费</strong><br><span style="color:#6b7280">C端：本地快递费用 / B端：尾程卡车费用</span></div>
+  </div>
+</div>
+'''
+
+    # -- Horizontal comparison --
+    de_rows = sorted([r for r in compare_biz if r['dest'] == '德国'], key=lambda x: x['total'], reverse=True)
+    us_rows = sorted([r for r in compare_biz if r['dest'] == '美国'], key=lambda x: x['total'], reverse=True)
+    max_total = max(r['total'] for r in compare_biz) if compare_biz else 1
+
+    # target standard line values
+    TGT_HEAD = round(TARGET_BREAKDOWN['head'] * EXCHANGE_RATE)
+    TGT_TAIL = round(TARGET_BREAKDOWN['tail'] * EXCHANGE_RATE)
+    TGT_OTHER = round(TARGET_BREAKDOWN['other'] * EXCHANGE_RATE)
+    tgt_bar_pct = TARGET_RMB / max_total * 100
+    tgt_a_w = TGT_HEAD / TARGET_RMB * tgt_bar_pct
+    tgt_e_w = TGT_TAIL / TARGET_RMB * tgt_bar_pct
+    tgt_o_w = tgt_bar_pct - tgt_a_w - tgt_e_w
+
+    html += '''
+<div class="card">
+  <div class="card-header"><div class="card-title">横向对比 — 头程 / 尾程 成本结构</div><span class="tag tag-blue">产品 × 目的地 × 业务类型</span></div>
+'''
+    for label, rows in [('德国', de_rows), ('美国', us_rows)]:
+        # target standard line
+        html += f'''
+  <div style="margin-bottom:14px">
+    <h4 style="font-size:13px;margin-bottom:6px;color:#1e40af">{label}</h4>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:11px">
+      <div style="width:68px;text-align:right;font-weight:700;flex-shrink:0;color:#dc2626;font-size:10px">目标 36€</div>
+      <div style="flex:1;height:14px;background:transparent;border-radius:7px;overflow:hidden;display:flex;max-width:700px;border:2px dashed #fca5a5">
+        <div style="width:{tgt_a_w:.1f}%;background:rgba(37,99,235,0.25);display:flex;align-items:center;justify-content:center">
+          <span style="color:#1e40af;font-size:9px;font-weight:700;white-space:nowrap">头{TGT_HEAD}({round(TGT_HEAD/TARGET_RMB*100)}%)</span>
+        </div>
+        <div style="width:{tgt_e_w:.1f}%;background:rgba(124,58,237,0.25);display:flex;align-items:center;justify-content:center">
+          <span style="color:#7c3aed;font-size:9px;font-weight:700;white-space:nowrap">尾{TGT_TAIL}({round(TGT_TAIL/TARGET_RMB*100)}%)</span>
+        </div>
+        <div style="width:{tgt_o_w:.1f}%;background:rgba(217,119,6,0.25);display:flex;align-items:center;justify-content:center">
+          <span style="color:#b45309;font-size:9px;font-weight:700;white-space:nowrap">其他{TGT_OTHER}({round(TGT_OTHER/TARGET_RMB*100)}%)</span>
+        </div>
+      </div>
+      <div style="width:48px;font-weight:700;font-size:11px;flex-shrink:0;text-align:left;color:#dc2626">&yen;{TARGET_RMB}</div>
+    </div>'''
+        for r in rows:
+            short = f"{r['model'][0]} {r['biz'].replace('谷仓','').replace('中转','')}"
+            bar_pct = r['total'] / max_total * 100
+            a_w = r['A'] / r['total'] * bar_pct
+            e_w = r['E'] / r['total'] * bar_pct
+            bcd_w = bar_pct - a_w - e_w
+            html += f'''
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px">
+      <div style="width:68px;text-align:right;font-weight:600;flex-shrink:0;font-size:11px">{short}</div>
+      <div style="flex:1;height:18px;background:#f3f4f6;border-radius:9px;overflow:hidden;display:flex;position:relative;max-width:700px">
+        <div style="width:{a_w:.1f}%;background:linear-gradient(90deg,#93c5fd,#3b82f6);border-radius:9px 0 0 9px;display:flex;align-items:center;justify-content:center;min-width:{ '0' if r['aPct'] < 10 else '40px'}">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 3px">头{r['A']}({r['aPct']}%)</span>
+        </div>
+        <div style="width:{e_w:.1f}%;background:linear-gradient(90deg,#c084fc,#7c3aed);display:flex;align-items:center;justify-content:center;min-width:{ '0' if r['ePct'] < 10 else '40px'}">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 3px">尾{r['E']}({r['ePct']}%)</span>
+        </div>
+        <div style="width:{bcd_w:.1f}%;background:linear-gradient(90deg,#fcd34d,#f59e0b);display:flex;align-items:center;justify-content:center;border-radius:0 9px 9px 0;min-width:{ '0' if r['bcdPct'] < 8 else '36px'}">
+          <span style="color:#78350f;font-size:9px;font-weight:600;white-space:nowrap;padding:0 3px">其他{r['BCD']}({r['bcdPct']}%)</span>
+        </div>
+      </div>
+      <div style="width:48px;font-weight:700;font-size:13px;flex-shrink:0;text-align:left">&yen;{r['total']}</div>
+    </div>'''
+        html += '</div>\n'
+
     html += '</div>\n'
 
     # -- Conclusion --
@@ -280,7 +396,7 @@ footer{text-align:center;color:#aaa;font-size:11px;margin-top:24px;padding-top:1
 var colors={A:'#93c5fd',B:'#60a5fa',C:'#fcd34d',D:'#fb923c',E:'#c084fc'};
 var cd={A:'#2563eb',B:'#1d4ed8',C:'#ca8a04',D:'#ea580c',E:'#7c3aed'};
 var keys=['A','B','C','D','E'];
-var labels={A:'头程费用',B:'上架操作',C:'仓储费',D:'出库操作',E:'尾程运费'};
+var labels={A:'头程运费',B:'上架费',C:'仓储费(90天)',D:'出库操作费',E:'尾程运费'};
 
 function avgCosts(rs){
   var s={A:0,B:0,C:0,D:0,E:0};
@@ -318,27 +434,25 @@ function drawCloud(cid,rs){
 
 function drawRouteCards(cid,rs){
   var c=document.getElementById(cid);
-  var deR=rs.filter(function(r){return r.label.indexOf('德国')>=0});
-  var usR=rs.filter(function(r){return r.label.indexOf('美东')>=0||r.label.indexOf('美西')>=0});
-  function at(rs){if(!rs.length)return 0;return Math.round(rs.reduce(function(s,r){return s+keys.reduce(function(a,k){return a+r[k]},0)},0)/rs.length)}
+  function avgT(rs){if(!rs.length)return 0;return Math.round(rs.reduce(function(s,r){return s+keys.reduce(function(a,k){return a+r[k]},0)},0)/rs.length)}
   var h='';
-  h+='<div class="route-group"><span class="rgl de">德国</span><div class="route-cards">';
-  deR.forEach(function(r){var t=keys.reduce(function(s,k){return s+r[k]},0);h+='<div class="route-item de"><div class="rl">'+r.label.replace('深圳->德国 ','').replace('越南->德国 ','')+'</div><div class="rv">&yen;'+t+'</div><div class="rs">头'+Math.round(r.A/t*100)+'% 尾'+Math.round(r.E/t*100)+'%</div></div>'});
-  h+='<div class="route-item" style="background:#eff6ff;border:2px solid #93c5fd"><div class="rl">德国 均值</div><div class="rv" style="font-size:17px">&yen;'+at(deR)+'</div><div class="rs">'+deR.length+'条</div></div></div></div>';
-  h+='<div class="route-group"><span class="rgl us">美国</span><div class="route-cards">';
-  usR.forEach(function(r){var t=keys.reduce(function(s,k){return s+r[k]},0);var sh=r.label.replace('深圳->美国 ','').replace('越南->美国 ','');h+='<div class="route-item us"><div class="rl">'+sh+'</div><div class="rv">&yen;'+t+'</div><div class="rs">头'+Math.round(r.A/t*100)+'% 尾'+Math.round(r.E/t*100)+'%</div></div>'});
-  h+='<div class="route-item" style="background:#fef2f2;border:2px solid #fca5a5"><div class="rl">美国 均值</div><div class="rv" style="font-size:17px">&yen;'+at(usR)+'</div><div class="rs">'+usR.length+'条</div></div></div></div>';
+  h+='<div class="route-cards">';
+  rs.forEach(function(r){var t=keys.reduce(function(s,k){return s+r[k]},0);var sh=r.label.split(' ').slice(1).join(' ');h+='<div class="route-item"><div class="rl">'+sh+'</div><div class="rv">&yen;'+t+'</div><div class="rs">头'+Math.round(r.A/t*100)+'% 尾'+Math.round(r.E/t*100)+'%</div></div>'});
+  h+='<div class="route-item" style="background:#f0f2f5;border:2px solid #d1d5db"><div class="rl">均值</div><div class="rv" style="font-size:17px">&yen;'+avgT(rs)+'</div><div class="rs">'+rs.length+'条</div></div></div>';
   c.innerHTML=h;
 }
 '''
 
     for model in ['G系列', 'M系列', 'N系列']:
-        mid = model[0].lower()
-        html += f"var {mid}Data={{name:'{model}',routes:[\n    {series_data[model]}\n]}};\n"
+        for dest in ['德国', '美国']:
+            key = f"{model[0].lower()}_{'de' if dest == '德国' else 'us'}"
+            _, _, routes_js, _ = series_data[key]
+            html += f"var {key}Data={{name:'{model} — {dest}',routes:[\n    {routes_js}\n]}};\n"
 
     for model in ['G系列', 'M系列', 'N系列']:
-        mid = model[0].lower()
-        html += f"drawCloud('{mid}cloud',{mid}Data.routes);\ndrawRouteCards('{mid}-routes',{mid}Data.routes);\n"
+        for dest in ['德国', '美国']:
+            key = f"{model[0].lower()}_{'de' if dest == '德国' else 'us'}"
+            html += f"drawCloud('{key}cloud',{key}Data.routes);\ndrawRouteCards('{key}-routes',{key}Data.routes);\n"
 
     html += '</script>\n</body>\n</html>'
     return html

@@ -13,12 +13,12 @@
   2. 运行: python build_all.py
   3. 打开生成的 HTML 文件查看
 
-数据映射规则 (2026-08-04 确认):
-  A(头程) = col[7] + col[8] + col[11]    (内陆+报关 + 主运费 + 目的港)
-  B(上架) = C端:col[13]  /  B端:col[15]
-  C(仓储) = C端:col[17]  /  B端:col[18]
-  D(出库) = C端:col[20]  /  B端:col[19]
-  E(尾程) = C端:col[21](快递)  /  B端:col[24](卡车)
+数据映射规则 (2026-08-04 更新):
+  A(头程) = col[7] + col[8] + col[11] + col[12]    (H+I+L+M: 内陆+报关+主运费+目的港)
+  B(上架) = B端中转: col[15]+col[16](P+Q)  /  C端谷仓: col[13]+col[14](N+O)  /  美东美西: col[13](N)
+  C(仓储) = B端中转: col[18](S)  /  C端谷仓&美东美西: col[17](R)
+  D(出库) = B端中转: col[19](T)  /  C端谷仓&美东美西: col[20](U)
+  E(尾程) = B端中转: col[24](Y)  /  C端谷仓&美东美西: col[21](V)
 """
 
 import json, sys, os
@@ -54,16 +54,22 @@ def load_data():
         area   = str(vals[5]).strip()
         model  = str(vals[6]).strip()
 
-        A = num(vals[7]) + num(vals[8]) + num(vals[11])
-        if 'C端' in area:
-            B = num(vals[13]); C = num(vals[17]); D = num(vals[20]); E = num(vals[21])
-        elif 'B端' in area:
-            B = num(vals[15]); C = num(vals[18]); D = num(vals[19]); E = num(vals[24])
-        else:  # 美东/美西
-            B = num(vals[13]) if num(vals[13]) else num(vals[15])
-            C = num(vals[17]) if num(vals[17]) else num(vals[18])
-            D = num(vals[20]) if num(vals[20]) else num(vals[19])
-            E = num(vals[21]) if num(vals[21]) else num(vals[24])
+        A = num(vals[7]) + num(vals[8]) + num(vals[11]) + num(vals[12])
+        if 'B端' in area:
+            B = num(vals[15]) + num(vals[16])
+            C = num(vals[18])
+            D = num(vals[19])
+            E = num(vals[24])
+        elif 'C端' in area:
+            B = num(vals[13]) + num(vals[14])
+            C = num(vals[17])
+            D = num(vals[20])
+            E = num(vals[21])
+        else:  # 美东 / 美西
+            B = num(vals[13])
+            C = num(vals[17])
+            D = num(vals[20])
+            E = num(vals[21])
 
         total = A + B + C + D + E
         pcs = 1
