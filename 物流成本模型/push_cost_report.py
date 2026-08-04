@@ -61,7 +61,7 @@ def send_html_via_robot(webhook, secret, title, html_content):
             "text": md_body,
             "btnOrientation": "0",
             "singleTitle": "查看完整报告",
-            "singleURL": f"https://htmlpreview.github.io/?https://github.com/Tyrion-KIM/-/blob/master/物流成本模型/output/物流成本全景.html"
+            "singleURL": f"https://github.com/Tyrion-KIM/-/blob/master/物流成本模型/output/物流成本全景.html"
         }
     }
 
@@ -121,7 +121,7 @@ def html_to_card_markdown(html):
         "**德国**: M系列基本达标，整体可控",
         "**美国**: 全线远超目标，头程+尾程为核心矛盾",
         "",
-        f"> 完整 HTML 报告见 [物流成本全景](https://htmlpreview.github.io/?https://github.com/Tyrion-KIM/-/blob/master/物流成本模型/output/物流成本全景.html)",
+        f"> 完整 HTML 报告: 下载 [物流成本全景.html](https://github.com/Tyrion-KIM/-/blob/master/物流成本模型/output/物流成本全景.html) 本地打开",
         f"> 自动推送 | {now.strftime('%Y-%m-%d %H:%M')}"
     ])
     return '\n'.join(lines)
