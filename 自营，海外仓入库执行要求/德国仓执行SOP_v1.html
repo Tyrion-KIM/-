@@ -105,6 +105,7 @@
       .node-title { font-size: 18px; }
       .field { box-shadow: none; border: 1px solid var(--gray-200); page-break-inside: avoid; }
       body { background: white; }
+      .role-content[data-role="warehouse"],
       .role-content[data-role="dispatch"] { display: block !important; }
     }
   </style>
@@ -156,11 +157,11 @@
           <div class="field"><h3 class="field-label">目的</h3><p class="field-body">确保到仓车辆信息准确核实，引导车辆停靠正确码头，完成到仓登记</p></div>
           <div class="field"><h3 class="field-label">前置条件</h3><ul class="field-body"><li>中台已推送当日到仓车辆清单（含车牌号、预计到仓时间ETA、货物类型）</li></ul></div>
           <div class="field"><h3 class="field-label">操作步骤</h3><ol class="field-body steps">
-            <li>接收中台下发的当日车辆到达清单 → 确认码头可用状态</li>
-            <li>车辆到达时，核对车牌号与清单是否一致 → 记录实际到仓时间</li>
-            <li>检查车辆外观：封条是否完好、箱体有无破损 → 拍照留档</li>
-            <li>指引车辆停靠指定卸货码头</li>
-            <li>在系统中录入车辆到达信息（车牌号、到仓时间、码头号）</li>
+            <li>接收中台下发的当日车辆到达清单 → 确认码头可用状态 <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>车辆到达时，核对车牌号与清单是否一致 → 记录实际到仓时间 <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>检查车辆外观：封条是否完好、箱体有无破损 → 拍照留档 <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>指引车辆停靠指定卸货码头 <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>在系统中录入车辆到达信息（车牌号、到仓时间、码头号） <span class="step-executor">执行人：仓库操作员</span></li>
           </ol></div>
           <div class="field"><h3 class="field-label">检查标准</h3><ul class="field-body checklist">
             <li>车牌号与清单匹配率 100%</li>
@@ -204,11 +205,11 @@
           <div class="field"><h3 class="field-label">目的</h3><p class="field-body">安全高效完成卸货，准确清点托盘数量，完成签收确认</p></div>
           <div class="field"><h3 class="field-label">前置条件</h3><ul class="field-body"><li>车辆已停靠指定码头</li><li>卸货设备（叉车）就位</li><li>签收单据准备就绪</li></ul></div>
           <div class="field"><h3 class="field-label">操作步骤</h3><ol class="field-body steps">
-            <li>叉车操作员就位，确认卸货区域无人员/障碍物</li>
-            <li>逐托盘卸货：检查每个托盘外观完整性（缠绕膜是否完好、托盘有无破损倾斜）</li>
-            <li>清点托盘总数，与送货单/系统数据核对</li>
-            <li>在系统中完成签收确认（托盘数量、到仓时间、车牌号）</li>
-            <li>将卸货完成的托盘移至待上架暂存区</li>
+            <li>叉车操作员就位，确认卸货区域无人员/障碍物 <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>逐托盘卸货：检查每个托盘外观完整性（缠绕膜是否完好、托盘有无破损倾斜） <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>清点托盘总数，与送货单/系统数据核对 <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>在系统中完成签收确认（托盘数量、到仓时间、车牌号） <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>将卸货完成的托盘移至待上架暂存区 <span class="step-executor">执行人：仓库操作员</span></li>
           </ol></div>
           <div class="field"><h3 class="field-label">检查标准</h3><ul class="field-body checklist">
             <li>托盘数量与单据一致率 100%（差异需当场确认并记录）</li>
@@ -252,11 +253,11 @@
           <div class="field"><h3 class="field-label">目的</h3><p class="field-body">将验收完成的托盘按库位策略上架，绑定库位信息，确保库存数据准确</p></div>
           <div class="field"><h3 class="field-label">前置条件</h3><ul class="field-body"><li>托盘已完成签收</li><li>系统已分配库位（或按现场规则自选库位）</li></ul></div>
           <div class="field"><h3 class="field-label">操作步骤</h3><ol class="field-body steps">
-            <li>根据系统分配的库位（或现场上架规则），规划上架路径</li>
-            <li>叉车搬运托盘至指定库位</li>
-            <li>使用PDA/扫码设备扫描托盘标签 + 库位标签 → 系统绑定</li>
-            <li>确认上架完成：检查托盘摆放稳定性，托盘不得超出库位线</li>
-            <li>系统更新上架状态为"已完成"</li>
+            <li>根据系统分配的库位（或现场上架规则），规划上架路径 <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>叉车搬运托盘至指定库位 <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>使用PDA/扫码设备扫描托盘标签 + 库位标签 → 系统绑定 <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>确认上架完成：检查托盘摆放稳定性，托盘不得超出库位线 <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>系统更新上架状态为"已完成" <span class="step-executor">执行人：仓库操作员</span></li>
           </ol></div>
           <div class="field"><h3 class="field-label">检查标准</h3><ul class="field-body checklist">
             <li>库位绑定准确率 100%</li>
@@ -298,10 +299,10 @@
           <div class="field"><h3 class="field-label">目的</h3><p class="field-body">保证库内托盘存储安全、有序，库存数据与实物一致</p></div>
           <div class="field"><h3 class="field-label">前置条件</h3><ul class="field-body"><li>托盘已上架完成，库位信息正确</li></ul></div>
           <div class="field"><h3 class="field-label">操作步骤</h3><ol class="field-body steps">
-            <li>日常库位整理：检查托盘摆放合规（不超线、不超高、堆码稳固），移位调整</li>
-            <li>按中台下发的盘点计划执行盘点：逐库位核对托盘数量+SKU</li>
-            <li>盘点结果录入系统，差异标注原因</li>
-            <li>托盘移位时同步更新系统库位</li>
+            <li>日常库位整理：检查托盘摆放合规（不超线、不超高、堆码稳固），移位调整 <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>按中台下发的盘点计划执行盘点：逐库位核对托盘数量+SKU <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>盘点结果录入系统，差异标注原因 <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>托盘移位时同步更新系统库位 <span class="step-executor">执行人：仓库操作员</span></li>
           </ol></div>
           <div class="field"><h3 class="field-label">检查标准</h3><ul class="field-body checklist">
             <li>月度盘点准确率 ≥ 99%</li>
@@ -344,11 +345,11 @@
           <div class="field"><h3 class="field-label">目的</h3><p class="field-body">按拣货单准确下架指定托盘，移至出库暂存区</p></div>
           <div class="field"><h3 class="field-label">前置条件</h3><ul class="field-body"><li>收到拣货任务单（中台下发）</li><li>叉车可用</li></ul></div>
           <div class="field"><h3 class="field-label">操作步骤</h3><ol class="field-body steps">
-            <li>接收拣货任务，确认拣货单信息（SKU、库位、托盘数量、优先级）</li>
-            <li>按拣货单指引前往库位，核对托盘标签与拣货单是否一致</li>
-            <li>叉车将目标托盘下架</li>
-            <li>将下架托盘移至出库暂存区指定位置</li>
-            <li>PDA扫描确认下架完成，系统更新状态</li>
+            <li>接收拣货任务，确认拣货单信息（SKU、库位、托盘数量、优先级） <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>按拣货单指引前往库位，核对托盘标签与拣货单是否一致 <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>叉车将目标托盘下架 <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>将下架托盘移至出库暂存区指定位置 <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>PDA扫描确认下架完成，系统更新状态 <span class="step-executor">执行人：仓库操作员</span></li>
           </ol></div>
           <div class="field"><h3 class="field-label">检查标准</h3><ul class="field-body checklist">
             <li>拣货准确率 100%（托盘+数量+SKU一致）</li>
@@ -391,11 +392,11 @@
           <div class="field"><h3 class="field-label">目的</h3><p class="field-body">对拣货完成的托盘进行加固打包、粘贴出库标签，确保托盘在运输途中完好</p></div>
           <div class="field"><h3 class="field-label">前置条件</h3><ul class="field-body"><li>托盘已拣货下架至暂存区</li></ul></div>
           <div class="field"><h3 class="field-label">操作步骤</h3><ol class="field-body steps">
-            <li>检查托盘货物稳定性：堆码是否整齐、有无松动倾斜</li>
-            <li>使用缠绕膜/打包带对托盘进行加固包装</li>
-            <li>粘贴出库标签（含目的地、SKU、托盘编号、件数）</li>
-            <li>系统更新托盘状态为"已打包，待出库"</li>
-            <li>将打包完成的托盘移至出库待装区</li>
+            <li>检查托盘货物稳定性：堆码是否整齐、有无松动倾斜 <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>使用缠绕膜/打包带对托盘进行加固包装 <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>粘贴出库标签（含目的地、SKU、托盘编号、件数） <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>系统更新托盘状态为"已打包，待出库" <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>将打包完成的托盘移至出库待装区 <span class="step-executor">执行人：仓库操作员</span></li>
           </ol></div>
           <div class="field"><h3 class="field-label">检查标准</h3><ul class="field-body checklist">
             <li>托盘打包牢固，手动摇晃无明显松动</li>
@@ -432,11 +433,11 @@
           <div class="field"><h3 class="field-label">目的</h3><p class="field-body">安全高效完成装车，核实提货车辆信息，确保出库准确</p></div>
           <div class="field"><h3 class="field-label">前置条件</h3><ul class="field-body"><li>打包完成</li><li>托盘在待装区</li><li>提货车辆已到仓</li></ul></div>
           <div class="field"><h3 class="field-label">操作步骤</h3><ol class="field-body steps">
-            <li>核对提货车辆信息（车牌号、司机身份）与中台下发的出库车辆清单一致</li>
-            <li>确认车辆停靠装货码头</li>
-            <li>按装车单顺序逐托盘装车 → 装车时核对托盘标签与装车单</li>
-            <li>装车完成后与司机共同确认装载托盘数量，双方签字确认</li>
-            <li>系统完成出库确认，车辆放行</li>
+            <li>核对提货车辆信息（车牌号、司机身份）与中台下发的出库车辆清单一致 <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>确认车辆停靠装货码头 <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>按装车单顺序逐托盘装车 → 装车时核对托盘标签与装车单 <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>装车完成后与司机共同确认装载托盘数量，双方签字确认 <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>系统完成出库确认，车辆放行 <span class="step-executor">执行人：仓库操作员</span></li>
           </ol></div>
           <div class="field"><h3 class="field-label">检查标准</h3><ul class="field-body checklist">
             <li>提货车辆信息核实率 100%（未经核实的车辆不予装车）</li>
@@ -480,11 +481,11 @@
           <div class="field"><h3 class="field-label">目的</h3><p class="field-body">合理调度叉车和码头资源，维护库内动线秩序，确保作业安全高效</p></div>
           <div class="field"><h3 class="field-label">前置条件</h3><ul class="field-body"><li>当日作业计划已明确（入库/出库量、车辆台次）</li></ul></div>
           <div class="field"><h3 class="field-label">操作步骤</h3><ol class="field-body steps">
-            <li>每日开工前确认叉车可用状态（电量/油量、外观检查）</li>
-            <li>根据当日入库/出库计划分配码头：入库优先使用1-2号码头，出库使用3-4号</li>
-            <li>作业高峰时段调配叉车资源，确保入库/出库不互相阻塞</li>
-            <li>维护库内主通道畅通，禁止托盘占道存放</li>
-            <li>每日收工检查：叉车归位充电/停放、码头清理、通道无障碍</li>
+            <li>每日开工前确认叉车可用状态（电量/油量、外观检查） <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>根据当日入库/出库计划分配码头：入库优先使用1-2号码头，出库使用3-4号 <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>作业高峰时段调配叉车资源，确保入库/出库不互相阻塞 <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>维护库内主通道畅通，禁止托盘占道存放 <span class="step-executor">执行人：仓库操作员</span></li>
+            <li>每日收工检查：叉车归位充电/停放、码头清理、通道无障碍 <span class="step-executor">执行人：仓库操作员</span></li>
           </ol></div>
           <div class="field"><h3 class="field-label">检查标准</h3><ul class="field-body checklist">
             <li>叉车可用率 ≥ 98%（每日开工检查通过）</li>
@@ -598,6 +599,7 @@
     }
 
     function openAppendix(type) {
+      currentNode = 'appendix-' + type;
       document.querySelectorAll('.node-panel').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
       const panel = document.getElementById('appendix-' + type);
@@ -618,7 +620,11 @@
       document.querySelectorAll('.role-content').forEach(el => {
         el.style.display = el.dataset.role === currentRole ? 'block' : 'none';
       });
-      openNode(currentNode);
+      if (typeof currentNode === 'string' && currentNode.startsWith('appendix-')) {
+        openAppendix(currentNode.replace('appendix-', ''));
+      } else {
+        openNode(currentNode);
+      }
     });
   </script>
 </body>
