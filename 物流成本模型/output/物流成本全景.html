@@ -29,25 +29,6 @@ td{padding:5px 7px;text-align:center;border-bottom:1px solid #f3f4f6;white-space
 tr:hover td{background:#fafbfc}
 .tl{text-align:left}.num{font-family:"SF Mono",Consolas,monospace;font-size:11px}.b{font-weight:600}
 .over{color:var(--red);font-weight:600}.under{color:var(--blue);font-weight:600}
-.clouds{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:16px}
-@media(max-width:1000px){.clouds{grid-template-columns:1fr}}
-.cloud-card{background:var(--card);border-radius:12px;padding:20px;box-shadow:var(--shadow)}
-.cloud-card h2{font-size:18px;text-align:center;margin-bottom:2px}
-.cloud-card .sub{text-align:center;font-size:11px;color:var(--muted);margin-bottom:12px}
-.cloud-area{position:relative;width:100%;height:310px}
-.cloud-area svg{width:100%;height:100%}
-.legend{display:flex;justify-content:center;gap:16px;margin-top:12px;flex-wrap:wrap}
-.legend-item{display:flex;align-items:center;gap:6px;font-size:11px}
-.legend-dot{width:10px;height:10px;border-radius:50%}
-.route-group{margin-top:14px}
-.rgl{font-size:11px;font-weight:700;padding:4px 8px;border-radius:4px;display:inline-block;margin-bottom:6px}
-.rgl.de{background:#dbeafe;color:#1e40af}.rgl.us{background:#fee2e2;color:#991b1b}
-.route-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px}
-.route-item{background:#f9fafb;border-radius:6px;padding:6px 8px;text-align:center}
-.route-item .rl{font-size:9px;color:var(--muted);margin-bottom:1px}
-.route-item .rv{font-size:15px;font-weight:700}
-.route-item .rs{font-size:9px;color:var(--muted)}
-.route-item.de{border-left:3px solid #93c5fd}.route-item.us{border-left:3px solid #fca5a5}
 .conc-block{margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #f3f4f6}
 .conc-block:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
 .conc-block h4{font-size:13px;margin-bottom:4px}
@@ -83,315 +64,527 @@ footer{text-align:center;color:#aaa;font-size:11px;margin-top:24px;padding-top:1
 <tr><td class="tl b">美国</td><td>M系列</td><td class="num b over">541</td><td class="num">283</td><td class="num over">+258</td><td style="min-width:160px"><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:16px;background:#f3f4f6;border-radius:8px;overflow:hidden"><div style="height:100%;width:48%;background:#ef4444;border-radius:8px"></div></div><span class="over" style="font-size:11px;font-weight:600;min-width:44px;text-align:right">+91%</span></div></td></tr>
 <tr><td class="tl b">美国</td><td>N系列</td><td class="num b over">819</td><td class="num">283</td><td class="num over">+536</td><td style="min-width:160px"><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:16px;background:#f3f4f6;border-radius:8px;overflow:hidden"><div style="height:100%;width:100%;background:#ef4444;border-radius:8px"></div></div><span class="over" style="font-size:11px;font-weight:600;min-width:44px;text-align:right">+189%</span></div></td></tr>
 </tbody></table></div>
-<div class="clouds">
-
-<div class="cloud-card">
-  <h2 style="color:#2563eb">G系列 — 德国</h2>
-  <div class="sub">4条路线 | 单产品单台成本结构</div>
-  <div class="cloud-area" id="g_decloud"></div>
-  <div class="legend">
-    <div class="legend-item"><span class="legend-dot" style="background:#93c5fd"></span>A 头程运费</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#60a5fa"></span>B 上架费</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#fcd34d"></span>C 仓储费</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#fb923c"></span>D 出库操作费</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#c084fc"></span>E 尾程运费</div>
-  </div>
-  <div id="g_de-routes"></div>
-</div>
-<div class="cloud-card">
-  <h2 style="color:#ef4444">G系列 — 美国</h2>
-  <div class="sub">4条路线 | 单产品单台成本结构</div>
-  <div class="cloud-area" id="g_uscloud"></div>
-  <div class="legend">
-    <div class="legend-item"><span class="legend-dot" style="background:#93c5fd"></span>A 头程运费</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#60a5fa"></span>B 上架费</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#fcd34d"></span>C 仓储费</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#fb923c"></span>D 出库操作费</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#c084fc"></span>E 尾程运费</div>
-  </div>
-  <div id="g_us-routes"></div>
-</div>
-<div class="cloud-card">
-  <h2 style="color:#2563eb">M系列 — 德国</h2>
-  <div class="sub">4条路线 | 单产品单台成本结构</div>
-  <div class="cloud-area" id="m_decloud"></div>
-  <div class="legend">
-    <div class="legend-item"><span class="legend-dot" style="background:#93c5fd"></span>A 头程运费</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#60a5fa"></span>B 上架费</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#fcd34d"></span>C 仓储费</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#fb923c"></span>D 出库操作费</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#c084fc"></span>E 尾程运费</div>
-  </div>
-  <div id="m_de-routes"></div>
-</div>
-<div class="cloud-card">
-  <h2 style="color:#ef4444">M系列 — 美国</h2>
-  <div class="sub">4条路线 | 单产品单台成本结构</div>
-  <div class="cloud-area" id="m_uscloud"></div>
-  <div class="legend">
-    <div class="legend-item"><span class="legend-dot" style="background:#93c5fd"></span>A 头程运费</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#60a5fa"></span>B 上架费</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#fcd34d"></span>C 仓储费</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#fb923c"></span>D 出库操作费</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#c084fc"></span>E 尾程运费</div>
-  </div>
-  <div id="m_us-routes"></div>
-</div>
-<div class="cloud-card">
-  <h2 style="color:#2563eb">N系列 — 德国</h2>
-  <div class="sub">4条路线 | 单产品单台成本结构</div>
-  <div class="cloud-area" id="n_decloud"></div>
-  <div class="legend">
-    <div class="legend-item"><span class="legend-dot" style="background:#93c5fd"></span>A 头程运费</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#60a5fa"></span>B 上架费</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#fcd34d"></span>C 仓储费</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#fb923c"></span>D 出库操作费</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#c084fc"></span>E 尾程运费</div>
-  </div>
-  <div id="n_de-routes"></div>
-</div>
-<div class="cloud-card">
-  <h2 style="color:#ef4444">N系列 — 美国</h2>
-  <div class="sub">4条路线 | 单产品单台成本结构</div>
-  <div class="cloud-area" id="n_uscloud"></div>
-  <div class="legend">
-    <div class="legend-item"><span class="legend-dot" style="background:#93c5fd"></span>A 头程运费</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#60a5fa"></span>B 上架费</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#fcd34d"></span>C 仓储费</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#fb923c"></span>D 出库操作费</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#c084fc"></span>E 尾程运费</div>
-  </div>
-  <div id="n_us-routes"></div>
-</div></div>
 
 <div class="card" style="padding:16px 20px">
   <div class="card-header"><div class="card-title">费用构成说明</div><span class="tag tag-blue">A/B/C/D/E 五段明细</span></div>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;font-size:12px;line-height:1.8">
     <div><strong style="color:#2563eb">A 头程运费</strong><br><span style="color:#6b7280">内陆运费 + 报关费 + 港杂费 + 海运费 + 目的港港杂费 + 目的港拖车费</span></div>
-    <div><strong style="color:#1d4ed8">B 海外仓上架费</strong><br><span style="color:#6b7280">海外仓卸柜费 + 入库清点费 + 海外仓上架费</span></div>
-    <div><strong style="color:#ca8a04">C 仓储费</strong><br><span style="color:#6b7280">按货物存放<strong>90天</strong>计算得出</span></div>
-    <div><strong style="color:#ea580c">D 出库操作费</strong><br><span style="color:#6b7280">C端仓库：下架 + 贴面单 + 收集SN<br>B端仓库：下架 + 收集SN + 打托 + 装柜</span></div>
+    <div><strong style="color:#0d9488">B 海外仓上架费</strong><br><span style="color:#6b7280">海外仓卸柜费 + 入库清点费 + 海外仓上架费</span></div>
+    <div><strong style="color:#d97706">C 仓储费</strong><br><span style="color:#6b7280">按货物存放<strong>90天</strong>计算得出</span></div>
+    <div><strong style="color:#e11d48">D 出库操作费</strong><br><span style="color:#6b7280">C端仓库：下架 + 贴面单 + 收集SN<br>B端仓库：下架 + 收集SN + 打托 + 装柜</span></div>
     <div><strong style="color:#7c3aed">E 尾程运费</strong><br><span style="color:#6b7280">C端：本地快递费用 / B端：尾程卡车费用</span></div>
   </div>
 </div>
 
 <div class="card">
-  <div class="card-header"><div class="card-title">横向对比 — 头程 / 尾程 成本结构</div><span class="tag tag-blue">产品 × 目的地 × 业务类型</span></div>
+  <div class="card-header"><div class="card-title">横向对比 — 五段成本分列对齐</div><span class="tag tag-blue">产品 × 目的地 × 业务类型</span></div>
 
-  <div style="margin-bottom:14px">
-    <h4 style="font-size:13px;margin-bottom:6px;color:#1e40af">德国</h4>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:11px">
-      <div style="width:68px;text-align:right;font-weight:700;flex-shrink:0;color:#dc2626;font-size:10px">目标 36€</div>
-      <div style="flex:1;height:14px;background:transparent;border-radius:7px;overflow:hidden;display:flex;max-width:700px;border:2px dashed #fca5a5">
-        <div style="width:14.0%;background:rgba(37,99,235,0.25);display:flex;align-items:center;justify-content:center">
-          <span style="color:#1e40af;font-size:9px;font-weight:700;white-space:nowrap">头118(42%)</span>
-        </div>
-        <div style="width:14.0%;background:rgba(124,58,237,0.25);display:flex;align-items:center;justify-content:center">
-          <span style="color:#7c3aed;font-size:9px;font-weight:700;white-space:nowrap">尾118(42%)</span>
-        </div>
-        <div style="width:5.6%;background:rgba(217,119,6,0.25);display:flex;align-items:center;justify-content:center">
-          <span style="color:#b45309;font-size:9px;font-weight:700;white-space:nowrap">其他47(17%)</span>
-        </div>
-      </div>
-      <div style="width:48px;font-weight:700;font-size:11px;flex-shrink:0;text-align:left;color:#dc2626">&yen;283</div>
+  <div style="margin-bottom:16px">
+    <h4 style="font-size:14px;margin-bottom:8px;color:#1e40af">德国</h4>
+    <!-- column header -->
+    <div style="display:flex;align-items:center;gap:0;margin-bottom:4px;font-size:10px;color:#9ca3af;padding:0 84px 0 84px">
+      <div style="flex:1;text-align:center">A 头程</div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;text-align:center">B 上架</div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;text-align:center">C 仓储</div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;text-align:center">D 出库</div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;text-align:center">E 尾程</div>
+      <div style="width:60px;flex-shrink:0"></div>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px">
-      <div style="width:68px;text-align:right;font-weight:600;flex-shrink:0;font-size:11px">N C端</div>
-      <div style="flex:1;height:18px;background:#f3f4f6;border-radius:9px;overflow:hidden;display:flex;position:relative;max-width:700px">
-        <div style="width:23.7%;background:linear-gradient(90deg,#93c5fd,#3b82f6);border-radius:9px 0 0 9px;display:flex;align-items:center;justify-content:center;min-width:40px">
-          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 3px">头200(45%)</span>
-        </div>
-        <div style="width:17.7%;background:linear-gradient(90deg,#c084fc,#7c3aed);display:flex;align-items:center;justify-content:center;min-width:40px">
-          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 3px">尾149(34%)</span>
-        </div>
-        <div style="width:11.3%;background:linear-gradient(90deg,#fcd34d,#f59e0b);display:flex;align-items:center;justify-content:center;border-radius:0 9px 9px 0;min-width:36px">
-          <span style="color:#78350f;font-size:9px;font-weight:600;white-space:nowrap;padding:0 3px">其他96(22%)</span>
+    <!-- target line -->
+    <div style="display:flex;align-items:center;gap:0;margin-bottom:10px;height:22px;padding:0 84px 0 84px">
+      <div style="flex:1;height:22px;background:#dbeafe;border-radius:6px;border:2px dashed #fca5a5;display:flex;align-items:center;justify-content:flex-end;position:relative;overflow:visible">
+        <div style="position:absolute;right:calc(100% - 24.6%);top:0;bottom:0;width:24.6%;background:rgba(239,68,68,0.15);border-radius:4px;display:flex;align-items:center;justify-content:center;min-width:28px">
+          <span style="color:#dc2626;font-size:10px;font-weight:700;white-space:nowrap">&yen;118</span>
         </div>
       </div>
-      <div style="width:48px;font-weight:700;font-size:13px;flex-shrink:0;text-align:left">&yen;444</div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:22px;background:#ccfbf1;border-radius:6px;border:2px dashed #fca5a5;display:flex;align-items:center;justify-content:flex-end;position:relative;overflow:visible">
+        <div style="position:absolute;right:calc(100% - 0.0%);top:0;bottom:0;width:0.0%;background:rgba(239,68,68,0.15);border-radius:4px;display:flex;align-items:center;justify-content:center;min-width:0">
+          <span style="color:#dc2626;font-size:10px;font-weight:700;white-space:nowrap"></span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:22px;background:#fef3c7;border-radius:6px;border:2px dashed #fca5a5;display:flex;align-items:center;justify-content:flex-end;position:relative;overflow:visible">
+        <div style="position:absolute;right:calc(100% - 0.0%);top:0;bottom:0;width:0.0%;background:rgba(239,68,68,0.15);border-radius:4px;display:flex;align-items:center;justify-content:center;min-width:0">
+          <span style="color:#dc2626;font-size:10px;font-weight:700;white-space:nowrap"></span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:22px;background:#ffe4e6;border-radius:6px;border:2px dashed #fca5a5;display:flex;align-items:center;justify-content:flex-end;position:relative;overflow:visible">
+        <div style="position:absolute;right:calc(100% - 0.0%);top:0;bottom:0;width:0.0%;background:rgba(239,68,68,0.15);border-radius:4px;display:flex;align-items:center;justify-content:center;min-width:0">
+          <span style="color:#dc2626;font-size:10px;font-weight:700;white-space:nowrap"></span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:22px;background:#ede9fe;border-radius:6px;border:2px dashed #fca5a5;display:flex;align-items:center;justify-content:flex-end;position:relative;overflow:visible">
+        <div style="position:absolute;right:calc(100% - 39.2%);top:0;bottom:0;width:39.2%;background:rgba(239,68,68,0.15);border-radius:4px;display:flex;align-items:center;justify-content:center;min-width:28px">
+          <span style="color:#dc2626;font-size:10px;font-weight:700;white-space:nowrap">&yen;118</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="width:60px;flex-shrink:0;text-align:center;font-size:11px;color:#dc2626;font-weight:700">&yen;283</div>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px">
-      <div style="width:68px;text-align:right;font-weight:600;flex-shrink:0;font-size:11px">N B端</div>
-      <div style="flex:1;height:18px;background:#f3f4f6;border-radius:9px;overflow:hidden;display:flex;position:relative;max-width:700px">
-        <div style="width:23.7%;background:linear-gradient(90deg,#93c5fd,#3b82f6);border-radius:9px 0 0 9px;display:flex;align-items:center;justify-content:center;min-width:40px">
-          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 3px">头200(46%)</span>
-        </div>
-        <div style="width:19.0%;background:linear-gradient(90deg,#c084fc,#7c3aed);display:flex;align-items:center;justify-content:center;min-width:40px">
-          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 3px">尾160(37%)</span>
-        </div>
-        <div style="width:8.8%;background:linear-gradient(90deg,#fcd34d,#f59e0b);display:flex;align-items:center;justify-content:center;border-radius:0 9px 9px 0;min-width:36px">
-          <span style="color:#78350f;font-size:9px;font-weight:600;white-space:nowrap;padding:0 3px">其他75(17%)</span>
+    <div style="display:flex;align-items:center;gap:0;margin-bottom:6px;height:28px;padding:0 0 0 84px">
+      <div style="width:76px;text-align:right;font-weight:600;flex-shrink:0;font-size:11px;margin-left:-84px;margin-right:8px">N C端</div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:41.7%;height:100%;background:#2563eb;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;200</span>
         </div>
       </div>
-      <div style="width:48px;font-weight:700;font-size:13px;flex-shrink:0;text-align:left">&yen;434</div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:35.7%;height:100%;background:#0d9488;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:0">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;10</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:100.0%;height:100%;background:#d97706;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;68</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:46.2%;height:100%;background:#e11d48;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;18</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:49.5%;height:100%;background:#7c3aed;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;149</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="width:60px;flex-shrink:0;font-weight:700;font-size:13px;text-align:center">&yen;444</div>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px">
-      <div style="width:68px;text-align:right;font-weight:600;flex-shrink:0;font-size:11px">G B端</div>
-      <div style="flex:1;height:18px;background:#f3f4f6;border-radius:9px;overflow:hidden;display:flex;position:relative;max-width:700px">
-        <div style="width:16.8%;background:linear-gradient(90deg,#93c5fd,#3b82f6);border-radius:9px 0 0 9px;display:flex;align-items:center;justify-content:center;min-width:40px">
-          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 3px">头142(40%)</span>
-        </div>
-        <div style="width:16.1%;background:linear-gradient(90deg,#c084fc,#7c3aed);display:flex;align-items:center;justify-content:center;min-width:40px">
-          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 3px">尾136(38%)</span>
-        </div>
-        <div style="width:9.0%;background:linear-gradient(90deg,#fcd34d,#f59e0b);display:flex;align-items:center;justify-content:center;border-radius:0 9px 9px 0;min-width:36px">
-          <span style="color:#78350f;font-size:9px;font-weight:600;white-space:nowrap;padding:0 3px">其他75(21%)</span>
+    <div style="display:flex;align-items:center;gap:0;margin-bottom:6px;height:28px;padding:0 0 0 84px">
+      <div style="width:76px;text-align:right;font-weight:600;flex-shrink:0;font-size:11px;margin-left:-84px;margin-right:8px">N B端</div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:41.7%;height:100%;background:#2563eb;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;200</span>
         </div>
       </div>
-      <div style="width:48px;font-weight:700;font-size:13px;flex-shrink:0;text-align:left">&yen;354</div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:75.0%;height:100%;background:#0d9488;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;21</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:22.1%;height:100%;background:#d97706;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;15</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:100.0%;height:100%;background:#e11d48;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;39</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:53.2%;height:100%;background:#7c3aed;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;160</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="width:60px;flex-shrink:0;font-weight:700;font-size:13px;text-align:center">&yen;434</div>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px">
-      <div style="width:68px;text-align:right;font-weight:600;flex-shrink:0;font-size:11px">M B端</div>
-      <div style="flex:1;height:18px;background:#f3f4f6;border-radius:9px;overflow:hidden;display:flex;position:relative;max-width:700px">
-        <div style="width:13.3%;background:linear-gradient(90deg,#93c5fd,#3b82f6);border-radius:9px 0 0 9px;display:flex;align-items:center;justify-content:center;min-width:40px">
-          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 3px">头112(35%)</span>
-        </div>
-        <div style="width:16.1%;background:linear-gradient(90deg,#c084fc,#7c3aed);display:flex;align-items:center;justify-content:center;min-width:40px">
-          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 3px">尾136(42%)</span>
-        </div>
-        <div style="width:9.0%;background:linear-gradient(90deg,#fcd34d,#f59e0b);display:flex;align-items:center;justify-content:center;border-radius:0 9px 9px 0;min-width:36px">
-          <span style="color:#78350f;font-size:9px;font-weight:600;white-space:nowrap;padding:0 3px">其他75(23%)</span>
+    <div style="display:flex;align-items:center;gap:0;margin-bottom:6px;height:28px;padding:0 0 0 84px">
+      <div style="width:76px;text-align:right;font-weight:600;flex-shrink:0;font-size:11px;margin-left:-84px;margin-right:8px">G B端</div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:29.6%;height:100%;background:#2563eb;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;142</span>
         </div>
       </div>
-      <div style="width:48px;font-weight:700;font-size:13px;flex-shrink:0;text-align:left">&yen;324</div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:75.0%;height:100%;background:#0d9488;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;21</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:22.1%;height:100%;background:#d97706;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;15</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:100.0%;height:100%;background:#e11d48;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;39</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:45.2%;height:100%;background:#7c3aed;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;136</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="width:60px;flex-shrink:0;font-weight:700;font-size:13px;text-align:center">&yen;354</div>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px">
-      <div style="width:68px;text-align:right;font-weight:600;flex-shrink:0;font-size:11px">G C端</div>
-      <div style="flex:1;height:18px;background:#f3f4f6;border-radius:9px;overflow:hidden;display:flex;position:relative;max-width:700px">
-        <div style="width:16.8%;background:linear-gradient(90deg,#93c5fd,#3b82f6);border-radius:9px 0 0 9px;display:flex;align-items:center;justify-content:center;min-width:40px">
-          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 3px">头142(44%)</span>
-        </div>
-        <div style="width:11.4%;background:linear-gradient(90deg,#c084fc,#7c3aed);display:flex;align-items:center;justify-content:center;min-width:40px">
-          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 3px">尾96(30%)</span>
-        </div>
-        <div style="width:10.0%;background:linear-gradient(90deg,#fcd34d,#f59e0b);display:flex;align-items:center;justify-content:center;border-radius:0 9px 9px 0;min-width:36px">
-          <span style="color:#78350f;font-size:9px;font-weight:600;white-space:nowrap;padding:0 3px">其他84(26%)</span>
+    <div style="display:flex;align-items:center;gap:0;margin-bottom:6px;height:28px;padding:0 0 0 84px">
+      <div style="width:76px;text-align:right;font-weight:600;flex-shrink:0;font-size:11px;margin-left:-84px;margin-right:8px">M B端</div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:23.3%;height:100%;background:#2563eb;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;112</span>
         </div>
       </div>
-      <div style="width:48px;font-weight:700;font-size:13px;flex-shrink:0;text-align:left">&yen;322</div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:75.0%;height:100%;background:#0d9488;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;21</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:22.1%;height:100%;background:#d97706;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;15</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:100.0%;height:100%;background:#e11d48;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;39</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:45.2%;height:100%;background:#7c3aed;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;136</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="width:60px;flex-shrink:0;font-weight:700;font-size:13px;text-align:center">&yen;324</div>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px">
-      <div style="width:68px;text-align:right;font-weight:600;flex-shrink:0;font-size:11px">M C端</div>
-      <div style="flex:1;height:18px;background:#f3f4f6;border-radius:9px;overflow:hidden;display:flex;position:relative;max-width:700px">
-        <div style="width:13.3%;background:linear-gradient(90deg,#93c5fd,#3b82f6);border-radius:9px 0 0 9px;display:flex;align-items:center;justify-content:center;min-width:40px">
-          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 3px">头112(51%)</span>
-        </div>
-        <div style="width:5.1%;background:linear-gradient(90deg,#c084fc,#7c3aed);display:flex;align-items:center;justify-content:center;min-width:40px">
-          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 3px">尾43(20%)</span>
-        </div>
-        <div style="width:7.5%;background:linear-gradient(90deg,#fcd34d,#f59e0b);display:flex;align-items:center;justify-content:center;border-radius:0 9px 9px 0;min-width:36px">
-          <span style="color:#78350f;font-size:9px;font-weight:600;white-space:nowrap;padding:0 3px">其他63(29%)</span>
+    <div style="display:flex;align-items:center;gap:0;margin-bottom:6px;height:28px;padding:0 0 0 84px">
+      <div style="width:76px;text-align:right;font-weight:600;flex-shrink:0;font-size:11px;margin-left:-84px;margin-right:8px">G C端</div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:29.6%;height:100%;background:#2563eb;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;142</span>
         </div>
       </div>
-      <div style="width:48px;font-weight:700;font-size:13px;flex-shrink:0;text-align:left">&yen;218</div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:100.0%;height:100%;background:#0d9488;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;28</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:42.6%;height:100%;background:#d97706;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;29</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:69.2%;height:100%;background:#e11d48;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;27</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:31.9%;height:100%;background:#7c3aed;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;96</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="width:60px;flex-shrink:0;font-weight:700;font-size:13px;text-align:center">&yen;322</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:0;margin-bottom:6px;height:28px;padding:0 0 0 84px">
+      <div style="width:76px;text-align:right;font-weight:600;flex-shrink:0;font-size:11px;margin-left:-84px;margin-right:8px">M C端</div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:23.3%;height:100%;background:#2563eb;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;112</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:21.4%;height:100%;background:#0d9488;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;6</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:57.4%;height:100%;background:#d97706;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;39</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:46.2%;height:100%;background:#e11d48;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;18</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:14.3%;height:100%;background:#7c3aed;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;43</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="width:60px;flex-shrink:0;font-weight:700;font-size:13px;text-align:center">&yen;218</div>
     </div></div>
 
-  <div style="margin-bottom:14px">
-    <h4 style="font-size:13px;margin-bottom:6px;color:#1e40af">美国</h4>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:11px">
-      <div style="width:68px;text-align:right;font-weight:700;flex-shrink:0;color:#dc2626;font-size:10px">目标 36€</div>
-      <div style="flex:1;height:14px;background:transparent;border-radius:7px;overflow:hidden;display:flex;max-width:700px;border:2px dashed #fca5a5">
-        <div style="width:14.0%;background:rgba(37,99,235,0.25);display:flex;align-items:center;justify-content:center">
-          <span style="color:#1e40af;font-size:9px;font-weight:700;white-space:nowrap">头118(42%)</span>
-        </div>
-        <div style="width:14.0%;background:rgba(124,58,237,0.25);display:flex;align-items:center;justify-content:center">
-          <span style="color:#7c3aed;font-size:9px;font-weight:700;white-space:nowrap">尾118(42%)</span>
-        </div>
-        <div style="width:5.6%;background:rgba(217,119,6,0.25);display:flex;align-items:center;justify-content:center">
-          <span style="color:#b45309;font-size:9px;font-weight:700;white-space:nowrap">其他47(17%)</span>
-        </div>
-      </div>
-      <div style="width:48px;font-weight:700;font-size:11px;flex-shrink:0;text-align:left;color:#dc2626">&yen;283</div>
+  <div style="margin-bottom:16px">
+    <h4 style="font-size:14px;margin-bottom:8px;color:#1e40af">美国</h4>
+    <!-- column header -->
+    <div style="display:flex;align-items:center;gap:0;margin-bottom:4px;font-size:10px;color:#9ca3af;padding:0 84px 0 84px">
+      <div style="flex:1;text-align:center">A 头程</div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;text-align:center">B 上架</div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;text-align:center">C 仓储</div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;text-align:center">D 出库</div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;text-align:center">E 尾程</div>
+      <div style="width:60px;flex-shrink:0"></div>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px">
-      <div style="width:68px;text-align:right;font-weight:600;flex-shrink:0;font-size:11px">N 美东</div>
-      <div style="flex:1;height:18px;background:#f3f4f6;border-radius:9px;overflow:hidden;display:flex;position:relative;max-width:700px">
-        <div style="width:56.9%;background:linear-gradient(90deg,#93c5fd,#3b82f6);border-radius:9px 0 0 9px;display:flex;align-items:center;justify-content:center;min-width:40px">
-          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 3px">头480(57%)</span>
-        </div>
-        <div style="width:35.7%;background:linear-gradient(90deg,#c084fc,#7c3aed);display:flex;align-items:center;justify-content:center;min-width:40px">
-          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 3px">尾301(36%)</span>
-        </div>
-        <div style="width:7.5%;background:linear-gradient(90deg,#fcd34d,#f59e0b);display:flex;align-items:center;justify-content:center;border-radius:0 9px 9px 0;min-width:0">
-          <span style="color:#78350f;font-size:9px;font-weight:600;white-space:nowrap;padding:0 3px">其他63(7%)</span>
+    <!-- target line -->
+    <div style="display:flex;align-items:center;gap:0;margin-bottom:10px;height:22px;padding:0 84px 0 84px">
+      <div style="flex:1;height:22px;background:#dbeafe;border-radius:6px;border:2px dashed #fca5a5;display:flex;align-items:center;justify-content:flex-end;position:relative;overflow:visible">
+        <div style="position:absolute;right:calc(100% - 24.6%);top:0;bottom:0;width:24.6%;background:rgba(239,68,68,0.15);border-radius:4px;display:flex;align-items:center;justify-content:center;min-width:28px">
+          <span style="color:#dc2626;font-size:10px;font-weight:700;white-space:nowrap">&yen;118</span>
         </div>
       </div>
-      <div style="width:48px;font-weight:700;font-size:13px;flex-shrink:0;text-align:left">&yen;844</div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:22px;background:#ccfbf1;border-radius:6px;border:2px dashed #fca5a5;display:flex;align-items:center;justify-content:flex-end;position:relative;overflow:visible">
+        <div style="position:absolute;right:calc(100% - 0.0%);top:0;bottom:0;width:0.0%;background:rgba(239,68,68,0.15);border-radius:4px;display:flex;align-items:center;justify-content:center;min-width:0">
+          <span style="color:#dc2626;font-size:10px;font-weight:700;white-space:nowrap"></span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:22px;background:#fef3c7;border-radius:6px;border:2px dashed #fca5a5;display:flex;align-items:center;justify-content:flex-end;position:relative;overflow:visible">
+        <div style="position:absolute;right:calc(100% - 0.0%);top:0;bottom:0;width:0.0%;background:rgba(239,68,68,0.15);border-radius:4px;display:flex;align-items:center;justify-content:center;min-width:0">
+          <span style="color:#dc2626;font-size:10px;font-weight:700;white-space:nowrap"></span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:22px;background:#ffe4e6;border-radius:6px;border:2px dashed #fca5a5;display:flex;align-items:center;justify-content:flex-end;position:relative;overflow:visible">
+        <div style="position:absolute;right:calc(100% - 0.0%);top:0;bottom:0;width:0.0%;background:rgba(239,68,68,0.15);border-radius:4px;display:flex;align-items:center;justify-content:center;min-width:0">
+          <span style="color:#dc2626;font-size:10px;font-weight:700;white-space:nowrap"></span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:22px;background:#ede9fe;border-radius:6px;border:2px dashed #fca5a5;display:flex;align-items:center;justify-content:flex-end;position:relative;overflow:visible">
+        <div style="position:absolute;right:calc(100% - 39.2%);top:0;bottom:0;width:39.2%;background:rgba(239,68,68,0.15);border-radius:4px;display:flex;align-items:center;justify-content:center;min-width:28px">
+          <span style="color:#dc2626;font-size:10px;font-weight:700;white-space:nowrap">&yen;118</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="width:60px;flex-shrink:0;text-align:center;font-size:11px;color:#dc2626;font-weight:700">&yen;283</div>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px">
-      <div style="width:68px;text-align:right;font-weight:600;flex-shrink:0;font-size:11px">N 美西</div>
-      <div style="flex:1;height:18px;background:#f3f4f6;border-radius:9px;overflow:hidden;display:flex;position:relative;max-width:700px">
-        <div style="width:49.4%;background:linear-gradient(90deg,#93c5fd,#3b82f6);border-radius:9px 0 0 9px;display:flex;align-items:center;justify-content:center;min-width:40px">
-          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 3px">头417(53%)</span>
-        </div>
-        <div style="width:35.7%;background:linear-gradient(90deg,#c084fc,#7c3aed);display:flex;align-items:center;justify-content:center;min-width:40px">
-          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 3px">尾301(38%)</span>
-        </div>
-        <div style="width:8.9%;background:linear-gradient(90deg,#fcd34d,#f59e0b);display:flex;align-items:center;justify-content:center;border-radius:0 9px 9px 0;min-width:36px">
-          <span style="color:#78350f;font-size:9px;font-weight:600;white-space:nowrap;padding:0 3px">其他75(9%)</span>
+    <div style="display:flex;align-items:center;gap:0;margin-bottom:6px;height:28px;padding:0 0 0 84px">
+      <div style="width:76px;text-align:right;font-weight:600;flex-shrink:0;font-size:11px;margin-left:-84px;margin-right:8px">N 美东</div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:100.0%;height:100%;background:#2563eb;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;480</span>
         </div>
       </div>
-      <div style="width:48px;font-weight:700;font-size:13px;flex-shrink:0;text-align:left">&yen;793</div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:28.6%;height:100%;background:#0d9488;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:0">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;8</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:57.4%;height:100%;background:#d97706;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;39</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:41.0%;height:100%;background:#e11d48;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:0">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;16</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:100.0%;height:100%;background:#7c3aed;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;301</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="width:60px;flex-shrink:0;font-weight:700;font-size:13px;text-align:center">&yen;844</div>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px">
-      <div style="width:68px;text-align:right;font-weight:600;flex-shrink:0;font-size:11px">G 美东</div>
-      <div style="flex:1;height:18px;background:#f3f4f6;border-radius:9px;overflow:hidden;display:flex;position:relative;max-width:700px">
-        <div style="width:40.8%;background:linear-gradient(90deg,#93c5fd,#3b82f6);border-radius:9px 0 0 9px;display:flex;align-items:center;justify-content:center;min-width:40px">
-          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 3px">头344(50%)</span>
-        </div>
-        <div style="width:32.7%;background:linear-gradient(90deg,#c084fc,#7c3aed);display:flex;align-items:center;justify-content:center;min-width:40px">
-          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 3px">尾276(40%)</span>
-        </div>
-        <div style="width:7.6%;background:linear-gradient(90deg,#fcd34d,#f59e0b);display:flex;align-items:center;justify-content:center;border-radius:0 9px 9px 0;min-width:36px">
-          <span style="color:#78350f;font-size:9px;font-weight:600;white-space:nowrap;padding:0 3px">其他64(9%)</span>
+    <div style="display:flex;align-items:center;gap:0;margin-bottom:6px;height:28px;padding:0 0 0 84px">
+      <div style="width:76px;text-align:right;font-weight:600;flex-shrink:0;font-size:11px;margin-left:-84px;margin-right:8px">N 美西</div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:86.9%;height:100%;background:#2563eb;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;417</span>
         </div>
       </div>
-      <div style="width:48px;font-weight:700;font-size:13px;flex-shrink:0;text-align:left">&yen;684</div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:28.6%;height:100%;background:#0d9488;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:0">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;8</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:75.0%;height:100%;background:#d97706;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;51</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:41.0%;height:100%;background:#e11d48;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:0">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;16</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:100.0%;height:100%;background:#7c3aed;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;301</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="width:60px;flex-shrink:0;font-weight:700;font-size:13px;text-align:center">&yen;793</div>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px">
-      <div style="width:68px;text-align:right;font-weight:600;flex-shrink:0;font-size:11px">G 美西</div>
-      <div style="flex:1;height:18px;background:#f3f4f6;border-radius:9px;overflow:hidden;display:flex;position:relative;max-width:700px">
-        <div style="width:35.3%;background:linear-gradient(90deg,#93c5fd,#3b82f6);border-radius:9px 0 0 9px;display:flex;align-items:center;justify-content:center;min-width:40px">
-          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 3px">头298(47%)</span>
-        </div>
-        <div style="width:32.7%;background:linear-gradient(90deg,#c084fc,#7c3aed);display:flex;align-items:center;justify-content:center;min-width:40px">
-          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 3px">尾276(44%)</span>
-        </div>
-        <div style="width:6.2%;background:linear-gradient(90deg,#fcd34d,#f59e0b);display:flex;align-items:center;justify-content:center;border-radius:0 9px 9px 0;min-width:36px">
-          <span style="color:#78350f;font-size:9px;font-weight:600;white-space:nowrap;padding:0 3px">其他53(8%)</span>
+    <div style="display:flex;align-items:center;gap:0;margin-bottom:6px;height:28px;padding:0 0 0 84px">
+      <div style="width:76px;text-align:right;font-weight:600;flex-shrink:0;font-size:11px;margin-left:-84px;margin-right:8px">G 美东</div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:71.7%;height:100%;background:#2563eb;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;344</span>
         </div>
       </div>
-      <div style="width:48px;font-weight:700;font-size:13px;flex-shrink:0;text-align:left">&yen;626</div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:21.4%;height:100%;background:#0d9488;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:0">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;6</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:45.6%;height:100%;background:#d97706;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;31</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:69.2%;height:100%;background:#e11d48;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;27</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:91.7%;height:100%;background:#7c3aed;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;276</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="width:60px;flex-shrink:0;font-weight:700;font-size:13px;text-align:center">&yen;684</div>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px">
-      <div style="width:68px;text-align:right;font-weight:600;flex-shrink:0;font-size:11px">M 美东</div>
-      <div style="flex:1;height:18px;background:#f3f4f6;border-radius:9px;overflow:hidden;display:flex;position:relative;max-width:700px">
-        <div style="width:32.7%;background:linear-gradient(90deg,#93c5fd,#3b82f6);border-radius:9px 0 0 9px;display:flex;align-items:center;justify-content:center;min-width:40px">
-          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 3px">头276(50%)</span>
-        </div>
-        <div style="width:28.4%;background:linear-gradient(90deg,#c084fc,#7c3aed);display:flex;align-items:center;justify-content:center;min-width:40px">
-          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 3px">尾240(43%)</span>
-        </div>
-        <div style="width:5.0%;background:linear-gradient(90deg,#fcd34d,#f59e0b);display:flex;align-items:center;justify-content:center;border-radius:0 9px 9px 0;min-width:0">
-          <span style="color:#78350f;font-size:9px;font-weight:600;white-space:nowrap;padding:0 3px">其他41(7%)</span>
+    <div style="display:flex;align-items:center;gap:0;margin-bottom:6px;height:28px;padding:0 0 0 84px">
+      <div style="width:76px;text-align:right;font-weight:600;flex-shrink:0;font-size:11px;margin-left:-84px;margin-right:8px">G 美西</div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:62.1%;height:100%;background:#2563eb;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;298</span>
         </div>
       </div>
-      <div style="width:48px;font-weight:700;font-size:13px;flex-shrink:0;text-align:left">&yen;558</div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:21.4%;height:100%;background:#0d9488;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:0">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;6</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:58.8%;height:100%;background:#d97706;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;40</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:17.9%;height:100%;background:#e11d48;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:0">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;7</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:91.7%;height:100%;background:#7c3aed;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;276</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="width:60px;flex-shrink:0;font-weight:700;font-size:13px;text-align:center">&yen;626</div>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px">
-      <div style="width:68px;text-align:right;font-weight:600;flex-shrink:0;font-size:11px">M 美西</div>
-      <div style="flex:1;height:18px;background:#f3f4f6;border-radius:9px;overflow:hidden;display:flex;position:relative;max-width:700px">
-        <div style="width:28.4%;background:linear-gradient(90deg,#93c5fd,#3b82f6);border-radius:9px 0 0 9px;display:flex;align-items:center;justify-content:center;min-width:40px">
-          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 3px">头240(45%)</span>
-        </div>
-        <div style="width:28.4%;background:linear-gradient(90deg,#c084fc,#7c3aed);display:flex;align-items:center;justify-content:center;min-width:40px">
-          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 3px">尾240(46%)</span>
-        </div>
-        <div style="width:5.5%;background:linear-gradient(90deg,#fcd34d,#f59e0b);display:flex;align-items:center;justify-content:center;border-radius:0 9px 9px 0;min-width:36px">
-          <span style="color:#78350f;font-size:9px;font-weight:600;white-space:nowrap;padding:0 3px">其他47(9%)</span>
+    <div style="display:flex;align-items:center;gap:0;margin-bottom:6px;height:28px;padding:0 0 0 84px">
+      <div style="width:76px;text-align:right;font-weight:600;flex-shrink:0;font-size:11px;margin-left:-84px;margin-right:8px">M 美东</div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:57.5%;height:100%;background:#2563eb;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;276</span>
         </div>
       </div>
-      <div style="width:48px;font-weight:700;font-size:13px;flex-shrink:0;text-align:left">&yen;526</div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:17.9%;height:100%;background:#0d9488;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:0">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;5</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:33.8%;height:100%;background:#d97706;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;23</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:33.3%;height:100%;background:#e11d48;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:0">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;13</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:79.7%;height:100%;background:#7c3aed;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;240</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="width:60px;flex-shrink:0;font-weight:700;font-size:13px;text-align:center">&yen;558</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:0;margin-bottom:6px;height:28px;padding:0 0 0 84px">
+      <div style="width:76px;text-align:right;font-weight:600;flex-shrink:0;font-size:11px;margin-left:-84px;margin-right:8px">M 美西</div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:50.0%;height:100%;background:#2563eb;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;240</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:17.9%;height:100%;background:#0d9488;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:0">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;5</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:42.6%;height:100%;background:#d97706;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;29</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:33.3%;height:100%;background:#e11d48;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:0">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;13</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="flex:1;height:28px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;overflow:visible;position:relative">
+        <div style="width:79.7%;height:100%;background:#7c3aed;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;min-width:36px">
+          <span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:0 6px">&yen;240</span>
+        </div>
+      </div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div style="width:60px;flex-shrink:0;font-weight:700;font-size:13px;text-align:center">&yen;526</div>
     </div></div>
 </div>
 
@@ -404,103 +597,5 @@ footer{text-align:center;color:#aaa;font-size:11px;margin-top:24px;padding-top:1
 
 <footer>物流中心 | DAP成本全景 | 2026-08-04</footer>
 </div>
-<script>
-var colors={A:'#93c5fd',B:'#60a5fa',C:'#fcd34d',D:'#fb923c',E:'#c084fc'};
-var cd={A:'#2563eb',B:'#1d4ed8',C:'#ca8a04',D:'#ea580c',E:'#7c3aed'};
-var keys=['A','B','C','D','E'];
-var labels={A:'头程运费',B:'上架费',C:'仓储费(90天)',D:'出库操作费',E:'尾程运费'};
-
-function avgCosts(rs){
-  var s={A:0,B:0,C:0,D:0,E:0};
-  rs.forEach(function(r){keys.forEach(function(k){s[k]+=r[k]})});
-  var t=keys.reduce(function(a,k){return a+s[k]},0);
-  var o={};
-  keys.forEach(function(k){o[k]={val:Math.round(s[k]/rs.length),pct:Math.round(s[k]/t*100)}});
-  return o;
-}
-
-function drawCloud(cid,rs){
-  var c=document.getElementById(cid);
-  var W=c.clientWidth||500,H=380,cx=W/2,cy=H/2;
-  var avg=avgCosts(rs);
-  var items=keys.map(function(k){return{key:k,val:avg[k].val,pct:avg[k].pct,label:labels[k]}}).sort(function(a,b){return b.val-a.val});
-  var maxVal=items[0].val,maxR=90,minR=28;
-  var bubbles=items.map(function(it){var r=minR+Math.sqrt(it.val/maxVal)*(maxR-minR);return{key:it.key,val:it.val,pct:it.pct,label:it.label,r:r}});
-  bubbles[0].x=cx;bubbles[0].y=cy;
-  var pos=[{dx:-100,dy:-65},{dx:110,dy:-40},{dx:-85,dy:85},{dx:95,dy:75}];
-  for(var i=1;i<bubbles.length;i++){bubbles[i].x=cx+pos[i-1].dx;bubbles[i].y=cy+pos[i-1].dy}
-  var svg='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">';
-  for(var i=1;i<bubbles.length;i++){svg+='<line x1="'+bubbles[0].x+'" y1="'+bubbles[0].y+'" x2="'+bubbles[i].x+'" y2="'+bubbles[i].y+'" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4,3"/>'}
-  bubbles.forEach(function(b){
-    var gid='g-'+cid+'-'+b.key;
-    svg+='<defs><radialGradient id="'+gid+'" cx="35%" cy="30%"><stop offset="0%" stop-color="'+colors[b.key]+'" stop-opacity="0.95"/><stop offset="100%" stop-color="'+cd[b.key]+'" stop-opacity="0.9"/></radialGradient></defs>';
-    svg+='<circle cx="'+(b.x+2)+'" cy="'+(b.y+3)+'" r="'+b.r+'" fill="rgba(0,0,0,0.05)"/>';
-    svg+='<circle cx="'+b.x+'" cy="'+b.y+'" r="'+b.r+'" fill="url(#'+gid+')" stroke="'+cd[b.key]+'" stroke-width="1.5"/>';
-    var fs=Math.max(9,b.r*0.22);
-    svg+='<text x="'+b.x+'" y="'+(b.y-b.r*0.12)+'" text-anchor="middle" fill="#fff" font-size="'+(fs+2)+'" font-weight="700">'+b.label+'</text>';
-    svg+='<text x="'+b.x+'" y="'+(b.y+b.r*0.2)+'" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-size="'+(fs-2)+'" font-weight="600">&yen;'+b.val+'</text>';
-    svg+='<text x="'+b.x+'" y="'+(b.y+b.r*0.42)+'" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="'+Math.max(8,fs-4)+'">'+b.pct+'%</text>';
-  });
-  svg+='</svg>';c.innerHTML=svg;
-}
-
-function drawRouteCards(cid,rs){
-  var c=document.getElementById(cid);
-  function avgT(rs){if(!rs.length)return 0;return Math.round(rs.reduce(function(s,r){return s+keys.reduce(function(a,k){return a+r[k]},0)},0)/rs.length)}
-  var h='';
-  h+='<div class="route-cards">';
-  rs.forEach(function(r){var t=keys.reduce(function(s,k){return s+r[k]},0);var sh=r.label.split(' ').slice(1).join(' ');h+='<div class="route-item"><div class="rl">'+sh+'</div><div class="rv">&yen;'+t+'</div><div class="rs">头'+Math.round(r.A/t*100)+'% 尾'+Math.round(r.E/t*100)+'%</div></div>'});
-  h+='<div class="route-item" style="background:#f0f2f5;border:2px solid #d1d5db"><div class="rl">均值</div><div class="rv" style="font-size:17px">&yen;'+avgT(rs)+'</div><div class="rs">'+rs.length+'条</div></div></div>';
-  c.innerHTML=h;
-}
-var g_deData={name:'G系列 — 德国',routes:[
-    {label:'深圳->德国 C端谷仓', A:132,B:28,C:29,D:27,E:96},
-    {label:'深圳->德国 B端中转', A:132,B:21,C:15,D:39,E:136},
-    {label:'越南->德国 C端谷仓', A:153,B:28,C:29,D:27,E:96},
-    {label:'越南->德国 B端中转', A:153,B:21,C:15,D:39,E:136}
-]};
-var g_usData={name:'G系列 — 美国',routes:[
-    {label:'深圳->美国 美东', A:340,B:6,C:31,D:27,E:276},
-    {label:'深圳->美国 美西', A:294,B:6,C:40,D:0,E:276},
-    {label:'越南->美国 美东', A:347,B:6,C:31,D:27,E:276},
-    {label:'越南->美国 美西', A:301,B:6,C:40,D:14,E:276}
-]};
-var m_deData={name:'M系列 — 德国',routes:[
-    {label:'深圳->德国 C端谷仓', A:106,B:6,C:39,D:18,E:43},
-    {label:'深圳->德国 B端中转', A:106,B:21,C:15,D:39,E:136},
-    {label:'越南->德国 C端谷仓', A:119,B:6,C:39,D:18,E:43},
-    {label:'越南->德国 B端中转', A:119,B:21,C:15,D:39,E:136}
-]};
-var m_usData={name:'M系列 — 美国',routes:[
-    {label:'深圳->美国 美东', A:274,B:5,C:23,D:13,E:240},
-    {label:'深圳->美国 美西', A:237,B:5,C:29,D:13,E:240},
-    {label:'越南->美国 美东', A:279,B:5,C:23,D:13,E:240},
-    {label:'越南->美国 美西', A:242,B:5,C:29,D:13,E:240}
-]};
-var n_deData={name:'N系列 — 德国',routes:[
-    {label:'深圳->德国 C端谷仓', A:185,B:10,C:68,D:18,E:149},
-    {label:'深圳->德国 B端中转', A:185,B:21,C:15,D:39,E:160},
-    {label:'越南->德国 C端谷仓', A:214,B:10,C:68,D:18,E:149},
-    {label:'越南->德国 B端中转', A:214,B:21,C:15,D:39,E:160}
-]};
-var n_usData={name:'N系列 — 美国',routes:[
-    {label:'深圳->美国 美东', A:476,B:8,C:39,D:16,E:301},
-    {label:'深圳->美国 美西', A:413,B:8,C:51,D:16,E:301},
-    {label:'越南->美国 美东', A:484,B:8,C:39,D:16,E:301},
-    {label:'越南->美国 美西', A:421,B:8,C:51,D:16,E:301}
-]};
-drawCloud('g_decloud',g_deData.routes);
-drawRouteCards('g_de-routes',g_deData.routes);
-drawCloud('g_uscloud',g_usData.routes);
-drawRouteCards('g_us-routes',g_usData.routes);
-drawCloud('m_decloud',m_deData.routes);
-drawRouteCards('m_de-routes',m_deData.routes);
-drawCloud('m_uscloud',m_usData.routes);
-drawRouteCards('m_us-routes',m_usData.routes);
-drawCloud('n_decloud',n_deData.routes);
-drawRouteCards('n_de-routes',n_deData.routes);
-drawCloud('n_uscloud',n_usData.routes);
-drawRouteCards('n_us-routes',n_usData.routes);
-</script>
 </body>
 </html>
