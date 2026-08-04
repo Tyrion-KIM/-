@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>物流中心费用汇总 · 汇报看板</title>
+<style>
+  :root { --bg:#f0f2f5;--card:#fff;--text:#1a1a2e;--muted:#6b7280;--green:#059669;--green-bg:#ecfdf5;--red:#dc2626;--red-bg:#fef2f2;--amber:#d97706;--amber-bg:#fffbeb;--blue:#2563eb;--blue-bg:#eff6ff;--shadow:0 1px 3px rgba(0,0,0,0.06); }
+  * { box-sizing:border-box;margin:0;padding:0; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.5; }
+  .container { max-width:1200px;margin:0 auto;padding:28px 24px; }
+  .header { display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px; }
+  .header h1 { font-size:24px;font-weight:700; }
+  .header .meta { font-size:13px;color:var(--muted); }
+  .tag { padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600; }
+  .tag-green { background:var(--green-bg);color:var(--green); }
+  .tag-blue { background:var(--blue-bg);color:var(--blue); }
+  .kpi-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:24px; }
+  .kpi { background:var(--card);border-radius:10px;padding:16px 18px;box-shadow:var(--shadow); }
+  .kpi-label { font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px; }
+  .kpi-value { font-size:28px;font-weight:700; }
+  .kpi-sub { font-size:11px;color:var(--muted);margin-top:2px; }
+  .kpi.green .kpi-value{color:var(--green);}
+  .kpi.amber .kpi-value{color:var(--amber);}
+  .kpi.blue .kpi-value{color:var(--blue);}
+  .alert { border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:13px;background:var(--amber-bg);border:1px solid #fde68a;color:#92400e; }
+  .card { background:var(--card);border-radius:10px;padding:20px 22px;margin-bottom:18px;box-shadow:var(--shadow); }
+  .card-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px; }
+  .card-title { font-size:15px;font-weight:600; }
+  .section-de { border-left:4px solid var(--green); }
+  .table-wrap { overflow-x:auto; }
+  table { width:100%;border-collapse:collapse;font-size:12px;min-width:700px; }
+  th { padding:8px;text-align:center;font-weight:600;color:#555;background:#f9fafb;border-bottom:2px solid #e5e7eb;font-size:11px;white-space:nowrap; }
+  td { padding:6px 8px;text-align:center;border-bottom:1px solid #f3f4f6;white-space:nowrap; }
+  tr:hover td{background:#fafbfc;}
+  .text-left{text-align:left;}
+  .num{font-family:"SF Mono","Consolas",monospace;font-size:11px;}
+  .strong{font-weight:600;}
+  .bar-wrap{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:11px;}
+  .bar-label{width:48px;text-align:right;flex-shrink:0;color:#888;}
+  .bar-track{flex:1;height:14px;background:#f3f4f6;border-radius:7px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:7px;}
+  .bar-fill.a{background:#86efac;}.bar-fill.b{background:#93c5fd;}.bar-fill.c{background:#fde68a;}.bar-fill.d{background:#fdba74;}.bar-fill.e{background:#c4b5fd;}
+  .bar-val{width:80px;font-family:"SF Mono",monospace;font-size:10px;}
+  .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:12px;}
+  .summary-item{padding:14px 16px;border-radius:8px;font-size:13px;line-height:1.7;}
+  .summary-item.de{background:var(--green-bg);border:1px solid #a7f3d0;}
+  .summary-item.us{background:var(--red-bg);border:1px solid #fecaca;}
+  .summary-item h4{font-size:14px;margin-bottom:4px;}
+  footer{text-align:center;color:#aaa;font-size:11px;margin-top:28px;}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+  <div><h1>物流中心费用汇总 RMB</h1><div class="meta">DAP德国路线成本分析 · 2026年8月</div></div>
+  <div class="tag tag-blue">DAP 条款</div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi green"><div class="kpi-label">深圳 → 德国 DAP</div><div class="kpi-value">189</div><div class="kpi-sub">G/M/N系列单台均值 RMB</div></div>
+  <div class="kpi amber"><div class="kpi-label">越南 → 德国 DAP</div><div class="kpi-value">210</div><div class="kpi-sub">G/M/N系列单台均值 RMB</div></div>
+  <div class="kpi blue"><div class="kpi-label">DDP 目标价</div><div class="kpi-value">15€</div><div class="kpi-sub">约 118 RMB/台 (7.85)</div></div>
+</div>
+
+<div class="alert"><strong>说明：</strong>以下为DAP德国路线数据。美国路线（美东/美西）详见成本云图。</div>
+
+<div class="card section-de">
+  <div class="card-header"><div class="card-title">DAP 德国路线 · 单台成本</div><span class="tag tag-green">RMB/台</span></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>产品</th><th>产地</th><th>区域</th><th>头程</th><th>上架</th><th>仓储</th><th>出库</th><th>尾程</th><th>合计</th></tr></thead>
+    <tbody>
+<tr><td class="text-left strong">G系列</td><td>深圳</td><td>B端中转</td><td class="num">132</td><td class="num">21</td><td class="num">15</td><td class="num">39</td><td class="num">136</td><td class="num strong">343</td></tr>
+<tr><td class="text-left strong">G系列</td><td>深圳</td><td>C端谷仓</td><td class="num">132</td><td class="num">28</td><td class="num">29</td><td class="num">27</td><td class="num">96</td><td class="num strong">312</td></tr>
+<tr><td class="text-left strong">G系列</td><td>越南</td><td>B端中转</td><td class="num">153</td><td class="num">21</td><td class="num">15</td><td class="num">39</td><td class="num">136</td><td class="num strong">364</td></tr>
+<tr><td class="text-left strong">G系列</td><td>越南</td><td>C端谷仓</td><td class="num">153</td><td class="num">28</td><td class="num">29</td><td class="num">27</td><td class="num">96</td><td class="num strong">333</td></tr>
+<tr><td class="text-left strong">M系列</td><td>深圳</td><td>B端中转</td><td class="num">106</td><td class="num">21</td><td class="num">15</td><td class="num">39</td><td class="num">136</td><td class="num strong">317</td></tr>
+<tr><td class="text-left strong">M系列</td><td>深圳</td><td>C端谷仓</td><td class="num">106</td><td class="num">6</td><td class="num">39</td><td class="num">18</td><td class="num">43</td><td class="num strong">212</td></tr>
+<tr><td class="text-left strong">M系列</td><td>越南</td><td>B端中转</td><td class="num">119</td><td class="num">21</td><td class="num">15</td><td class="num">39</td><td class="num">136</td><td class="num strong">330</td></tr>
+<tr><td class="text-left strong">M系列</td><td>越南</td><td>C端谷仓</td><td class="num">119</td><td class="num">6</td><td class="num">39</td><td class="num">18</td><td class="num">43</td><td class="num strong">225</td></tr>
+<tr><td class="text-left strong">N系列</td><td>深圳</td><td>B端中转</td><td class="num">185</td><td class="num">21</td><td class="num">15</td><td class="num">39</td><td class="num">160</td><td class="num strong">420</td></tr>
+<tr><td class="text-left strong">N系列</td><td>深圳</td><td>C端谷仓</td><td class="num">185</td><td class="num">10</td><td class="num">68</td><td class="num">18</td><td class="num">149</td><td class="num strong">430</td></tr>
+<tr><td class="text-left strong">N系列</td><td>越南</td><td>B端中转</td><td class="num">214</td><td class="num">21</td><td class="num">15</td><td class="num">39</td><td class="num">160</td><td class="num strong">449</td></tr>
+<tr><td class="text-left strong">N系列</td><td>越南</td><td>C端谷仓</td><td class="num">214</td><td class="num">10</td><td class="num">68</td><td class="num">18</td><td class="num">149</td><td class="num strong">459</td></tr>
+</tbody></table></div></div>
+<div class="card"><div class="card-header"><div class="card-title">成本结构（C端谷仓 · 单柜）</div></div><div style="margin-bottom:10px;">
+  <div style="font-size:12px;margin-bottom:3px;"><strong>深圳 · G系列 (462pcs)</strong> <span style="color:#888;">单台 138,895 RMB</span></div>
+  <div class="bar-wrap"><span class="bar-label">头程</span><div class="bar-track"><div class="bar-fill a" style="width:44%"></div></div><span class="bar-val">61,000 (44%)</span></div>
+  <div class="bar-wrap"><span class="bar-label">上架</span><div class="bar-track"><div class="bar-fill b" style="width:9%"></div></div><span class="bar-val">13,000 (9%)</span></div>
+  <div class="bar-wrap"><span class="bar-label">仓储</span><div class="bar-track"><div class="bar-fill c" style="width:10%"></div></div><span class="bar-val">13,527 (10%)</span></div>
+  <div class="bar-wrap"><span class="bar-label">出库</span><div class="bar-track"><div class="bar-fill d" style="width:9%"></div></div><span class="bar-val">12,560 (9%)</span></div>
+  <div class="bar-wrap"><span class="bar-label">尾程</span><div class="bar-track"><div class="bar-fill e" style="width:28%"></div></div><span class="bar-val">38,808 (28%)</span></div>
+</div><div style="margin-bottom:10px;">
+  <div style="font-size:12px;margin-bottom:3px;"><strong>越南 · G系列 (462pcs)</strong> <span style="color:#888;">单台 148,445 RMB</span></div>
+  <div class="bar-wrap"><span class="bar-label">头程</span><div class="bar-track"><div class="bar-fill a" style="width:48%"></div></div><span class="bar-val">70,550 (48%)</span></div>
+  <div class="bar-wrap"><span class="bar-label">上架</span><div class="bar-track"><div class="bar-fill b" style="width:9%"></div></div><span class="bar-val">13,000 (9%)</span></div>
+  <div class="bar-wrap"><span class="bar-label">仓储</span><div class="bar-track"><div class="bar-fill c" style="width:9%"></div></div><span class="bar-val">13,527 (9%)</span></div>
+  <div class="bar-wrap"><span class="bar-label">出库</span><div class="bar-track"><div class="bar-fill d" style="width:8%"></div></div><span class="bar-val">12,560 (8%)</span></div>
+  <div class="bar-wrap"><span class="bar-label">尾程</span><div class="bar-track"><div class="bar-fill e" style="width:26%"></div></div><span class="bar-val">38,808 (26%)</span></div>
+</div><div style="margin-bottom:10px;">
+  <div style="font-size:12px;margin-bottom:3px;"><strong>深圳 · M系列 (574pcs)</strong> <span style="color:#888;">单台 121,699 RMB</span></div>
+  <div class="bar-wrap"><span class="bar-label">头程</span><div class="bar-track"><div class="bar-fill a" style="width:50%"></div></div><span class="bar-val">61,000 (50%)</span></div>
+  <div class="bar-wrap"><span class="bar-label">上架</span><div class="bar-track"><div class="bar-fill b" style="width:3%"></div></div><span class="bar-val">3,241 (3%)</span></div>
+  <div class="bar-wrap"><span class="bar-label">仓储</span><div class="bar-track"><div class="bar-fill c" style="width:18%"></div></div><span class="bar-val">22,501 (18%)</span></div>
+  <div class="bar-wrap"><span class="bar-label">出库</span><div class="bar-track"><div class="bar-fill d" style="width:9%"></div></div><span class="bar-val">10,447 (9%)</span></div>
+  <div class="bar-wrap"><span class="bar-label">尾程</span><div class="bar-track"><div class="bar-fill e" style="width:20%"></div></div><span class="bar-val">24,510 (20%)</span></div>
+</div><div style="margin-bottom:10px;">
+  <div style="font-size:12px;margin-bottom:3px;"><strong>越南 · M系列 (574pcs)</strong> <span style="color:#888;">单台 129,099 RMB</span></div>
+  <div class="bar-wrap"><span class="bar-label">头程</span><div class="bar-track"><div class="bar-fill a" style="width:53%"></div></div><span class="bar-val">68,400 (53%)</span></div>
+  <div class="bar-wrap"><span class="bar-label">上架</span><div class="bar-track"><div class="bar-fill b" style="width:3%"></div></div><span class="bar-val">3,241 (3%)</span></div>
+  <div class="bar-wrap"><span class="bar-label">仓储</span><div class="bar-track"><div class="bar-fill c" style="width:17%"></div></div><span class="bar-val">22,501 (17%)</span></div>
+  <div class="bar-wrap"><span class="bar-label">出库</span><div class="bar-track"><div class="bar-fill d" style="width:8%"></div></div><span class="bar-val">10,447 (8%)</span></div>
+  <div class="bar-wrap"><span class="bar-label">尾程</span><div class="bar-track"><div class="bar-fill e" style="width:19%"></div></div><span class="bar-val">24,510 (19%)</span></div>
+</div><div style="margin-bottom:10px;">
+  <div style="font-size:12px;margin-bottom:3px;"><strong>深圳 · N系列 (330pcs)</strong> <span style="color:#888;">单台 141,824 RMB</span></div>
+  <div class="bar-wrap"><span class="bar-label">头程</span><div class="bar-track"><div class="bar-fill a" style="width:43%"></div></div><span class="bar-val">61,000 (43%)</span></div>
+  <div class="bar-wrap"><span class="bar-label">上架</span><div class="bar-track"><div class="bar-fill b" style="width:2%"></div></div><span class="bar-val">3,241 (2%)</span></div>
+  <div class="bar-wrap"><span class="bar-label">仓储</span><div class="bar-track"><div class="bar-fill c" style="width:16%"></div></div><span class="bar-val">22,374 (16%)</span></div>
+  <div class="bar-wrap"><span class="bar-label">出库</span><div class="bar-track"><div class="bar-fill d" style="width:4%"></div></div><span class="bar-val">5,940 (4%)</span></div>
+  <div class="bar-wrap"><span class="bar-label">尾程</span><div class="bar-track"><div class="bar-fill e" style="width:35%"></div></div><span class="bar-val">49,269 (35%)</span></div>
+</div><div style="margin-bottom:10px;">
+  <div style="font-size:12px;margin-bottom:3px;"><strong>越南 · N系列 (330pcs)</strong> <span style="color:#888;">单台 151,374 RMB</span></div>
+  <div class="bar-wrap"><span class="bar-label">头程</span><div class="bar-track"><div class="bar-fill a" style="width:47%"></div></div><span class="bar-val">70,550 (47%)</span></div>
+  <div class="bar-wrap"><span class="bar-label">上架</span><div class="bar-track"><div class="bar-fill b" style="width:2%"></div></div><span class="bar-val">3,241 (2%)</span></div>
+  <div class="bar-wrap"><span class="bar-label">仓储</span><div class="bar-track"><div class="bar-fill c" style="width:15%"></div></div><span class="bar-val">22,374 (15%)</span></div>
+  <div class="bar-wrap"><span class="bar-label">出库</span><div class="bar-track"><div class="bar-fill d" style="width:4%"></div></div><span class="bar-val">5,940 (4%)</span></div>
+  <div class="bar-wrap"><span class="bar-label">尾程</span><div class="bar-track"><div class="bar-fill e" style="width:33%"></div></div><span class="bar-val">49,269 (33%)</span></div>
+</div></div>
+
+<div class="card"><div class="card-header"><div class="card-title">汇报结论</div></div>
+<div class="summary-grid">
+  <div class="summary-item de"><h4>德国路线（DAP）</h4><p>深圳→德国单台 <strong>189 RMB</strong>，越南→德国单台 <strong>210 RMB</strong>。深圳产地成本优于越南（内陆+头程差异显著）。头程费用为最大成本项，C端尾程次之。</p></div>
+  <div class="summary-item us"><h4>美国路线（DAP）</h4><p>美东/美西数据详见成本云图。美国海运头程显著高于德国铁路头程，尾程快递费占比高。</p></div>
+</div></div>
+
+<footer>物流中心 · 成本分析 · 2026-08-04</footer>
+</div></body></html>
