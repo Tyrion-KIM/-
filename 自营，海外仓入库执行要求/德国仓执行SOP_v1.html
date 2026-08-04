@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>德国海外仓执行SOP v1</title>
+  <style>
+    /* ===== Step 6: Global Styles & Layout ===== */
+    :root {
+      --primary: #2563eb;
+      --primary-light: #eff6ff;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-600: #4b5563;
+      --gray-800: #1f2937;
+      --radius: 8px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--gray-800); line-height: 1.6; background: var(--gray-50);
+      display: flex; flex-direction: column; min-height: 100vh;
+    }
+
+    /* ===== Step 7: Header + Role Tabs ===== */
+    #header {
+      background: white; border-bottom: 1px solid var(--gray-200);
+      padding: 16px 24px; position: sticky; top: 0; z-index: 100;
+    }
+    .header-top { display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px; }
+    .header-top h1 { font-size: 20px; font-weight: 700; color: var(--gray-800); }
+    .badge { font-size: 12px; color: var(--gray-600); background: var(--gray-100); padding: 2px 8px; border-radius: 12px; }
+    .role-tabs { display: flex; gap: 8px; }
+    .role-tab {
+      padding: 8px 20px; border: 1px solid var(--gray-200); border-radius: var(--radius);
+      background: white; cursor: pointer; font-size: 14px; font-weight: 500;
+      transition: all 0.15s;
+    }
+    .role-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .role-tab:hover:not(.active) { background: var(--primary-light); }
+
+    /* ===== Step 8: Main Layout (Grid) ===== */
+    #app {
+      display: grid; grid-template-columns: 240px 1fr; flex: 1; overflow: hidden;
+    }
+
+    /* ===== Step 9: Left Nav ===== */
+    #node-nav {
+      background: white; border-right: 1px solid var(--gray-200);
+      padding: 16px 0; overflow-y: auto; position: sticky; top: 0; height: calc(100vh - 120px);
+    }
+    .nav-list { list-style: none; }
+    .nav-item {
+      display: block; padding: 10px 24px; font-size: 14px; color: var(--gray-600);
+      text-decoration: none; border-left: 3px solid transparent; transition: all 0.15s;
+    }
+    .nav-item:hover { background: var(--primary-light); color: var(--primary); }
+    .nav-item.active { background: var(--primary-light); color: var(--primary); border-left-color: var(--primary); font-weight: 600; }
+    .nav-appendix .nav-item { color: var(--gray-600); font-size: 13px; }
+    #node-nav hr { margin: 8px 16px; border: none; border-top: 1px solid var(--gray-200); }
+
+    /* ===== Step 10: Content Area + Node Panels ===== */
+    #content { padding: 24px 32px; overflow-y: auto; height: calc(100vh - 120px); }
+    .node-panel { display: none; }
+    .node-panel.active { display: block; }
+    .node-title { font-size: 22px; font-weight: 700; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 2px solid var(--primary); color: var(--gray-800); }
+    .field { background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px 20px; margin-bottom: 16px; }
+    .field-label {
+      font-size: 13px; font-weight: 600; color: var(--primary); text-transform: uppercase;
+      letter-spacing: 0.5px; margin-bottom: 8px;
+    }
+    .field-body { font-size: 14px; color: var(--gray-600); }
+    .field-body ul, .field-body ol { padding-left: 20px; }
+    .field-body li { margin-bottom: 6px; }
+    .steps .step-executor { font-size: 12px; color: var(--gray-600); background: var(--gray-100); padding: 1px 6px; border-radius: 4px; margin-left: 6px; }
+    .checklist li::marker { color: var(--primary); }
+
+    /* ===== Step 11: Exception Table ===== */
+    .exception-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .exception-table th { background: var(--gray-100); padding: 8px 12px; text-align: left; font-weight: 600; }
+    .exception-table td { padding: 8px 12px; border-top: 1px solid var(--gray-200); }
+    .exception-table .escalate { color: #ef4444; font-weight: 600; }
+
+    /* ===== Step 12: Footer ===== */
+    #footer {
+      background: white; border-top: 1px solid var(--gray-200); padding: 16px 24px;
+      font-size: 12px; color: var(--gray-600);
+    }
+    .footer-info { margin-bottom: 12px; }
+    .revision-history summary { cursor: pointer; font-weight: 600; margin-bottom: 8px; }
+    .revision-history table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .revision-history th { background: var(--gray-100); padding: 6px 10px; text-align: left; }
+    .revision-history td { padding: 6px 10px; border-top: 1px solid var(--gray-200); }
+
+    /* ===== Step 13: Print Styles (@media print) ===== */
+    @media print {
+      #header .role-tabs, #node-nav { display: none !important; }
+      #header { position: static; }
+      #app { display: block; }
+      #content { height: auto; overflow: visible; padding: 0; }
+      .node-panel { display: block !important; page-break-before: always; }
+      .node-panel:first-of-type { page-break-before: avoid; }
+      .node-title { font-size: 18px; }
+      .field { box-shadow: none; border: 1px solid var(--gray-200); page-break-inside: avoid; }
+      body { background: white; }
+      .role-content[data-role="dispatch"] { display: block !important; }
+    }
+  </style>
+</head>
+<body>
+  <!-- ===== Step 2: Header ===== -->
+  <header id="header">
+    <div class="header-top">
+      <h1>德国海外仓执行SOP</h1>
+      <span class="badge">自营仓 · 物流执行标准</span>
+    </div>
+    <div class="role-tabs">
+      <button class="role-tab active" data-role="warehouse" onclick="switchRole('warehouse')">
+        库内操作
+      </button>
+      <button class="role-tab" data-role="dispatch" onclick="switchRole('dispatch')">
+        中台调度
+      </button>
+    </div>
+  </header>
+
+  <div id="app">
+    <!-- ===== Step 3: Left Nav ===== -->
+    <nav id="node-nav">
+      <ul class="nav-list">
+        <li><a href="#node-1" class="nav-item active" onclick="openNode(1)">1. 车辆到仓 & 核实</a></li>
+        <li><a href="#node-2" class="nav-item" onclick="openNode(2)">2. 卸货 & 验收</a></li>
+        <li><a href="#node-3" class="nav-item" onclick="openNode(3)">3. 上架</a></li>
+        <li><a href="#node-4" class="nav-item" onclick="openNode(4)">4. 库内存储</a></li>
+        <li><a href="#node-5" class="nav-item" onclick="openNode(5)">5. 拣货下架</a></li>
+        <li><a href="#node-6" class="nav-item" onclick="openNode(6)">6. 打包</a></li>
+        <li><a href="#node-7" class="nav-item" onclick="openNode(7)">7. 出库装车 & 车辆核实</a></li>
+        <li><a href="#node-8" class="nav-item" onclick="openNode(8)">8. 库内设备 & 场地调度</a></li>
+      </ul>
+      <hr>
+      <ul class="nav-list nav-appendix">
+        <li><a href="#appendix-exception" class="nav-item" onclick="openAppendix('exception')">异常处理汇总</a></li>
+        <li><a href="#appendix-form" class="nav-item" onclick="openAppendix('form')">关联表单</a></li>
+      </ul>
+    </nav>
+
+    <!-- ===== Step 4: Content Panels ===== -->
+    <main id="content">
+
+      <!-- Node 1: 车辆到仓 & 核实 -->
+      <section id="node-1" class="node-panel active">
+        <h2 class="node-title">1. 车辆到仓 & 核实</h2>
+        <div class="role-content" data-role="warehouse">
+          <div class="field"><h3 class="field-label">目的</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">前置条件</h3><ul class="field-body"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">操作步骤</h3><ol class="field-body steps"><!-- 待填充 --></ol></div>
+          <div class="field"><h3 class="field-label">检查标准</h3><ul class="field-body checklist"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">交接 / 触发下一节点</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">异常场景 & 处理</h3><table class="field-body exception-table"><thead><tr><th>异常场景</th><th>判定标准</th><th>处理方式</th><th>升级路径</th></tr></thead><tbody><!-- 待填充 --></tbody></table></div>
+        </div>
+        <div class="role-content" data-role="dispatch" style="display:none">
+          <div class="field"><h3 class="field-label">目的</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">前置条件</h3><ul class="field-body"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">操作步骤</h3><ol class="field-body steps"><!-- 待填充 --></ol></div>
+          <div class="field"><h3 class="field-label">检查标准</h3><ul class="field-body checklist"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">交接 / 触发下一节点</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">异常场景 & 处理</h3><table class="field-body exception-table"><thead><tr><th>异常场景</th><th>判定标准</th><th>处理方式</th><th>升级路径</th></tr></thead><tbody><!-- 待填充 --></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- Node 2: 卸货 & 验收 -->
+      <section id="node-2" class="node-panel">
+        <h2 class="node-title">2. 卸货 & 验收</h2>
+        <div class="role-content" data-role="warehouse">
+          <div class="field"><h3 class="field-label">目的</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">前置条件</h3><ul class="field-body"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">操作步骤</h3><ol class="field-body steps"><!-- 待填充 --></ol></div>
+          <div class="field"><h3 class="field-label">检查标准</h3><ul class="field-body checklist"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">交接 / 触发下一节点</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">异常场景 & 处理</h3><table class="field-body exception-table"><thead><tr><th>异常场景</th><th>判定标准</th><th>处理方式</th><th>升级路径</th></tr></thead><tbody><!-- 待填充 --></tbody></table></div>
+        </div>
+        <div class="role-content" data-role="dispatch" style="display:none">
+          <div class="field"><h3 class="field-label">目的</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">前置条件</h3><ul class="field-body"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">操作步骤</h3><ol class="field-body steps"><!-- 待填充 --></ol></div>
+          <div class="field"><h3 class="field-label">检查标准</h3><ul class="field-body checklist"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">交接 / 触发下一节点</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">异常场景 & 处理</h3><table class="field-body exception-table"><thead><tr><th>异常场景</th><th>判定标准</th><th>处理方式</th><th>升级路径</th></tr></thead><tbody><!-- 待填充 --></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- Node 3: 上架 -->
+      <section id="node-3" class="node-panel">
+        <h2 class="node-title">3. 上架</h2>
+        <div class="role-content" data-role="warehouse">
+          <div class="field"><h3 class="field-label">目的</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">前置条件</h3><ul class="field-body"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">操作步骤</h3><ol class="field-body steps"><!-- 待填充 --></ol></div>
+          <div class="field"><h3 class="field-label">检查标准</h3><ul class="field-body checklist"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">交接 / 触发下一节点</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">异常场景 & 处理</h3><table class="field-body exception-table"><thead><tr><th>异常场景</th><th>判定标准</th><th>处理方式</th><th>升级路径</th></tr></thead><tbody><!-- 待填充 --></tbody></table></div>
+        </div>
+        <div class="role-content" data-role="dispatch" style="display:none">
+          <div class="field"><h3 class="field-label">目的</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">前置条件</h3><ul class="field-body"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">操作步骤</h3><ol class="field-body steps"><!-- 待填充 --></ol></div>
+          <div class="field"><h3 class="field-label">检查标准</h3><ul class="field-body checklist"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">交接 / 触发下一节点</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">异常场景 & 处理</h3><table class="field-body exception-table"><thead><tr><th>异常场景</th><th>判定标准</th><th>处理方式</th><th>升级路径</th></tr></thead><tbody><!-- 待填充 --></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- Node 4: 库内存储 -->
+      <section id="node-4" class="node-panel">
+        <h2 class="node-title">4. 库内存储</h2>
+        <div class="role-content" data-role="warehouse">
+          <div class="field"><h3 class="field-label">目的</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">前置条件</h3><ul class="field-body"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">操作步骤</h3><ol class="field-body steps"><!-- 待填充 --></ol></div>
+          <div class="field"><h3 class="field-label">检查标准</h3><ul class="field-body checklist"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">交接 / 触发下一节点</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">异常场景 & 处理</h3><table class="field-body exception-table"><thead><tr><th>异常场景</th><th>判定标准</th><th>处理方式</th><th>升级路径</th></tr></thead><tbody><!-- 待填充 --></tbody></table></div>
+        </div>
+        <div class="role-content" data-role="dispatch" style="display:none">
+          <div class="field"><h3 class="field-label">目的</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">前置条件</h3><ul class="field-body"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">操作步骤</h3><ol class="field-body steps"><!-- 待填充 --></ol></div>
+          <div class="field"><h3 class="field-label">检查标准</h3><ul class="field-body checklist"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">交接 / 触发下一节点</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">异常场景 & 处理</h3><table class="field-body exception-table"><thead><tr><th>异常场景</th><th>判定标准</th><th>处理方式</th><th>升级路径</th></tr></thead><tbody><!-- 待填充 --></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- Node 5: 拣货下架 -->
+      <section id="node-5" class="node-panel">
+        <h2 class="node-title">5. 拣货下架</h2>
+        <div class="role-content" data-role="warehouse">
+          <div class="field"><h3 class="field-label">目的</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">前置条件</h3><ul class="field-body"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">操作步骤</h3><ol class="field-body steps"><!-- 待填充 --></ol></div>
+          <div class="field"><h3 class="field-label">检查标准</h3><ul class="field-body checklist"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">交接 / 触发下一节点</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">异常场景 & 处理</h3><table class="field-body exception-table"><thead><tr><th>异常场景</th><th>判定标准</th><th>处理方式</th><th>升级路径</th></tr></thead><tbody><!-- 待填充 --></tbody></table></div>
+        </div>
+        <div class="role-content" data-role="dispatch" style="display:none">
+          <div class="field"><h3 class="field-label">目的</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">前置条件</h3><ul class="field-body"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">操作步骤</h3><ol class="field-body steps"><!-- 待填充 --></ol></div>
+          <div class="field"><h3 class="field-label">检查标准</h3><ul class="field-body checklist"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">交接 / 触发下一节点</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">异常场景 & 处理</h3><table class="field-body exception-table"><thead><tr><th>异常场景</th><th>判定标准</th><th>处理方式</th><th>升级路径</th></tr></thead><tbody><!-- 待填充 --></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- Node 6: 打包 -->
+      <section id="node-6" class="node-panel">
+        <h2 class="node-title">6. 打包</h2>
+        <div class="role-content" data-role="warehouse">
+          <div class="field"><h3 class="field-label">目的</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">前置条件</h3><ul class="field-body"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">操作步骤</h3><ol class="field-body steps"><!-- 待填充 --></ol></div>
+          <div class="field"><h3 class="field-label">检查标准</h3><ul class="field-body checklist"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">交接 / 触发下一节点</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">异常场景 & 处理</h3><table class="field-body exception-table"><thead><tr><th>异常场景</th><th>判定标准</th><th>处理方式</th><th>升级路径</th></tr></thead><tbody><!-- 待填充 --></tbody></table></div>
+        </div>
+        <div class="role-content" data-role="dispatch" style="display:none">
+          <div class="field"><h3 class="field-label">目的</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">前置条件</h3><ul class="field-body"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">操作步骤</h3><ol class="field-body steps"><!-- 待填充 --></ol></div>
+          <div class="field"><h3 class="field-label">检查标准</h3><ul class="field-body checklist"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">交接 / 触发下一节点</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">异常场景 & 处理</h3><table class="field-body exception-table"><thead><tr><th>异常场景</th><th>判定标准</th><th>处理方式</th><th>升级路径</th></tr></thead><tbody><!-- 待填充 --></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- Node 7: 出库装车 & 车辆核实 -->
+      <section id="node-7" class="node-panel">
+        <h2 class="node-title">7. 出库装车 & 车辆核实</h2>
+        <div class="role-content" data-role="warehouse">
+          <div class="field"><h3 class="field-label">目的</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">前置条件</h3><ul class="field-body"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">操作步骤</h3><ol class="field-body steps"><!-- 待填充 --></ol></div>
+          <div class="field"><h3 class="field-label">检查标准</h3><ul class="field-body checklist"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">交接 / 触发下一节点</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">异常场景 & 处理</h3><table class="field-body exception-table"><thead><tr><th>异常场景</th><th>判定标准</th><th>处理方式</th><th>升级路径</th></tr></thead><tbody><!-- 待填充 --></tbody></table></div>
+        </div>
+        <div class="role-content" data-role="dispatch" style="display:none">
+          <div class="field"><h3 class="field-label">目的</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">前置条件</h3><ul class="field-body"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">操作步骤</h3><ol class="field-body steps"><!-- 待填充 --></ol></div>
+          <div class="field"><h3 class="field-label">检查标准</h3><ul class="field-body checklist"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">交接 / 触发下一节点</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">异常场景 & 处理</h3><table class="field-body exception-table"><thead><tr><th>异常场景</th><th>判定标准</th><th>处理方式</th><th>升级路径</th></tr></thead><tbody><!-- 待填充 --></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- Node 8: 库内设备 & 场地调度 -->
+      <section id="node-8" class="node-panel">
+        <h2 class="node-title">8. 库内设备 & 场地调度</h2>
+        <div class="role-content" data-role="warehouse">
+          <div class="field"><h3 class="field-label">目的</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">前置条件</h3><ul class="field-body"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">操作步骤</h3><ol class="field-body steps"><!-- 待填充 --></ol></div>
+          <div class="field"><h3 class="field-label">检查标准</h3><ul class="field-body checklist"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">交接 / 触发下一节点</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">异常场景 & 处理</h3><table class="field-body exception-table"><thead><tr><th>异常场景</th><th>判定标准</th><th>处理方式</th><th>升级路径</th></tr></thead><tbody><!-- 待填充 --></tbody></table></div>
+        </div>
+        <div class="role-content" data-role="dispatch" style="display:none">
+          <div class="field"><h3 class="field-label">目的</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">前置条件</h3><ul class="field-body"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">操作步骤</h3><ol class="field-body steps"><!-- 待填充 --></ol></div>
+          <div class="field"><h3 class="field-label">检查标准</h3><ul class="field-body checklist"><!-- 待填充 --></ul></div>
+          <div class="field"><h3 class="field-label">交接 / 触发下一节点</h3><p class="field-body"><!-- 待填充 --></p></div>
+          <div class="field"><h3 class="field-label">异常场景 & 处理</h3><table class="field-body exception-table"><thead><tr><th>异常场景</th><th>判定标准</th><th>处理方式</th><th>升级路径</th></tr></thead><tbody><!-- 待填充 --></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- Appendix: 异常处理汇总 -->
+      <section id="appendix-exception" class="node-panel">
+        <h2 class="node-title">异常处理汇总</h2>
+        <div class="field">
+          <h3 class="field-label">全局异常处理矩阵</h3>
+          <table class="field-body exception-table">
+            <thead><tr><th>节点</th><th>异常场景</th><th>判定标准</th><th>库内操作处理</th><th>中台调度处理</th><th>升级路径</th></tr></thead>
+            <tbody><!-- 待填充 --></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Appendix: 关联表单 -->
+      <section id="appendix-form" class="node-panel">
+        <h2 class="node-title">关联表单</h2>
+        <div class="field">
+          <h3 class="field-label">表单清单</h3>
+          <table class="field-body exception-table">
+            <thead><tr><th>表单名称</th><th>用途</th><th>关联节点</th><th>填写角色</th><th>模板/链接</th></tr></thead>
+            <tbody><!-- 待填充 --></tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ===== Step 5: Footer ===== -->
+  <footer id="footer">
+    <div class="footer-info">
+      <p>德国海外仓执行SOP · v1 (测试版) · 2026-08-04</p>
+    </div>
+    <details class="revision-history">
+      <summary>修订记录</summary>
+      <table>
+        <thead>
+          <tr><th>版本</th><th>日期</th><th>修订内容</th><th>变更者</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>A1</td><td>2026-08-04</td><td>初版作成 — 8节点双角色框架</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </details>
+  </footer>
+
+  <!-- ===== Step 14: JavaScript ===== -->
+  <script>
+    let currentRole = 'warehouse';
+    let currentNode = 1;
+
+    function switchRole(role) {
+      currentRole = role;
+      document.querySelectorAll('.role-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.role === role);
+      });
+      document.querySelectorAll('.role-content').forEach(el => {
+        el.style.display = el.dataset.role === role ? 'block' : 'none';
+      });
+    }
+
+    function openNode(index) {
+      currentNode = index;
+      document.querySelectorAll('.node-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      const panel = document.getElementById('node-' + index);
+      if (panel) panel.classList.add('active');
+      const navItem = document.querySelector('#node-nav .nav-item[href="#node-' + index + '"]');
+      if (navItem) navItem.classList.add('active');
+    }
+
+    function openAppendix(type) {
+      document.querySelectorAll('.node-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      const panel = document.getElementById('appendix-' + type);
+      if (panel) panel.classList.add('active');
+      const navItem = document.querySelector('#node-nav .nav-item[href="#appendix-' + type + '"]');
+      if (navItem) navItem.classList.add('active');
+    }
+
+    window.addEventListener('beforeprint', function() {
+      document.querySelectorAll('.node-panel').forEach(p => p.classList.add('active'));
+      document.querySelectorAll('.role-content').forEach(el => {
+        el.style.display = 'block';
+      });
+    });
+
+    window.addEventListener('afterprint', function() {
+      document.querySelectorAll('.node-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.role-content').forEach(el => {
+        el.style.display = el.dataset.role === currentRole ? 'block' : 'none';
+      });
+      openNode(currentNode);
+    });
+  </script>
+</body>
+</html>
