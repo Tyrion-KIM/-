@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>成本云图 - G / M / N系列</title>
+<style>
+  :root { --bg:#f0f2f5;--card:#fff;--text:#1a1a2e;--muted:#6b7280;--shadow:0 1px 3px rgba(0,0,0,0.06); }
+  * { box-sizing:border-box;margin:0;padding:0; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.5; }
+  .container { max-width:1440px;margin:0 auto;padding:28px 24px; }
+  .header { text-align:center;margin-bottom:32px; }
+  .header h1 { font-size:26px;font-weight:700;margin-bottom:6px; }
+  .header .meta { font-size:13px;color:var(--muted); }
+  .clouds { display:grid;grid-template-columns:repeat(3,1fr);gap:20px; }
+  @media(max-width:1200px){.clouds{grid-template-columns:1fr 1fr;}}
+  @media(max-width:750px){.clouds{grid-template-columns:1fr;}}
+  .cloud-card { background:var(--card);border-radius:14px;padding:24px;box-shadow:var(--shadow); }
+  .cloud-card h2 { font-size:20px;text-align:center;margin-bottom:4px; }
+  .cloud-card .sub { text-align:center;font-size:12px;color:var(--muted);margin-bottom:16px; }
+  .cloud-area { position:relative;width:100%;height:500px; }
+  .cloud-area svg { width:100%;height:100%; }
+  .legend { display:flex;justify-content:center;gap:20px;margin-top:16px;flex-wrap:wrap; }
+  .legend-item { display:flex;align-items:center;gap:6px;font-size:12px; }
+  .legend-dot { width:12px;height:12px;border-radius:50%; }
+  .route-group { margin-top:18px; }
+  .route-group-label { font-size:12px;font-weight:700;padding:5px 10px;border-radius:5px;display:inline-block;margin-bottom:8px; }
+  .route-group-label.de { background:#dcfce7;color:#166534; }
+  .route-group-label.us { background:#fee2e7;color:#991b1b; }
+  .route-cards { display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:8px; }
+  .route-item { background:#f9fafb;border-radius:8px;padding:8px 10px;text-align:center; }
+  .route-item .route-label { font-size:10px;color:var(--muted);margin-bottom:2px; }
+  .route-item .route-value { font-size:17px;font-weight:700; }
+  .route-item .route-sub { font-size:10px;color:var(--muted); }
+  .route-item.de { border-left:3px solid #86efac; }
+  .route-item.us { border-left:3px solid #fca5a5; }
+  footer { text-align:center;color:#aaa;font-size:11px;margin-top:32px; }
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+  <h1>物流中心 DAP 成本云图</h1>
+  <div class="meta">按产品系列 - 单台成本结构可视化 - 2026年8月</div>
+</div>
+<div class="clouds">
+
+<div class="cloud-card">
+  <h2 style="color:#2563eb">G系列</h2>
+  <div class="sub">单柜462pcs - 各路线单台成本结构均值</div>
+  <div class="cloud-area" id="gcloud"></div>
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot" style="background:#86efac"></span>A 头程费用</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#93c5fd"></span>B 上架操作</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#fde68a"></span>C 仓储费</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#fdba74"></span>D 出库操作</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#c4b5fd"></span>E 尾程运费</div>
+  </div>
+  <div id="g-routes"></div>
+</div>
+<div class="cloud-card">
+  <h2 style="color:#2563eb">M系列</h2>
+  <div class="sub">单柜574pcs - 各路线单台成本结构均值</div>
+  <div class="cloud-area" id="mcloud"></div>
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot" style="background:#86efac"></span>A 头程费用</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#93c5fd"></span>B 上架操作</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#fde68a"></span>C 仓储费</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#fdba74"></span>D 出库操作</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#c4b5fd"></span>E 尾程运费</div>
+  </div>
+  <div id="m-routes"></div>
+</div>
+<div class="cloud-card">
+  <h2 style="color:#7c3aed">N系列</h2>
+  <div class="sub">单柜330pcs - 各路线单台成本结构均值</div>
+  <div class="cloud-area" id="ncloud"></div>
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot" style="background:#86efac"></span>A 头程费用</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#93c5fd"></span>B 上架操作</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#fde68a"></span>C 仓储费</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#fdba74"></span>D 出库操作</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#c4b5fd"></span>E 尾程运费</div>
+  </div>
+  <div id="n-routes"></div>
+</div>
+</div>
+<footer>物流中心 - DAP成本云图 - 2026-08-04</footer>
+</div>
+<script>
+const gData={name:'G系列',routes:[
+    {label:'深圳->德国 C端谷仓', A:132,B:28,C:29,D:27,E:96},
+    {label:'深圳->德国 B端中转', A:132,B:21,C:15,D:39,E:136},
+    {label:'越南->德国 C端谷仓', A:153,B:28,C:29,D:27,E:96},
+    {label:'越南->德国 B端中转', A:153,B:21,C:15,D:39,E:136},
+    {label:'深圳->美国 美东', A:340,B:6,C:31,D:27,E:276},
+    {label:'深圳->美国 美西', A:294,B:6,C:40,D:0,E:276},
+    {label:'越南->美国 美东', A:347,B:6,C:31,D:27,E:276},
+    {label:'越南->美国 美西', A:301,B:6,C:40,D:14,E:276}
+]};
+const mData={name:'M系列',routes:[
+    {label:'深圳->德国 C端谷仓', A:106,B:6,C:39,D:18,E:43},
+    {label:'深圳->德国 B端中转', A:106,B:21,C:15,D:39,E:136},
+    {label:'越南->德国 C端谷仓', A:119,B:6,C:39,D:18,E:43},
+    {label:'越南->德国 B端中转', A:119,B:21,C:15,D:39,E:136},
+    {label:'深圳->美国 美东', A:274,B:5,C:23,D:13,E:240},
+    {label:'深圳->美国 美西', A:237,B:5,C:29,D:13,E:240},
+    {label:'越南->美国 美东', A:279,B:5,C:23,D:13,E:240},
+    {label:'越南->美国 美西', A:242,B:5,C:29,D:13,E:240}
+]};
+const nData={name:'N系列',routes:[
+    {label:'深圳->德国 C端谷仓', A:185,B:10,C:68,D:18,E:149},
+    {label:'深圳->德国 B端中转', A:185,B:21,C:15,D:39,E:160},
+    {label:'越南->德国 C端谷仓', A:214,B:10,C:68,D:18,E:149},
+    {label:'越南->德国 B端中转', A:214,B:21,C:15,D:39,E:160},
+    {label:'深圳->美国 美东', A:476,B:8,C:39,D:16,E:301},
+    {label:'深圳->美国 美西', A:413,B:8,C:51,D:16,E:301},
+    {label:'越南->美国 美东', A:484,B:8,C:39,D:16,E:301},
+    {label:'越南->美国 美西', A:421,B:8,C:51,D:16,E:301}
+]};
+
+const colors={A:'#86efac',B:'#93c5fd',C:'#fde68a',D:'#fdba74',E:'#c4b5fd'};
+const colorDark={A:'#16a34a',B:'#2563eb',C:'#ca8a04',D:'#ea580c',E:'#7c3aed'};
+const keys=['A','B','C','D','E'];
+const labels={A:'头程费用',B:'上架操作',C:'仓储费',D:'出库操作',E:'尾程运费'};
+
+function avgCosts(routes){
+  const sums={A:0,B:0,C:0,D:0,E:0};
+  routes.forEach(r=>{keys.forEach(k=>sums[k]+=r[k]);});
+  const total=keys.reduce((s,k)=>s+sums[k],0);
+  const result={};
+  keys.forEach(k=>{result[k]={val:Math.round(sums[k]/routes.length),pct:Math.round(sums[k]/total*100)};});
+  return result;
+}
+
+function drawCloud(containerId,routes){
+  const container=document.getElementById(containerId);
+  const W=container.clientWidth||600,H=500,cx=W/2,cy=H/2;
+  const avg=avgCosts(routes);
+  const items=keys.map(k=>({key:k,val:avg[k].val,pct:avg[k].pct,label:labels[k]})).sort((a,b)=>b.val-a.val);
+  const maxVal=items[0].val,maxR=110,minR=35;
+  const bubbles=items.map((it,i)=>{
+    const r=minR+Math.sqrt(it.val/maxVal)*(maxR-minR);
+    return{...it,r};
+  });
+  bubbles[0].x=cx;bubbles[0].y=cy;
+  const pos=[{dx:-120,dy:-80},{dx:130,dy:-50},{dx:-100,dy:100},{dx:110,dy:90}];
+  for(let i=1;i<bubbles.length;i++){bubbles[i].x=cx+pos[i-1].dx;bubbles[i].y=cy+pos[i-1].dy;}
+
+  let svg=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+  for(let i=1;i<bubbles.length;i++){
+    svg+=`<line x1="${bubbles[0].x}" y1="${bubbles[0].y}" x2="${bubbles[i].x}" y2="${bubbles[i].y}" stroke="#e5e7eb" stroke-width="1.5" stroke-dasharray="4,3"/>`;
+  }
+  bubbles.forEach(b=>{
+    const gid=`grad-${containerId}-${b.key}`;
+    svg+=`<defs><radialGradient id="${gid}" cx="35%" cy="30%"><stop offset="0%" stop-color="${colors[b.key]}" stop-opacity="0.95"/><stop offset="100%" stop-color="${colorDark[b.key]}" stop-opacity="0.9"/></radialGradient></defs>`;
+    svg+=`<circle cx="${b.x+2}" cy="${b.y+3}" r="${b.r}" fill="rgba(0,0,0,0.06)"/>`;
+    svg+=`<circle cx="${b.x}" cy="${b.y}" r="${b.r}" fill="url(#${gid})" stroke="${colorDark[b.key]}" stroke-width="1.5"/>`;
+    const fs=Math.max(10,b.r*0.22);
+    svg+=`<text x="${b.x}" y="${b.y-b.r*0.12}" text-anchor="middle" fill="#fff" font-size="${fs+2}" font-weight="700">${b.label}</text>`;
+    svg+=`<text x="${b.x}" y="${b.y+b.r*0.2}" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-size="${fs-2}" font-weight="600">&yen;${b.val}</text>`;
+    svg+=`<text x="${b.x}" y="${b.y+b.r*0.42}" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="${Math.max(9,fs-4)}">${b.pct}%</text>`;
+  });
+  svg+='</svg>';
+  container.innerHTML=svg;
+  return avg;
+}
+
+function drawRouteCards(containerId,routes){
+  const container=document.getElementById(containerId);
+  const deRoutes=routes.filter(r=>r.label.includes('德国'));
+  const usRoutes=routes.filter(r=>r.label.includes('美东')||r.label.includes('美西'));
+
+  function avgTotal(rs){
+    if(!rs.length)return 0;
+    return Math.round(rs.reduce((s,r)=>s+keys.reduce((a,k)=>a+r[k],0),0)/rs.length);
+  }
+
+  let html='';
+  html+=`<div class="route-group"><span class="route-group-label de">德国</span><div class="route-cards">`;
+  deRoutes.forEach(r=>{
+    const total=keys.reduce((s,k)=>s+r[k],0);
+    html+=`<div class="route-item de"><div class="route-label">${r.label.replace('深圳->德国 ','').replace('越南->德国 ','')}</div><div class="route-value">&yen;${total}</div><div class="route-sub">${r.label.startsWith('深圳')?'深圳':'越南'} - 头程${Math.round(r.A/total*100)}% - 尾程${Math.round(r.E/total*100)}%</div></div>`;
+  });
+  html+=`<div class="route-item" style="background:#f0fdf4;border:2px solid #bbf7d0;"><div class="route-label">德国 均值</div><div class="route-value" style="font-size:20px;">&yen;${avgTotal(deRoutes)}</div><div class="route-sub">${deRoutes.length}条路线</div></div>`;
+  html+=`</div></div>`;
+
+  html+=`<div class="route-group"><span class="route-group-label us">美国</span><div class="route-cards">`;
+  usRoutes.forEach(r=>{
+    const total=keys.reduce((s,k)=>s+r[k],0);
+    const short=r.label.replace('深圳->美国 ','').replace('越南->美国 ','');
+    html+=`<div class="route-item us"><div class="route-label">${short}</div><div class="route-value">&yen;${total}</div><div class="route-sub">${r.label.startsWith('深圳')?'深圳':'越南'} - 头程${Math.round(r.A/total*100)}% - 尾程${Math.round(r.E/total*100)}%</div></div>`;
+  });
+  html+=`<div class="route-item" style="background:#fef2f2;border:2px solid #fecaca;"><div class="route-label">美国 均值</div><div class="route-value" style="font-size:20px;">&yen;${avgTotal(usRoutes)}</div><div class="route-sub">${usRoutes.length}条路线</div></div>`;
+  html+=`</div></div>`;
+
+  container.innerHTML=html;
+}
+drawCloud('gcloud',gData.routes);
+drawRouteCards('g-routes',gData.routes);
+drawCloud('mcloud',mData.routes);
+drawRouteCards('m-routes',mData.routes);
+drawCloud('ncloud',nData.routes);
+drawRouteCards('n-routes',nData.routes);
+</script>
+</body>
+</html>

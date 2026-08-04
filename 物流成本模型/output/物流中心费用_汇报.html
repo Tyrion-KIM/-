@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>物流中心费用汇总 - 汇报看板</title>
+<style>
+  :root { --bg:#f0f2f5;--card:#fff;--text:#1a1a2e;--muted:#6b7280;--blue:#2563eb;--blue-bg:#eff6ff;--red:#ef4444;--red-bg:#fef2f2;--amber:#d97706;--amber-bg:#fffbeb;--shadow:0 1px 3px rgba(0,0,0,0.06); }
+  * { box-sizing:border-box;margin:0;padding:0; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.5; }
+  .container { max-width:1200px;margin:0 auto;padding:28px 24px; }
+  .header { display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px; }
+  .header h1 { font-size:24px;font-weight:700; }
+  .header .meta { font-size:13px;color:var(--muted); }
+  .tag { padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600; }
+  .tag-blue { background:var(--blue-bg);color:var(--blue); }
+  .tag-blue { background:var(--blue-bg);color:var(--blue); }
+  .tag-red { background:var(--red-bg);color:var(--red); }
+  .kpi-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:24px; }
+  .kpi { background:var(--card);border-radius:10px;padding:16px 18px;box-shadow:var(--shadow); }
+  .kpi-label { font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px; }
+  .kpi-value { font-size:28px;font-weight:700; }
+  .kpi-sub { font-size:11px;color:var(--muted);margin-top:2px; }
+  .kpi.blue .kpi-value{color:var(--blue);}
+  .kpi.amber .kpi-value{color:var(--amber);}
+  .kpi.red .kpi-value{color:var(--red);}
+  .kpi.blue .kpi-value{color:var(--blue);}
+  .alert { border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:13px;background:var(--amber-bg);border:1px solid #fde68a;color:#92400e; }
+  .card { background:var(--card);border-radius:10px;padding:20px 22px;margin-bottom:18px;box-shadow:var(--shadow); }
+  .card-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px; }
+  .card-title { font-size:15px;font-weight:600; }
+  .section-de { border-left:4px solid var(--blue); }
+  .table-wrap { overflow-x:auto; }
+  table { width:100%;border-collapse:collapse;font-size:12px;min-width:700px; }
+  th { padding:8px;text-align:center;font-weight:600;color:#555;background:#f9fafb;border-bottom:2px solid #e5e7eb;font-size:11px;white-space:nowrap; }
+  td { padding:6px 8px;text-align:center;border-bottom:1px solid #f3f4f6;white-space:nowrap; }
+  tr:hover td{background:#fafbfc;}
+  .text-left{text-align:left;}
+  .num{font-family:"SF Mono","Consolas",monospace;font-size:11px;}
+  .strong{font-weight:600;}
+  .over{color:var(--red);font-weight:600;}
+  .bar-wrap{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:11px;}
+  .bar-label{width:48px;text-align:right;flex-shrink:0;color:#888;}
+  .bar-track{flex:1;height:14px;background:#f3f4f6;border-radius:7px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:7px;}
+  .bar-fill.a{background:#86efac;}.bar-fill.b{background:#93c5fd;}.bar-fill.c{background:#fde68a;}.bar-fill.d{background:#fdba74;}.bar-fill.e{background:#c4b5fd;}
+  .bar-val{width:80px;font-family:"SF Mono",monospace;font-size:10px;}
+  .conclusion-section{margin-top:12px;}
+  .conclusion-block{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #f3f4f6;}
+  .conclusion-block:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+  .conclusion-block h4{font-size:14px;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+  .conclusion-block p{font-size:13px;color:#555;line-height:1.7;}
+  .conclusion-block .icon{font-size:18px;}
+  .highlight-red{color:var(--red);font-weight:600;}
+  .highlight-blue{color:var(--blue);font-weight:600;}
+  .highlight-amber{color:var(--amber);font-weight:600;}
+  footer{text-align:center;color:#aaa;font-size:11px;margin-top:28px;}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+  <div><h1>物流中心费用汇总 RMB</h1><div class="meta">DAP全路线成本分析 - 目标对比 - 2026年8月</div></div>
+  <div class="tag tag-blue">DAP 条款</div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi blue"><div class="kpi-label">深圳 -> 德国 DAP</div><div class="kpi-value">339</div><div class="kpi-sub">G/M/N系列单台均值 RMB</div></div>
+  <div class="kpi amber"><div class="kpi-label">越南 -> 德国 DAP</div><div class="kpi-value">360</div><div class="kpi-sub">G/M/N系列单台均值 RMB</div></div>
+  <div class="kpi blue"><div class="kpi-label">全段目标价 (DAP)</div><div class="kpi-value">35 EUR</div><div class="kpi-sub">= 275 RMB/台 (汇率 7.85)</div></div>
+</div>
+
+
+<div class="alert"><strong>说明：</strong>目标价 35EUR 为全段端到端 DAP 目标（含头程->上架->仓储->出库->尾程）。以下数据覆盖全部 DAP 路线（德国+美国）。</div>
+
+<div class="card">
+  <div class="card-header"><div class="card-title">目标对比明细 - 按目的地 x 产品</div><span class="tag tag-red">目标: 35EUR = 275 RMB</span></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>目的地</th><th>产品</th><th>单台合计</th><th>目标</th><th>差距</th><th>超幅</th></tr></thead>
+    <tbody>
+<tr><td class="text-left strong">德国</td><td>G系列</td><td class="num strong over">338</td><td class="num">275</td><td class="num over">+63</td><td style="min-width:180px;"><div style="display:flex;align-items:center;gap:8px;"><div style="flex:1;height:18px;background:#f3f4f6;border-radius:9px;overflow:hidden;"><div style="height:100%;width:12%;background:#ef4444;border-radius:9px;"></div></div><span class="over" style="font-size:12px;font-weight:600;min-width:48px;text-align:right;">+23%</span></div></td></tr>
+<tr><td class="text-left strong">德国</td><td>M系列</td><td class="num strong under">270</td><td class="num">275</td><td class="num under">-4</td><td style="min-width:180px;"><div style="display:flex;align-items:center;gap:8px;"><div style="flex:1;height:18px;background:#f3f4f6;border-radius:9px;overflow:hidden;"><div style="height:100%;width:1%;background:#3b82f6;border-radius:9px;"></div></div><span class="under" style="font-size:12px;font-weight:600;min-width:48px;text-align:right;">-2%</span></div></td></tr>
+<tr><td class="text-left strong">德国</td><td>N系列</td><td class="num strong over">439</td><td class="num">275</td><td class="num over">+164</td><td style="min-width:180px;"><div style="display:flex;align-items:center;gap:8px;"><div style="flex:1;height:18px;background:#f3f4f6;border-radius:9px;overflow:hidden;"><div style="height:100%;width:30%;background:#ef4444;border-radius:9px;"></div></div><span class="over" style="font-size:12px;font-weight:600;min-width:48px;text-align:right;">+60%</span></div></td></tr>
+<tr><td class="text-left strong">美国</td><td>G系列</td><td class="num strong over">654</td><td class="num">275</td><td class="num over">+380</td><td style="min-width:180px;"><div style="display:flex;align-items:center;gap:8px;"><div style="flex:1;height:18px;background:#f3f4f6;border-radius:9px;overflow:hidden;"><div style="height:100%;width:70%;background:#ef4444;border-radius:9px;"></div></div><span class="over" style="font-size:12px;font-weight:600;min-width:48px;text-align:right;">+138%</span></div></td></tr>
+<tr><td class="text-left strong">美国</td><td>M系列</td><td class="num strong over">541</td><td class="num">275</td><td class="num over">+266</td><td style="min-width:180px;"><div style="display:flex;align-items:center;gap:8px;"><div style="flex:1;height:18px;background:#f3f4f6;border-radius:9px;overflow:hidden;"><div style="height:100%;width:49%;background:#ef4444;border-radius:9px;"></div></div><span class="over" style="font-size:12px;font-weight:600;min-width:48px;text-align:right;">+97%</span></div></td></tr>
+<tr><td class="text-left strong">美国</td><td>N系列</td><td class="num strong over">819</td><td class="num">275</td><td class="num over">+544</td><td style="min-width:180px;"><div style="display:flex;align-items:center;gap:8px;"><div style="flex:1;height:18px;background:#f3f4f6;border-radius:9px;overflow:hidden;"><div style="height:100%;width:100%;background:#ef4444;border-radius:9px;"></div></div><span class="over" style="font-size:12px;font-weight:600;min-width:48px;text-align:right;">+198%</span></div></td></tr>
+</tbody></table></div></div>
+
+<div class="card">
+  <div class="card-header"><div class="card-title">结论与建议</div><span class="tag tag-blue">自检分析</span></div>
+  <div class="conclusion-section">
+
+    <div class="conclusion-block">
+    <h4><span class="icon">1</span> 德国路线</h4>
+    <p>德国路线均值 <strong>349 RMB</strong> (超出目标+74, +27%)，其中 <span class="highlight-blue">M系列 270 RMB 已低于目标</span>。头程占43%、尾程占34%。海运头程成本可控，以达标产品M系列为标杆优化N系列；关注尾程快递费率谈判及E段末端配送效率。</p>
+    </div>
+
+    <div class="conclusion-block">
+    <h4><span class="icon">2</span> 美国路线</h4>
+    <p>美国路线均值 <strong>672 RMB</strong> (超出目标+397, +144%)，全线远超目标。头程(海运)占51%、尾程(快递)占41%，为德国同段的2-3倍。优先评估美线海运集拼/合约价优化及尾程卡车替代方案。</p>
+    </div>
+
+    <div class="conclusion-block">
+    <h4><span class="icon">3</span> 综合结论</h4>
+    <p>德国路线整体可控，M系列已达标可作为成本标杆；美国路线头程+尾程为核心矛盾，需从运输方案层面突破。B/C/D段(仓储操作)占比小，维持现状即可。</p>
+    </div>
+
+  </div>
+</div>
+
+<footer>物流中心 - 成本分析 - 2026-08-04</footer>
+</div></body></html>
