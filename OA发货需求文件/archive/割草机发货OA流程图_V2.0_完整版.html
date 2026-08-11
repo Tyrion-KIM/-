@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>割草机发货OA 流程图 V2.0</title>
+<style>
+  :root {
+    --primary: #1a56db; --bg: #f5f6f8; --white: #fff; --border: #d0d5dd;
+    --text: #1d2939; --text-secondary: #667085; --header-bg: #0f2b47;
+    --blue-50: #eff6ff; --green-50: #f0fdf4; --orange-50: #fff7ed;
+    --red-50: #fef2f2; --purple-50: #faf5ff; --yellow-50: #fefce8;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", system-ui, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.6; padding: 24px;
+  }
+
+  .container { max-width: 1200px; margin: 0 auto; background: var(--white); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.05); overflow: hidden; }
+
+  .doc-header { background: linear-gradient(135deg, #0f2b47 0%, #1a4a78 100%); color: #fff; padding: 32px 40px; }
+  .doc-header h1 { font-size: 24px; font-weight: 700; letter-spacing: .02em; margin-bottom: 4px; }
+  .doc-header .meta { font-size: 13px; opacity: .75; margin-top: 6px; display: flex; gap: 16px; flex-wrap: wrap; }
+  .doc-header .meta span { background: rgba(255,255,255,.12); padding: 3px 10px; border-radius: 12px; }
+
+  .content-wrap { padding: 20px 32px 32px; }
+
+  /* ── Swimlane ── */
+  .swimlane { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 0; }
+  .swimlane thead th {
+    background: #1e3a5f; color: #fff; font-weight: 600;
+    padding: 12px 8px; border: 1px solid #1e3a5f; text-align: center;
+    font-size: 13px; letter-spacing: .04em;
+  }
+  .swimlane thead th.col-step  { width: 95px; }
+  .swimlane thead th.col-desc  { width: auto; }
+  .swimlane thead th.col-role  { width: 210px; }
+  .swimlane thead th.col-note  { width: 130px; }
+
+  .swimlane tbody td {
+    border: 1px solid var(--border); padding: 10px 12px; vertical-align: top;
+  }
+  .swimlane .step-cell  { text-align: center; font-weight: 700; vertical-align: middle; font-size: 13px; }
+  .swimlane .desc-cell  { font-size: 12.5px; }
+  .swimlane .role-cell  { font-size: 12px; }
+  .swimlane .note-cell  { font-size: 11.5px; color: var(--text-secondary); text-align: center; vertical-align: middle; }
+
+  /* Row color themes */
+  .row-start     .step-cell { background: #e8f5e9; }
+  .row-applicant .step-cell { background: #e8f0fe; }
+  .row-reject    .step-cell { background: #fee2e2; }
+  .row-sales     .step-cell { background: #e0f2fe; }
+  .row-logistics .step-cell { background: #fff7e6; }
+  .row-log-mgr   .step-cell { background: #fef3c7; }
+  .row-finance   .step-cell { background: #f3e8ff; }
+  .row-quality   .step-cell { background: #fce7f3; }
+  .row-factory   .step-cell { background: #e6f7ed; }
+  .row-final     .step-cell { background: #dbeafe; }
+  .row-customs   .step-cell { background: #fff7e6; }
+  .row-fin-doc   .step-cell { background: #f3e8ff; }
+  .row-end       .step-cell { background: #d1fae5; }
+
+  /* Decision badges */
+  .decision-badge { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 11px; font-weight: 600; margin-right: 4px; }
+  .db-pass   { background: #d1fae5; color: #065f46; }
+  .db-reject { background: #fee2e2; color: #991b1b; }
+
+  /* Step number */
+  .step-num { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+  /* Person tags */
+  .person-list { font-size: 11.5px; line-height: 1.8; }
+  .person-list .biz-label { font-size: 10.5px; color: var(--text-secondary); }
+
+  /* Role label */
+  .role-label { font-weight: 700; margin-bottom: 4px; }
+
+  /* Separator in desc */
+  .desc-sep { border: none; border-top: 1px dashed var(--border); margin: 6px 0; }
+
+  /* Print */
+  @media print {
+    body { background: #fff; padding: 0; }
+    .container { box-shadow: none; border-radius: 0; max-width: 100%; }
+    .content-wrap { padding: 10px 16px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ============ HEADER ============ -->
+  <div class="doc-header">
+    <h1>割草机发货OA 流程图</h1>
+    <div class="meta">
+      <span>版本 V2.0</span>
+      <span>日期 2026-08-06</span>
+      <span>适用 ANTHBOT 整机发运全业务模块</span>
+      <span>含完整审批链 — 12步</span>
+    </div>
+  </div>
+
+  <!-- ============ SWIMLANE ============ -->
+  <div class="content-wrap">
+    <table class="swimlane">
+      <thead>
+        <tr>
+          <th class="col-step">流程</th>
+          <th class="col-desc">评审活动描述</th>
+          <th class="col-role">责任部门 / 人</th>
+          <th class="col-note">备注说明</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <!-- ====== Step 1: 需求方发起 ====== -->
+        <tr class="row-applicant">
+          <td class="step-cell">
+            📝<br>需求方发起
+            <div class="step-num">Step 1</div>
+          </td>
+          <td class="desc-cell">
+            <strong>需求方（申请人）发起并填写：</strong><br>
+            1. 选择<strong>发货类型</strong>（7种业务类别）<br>
+            2. 选择<strong>发货地</strong>（仅需选择"国内"或"国外"维度）<br>
+            3. 填写<strong>发货需求总数</strong> + <strong>产品ERP料号</strong><br>
+            4. 填写<strong>包装信息</strong>（长×宽×高，毛重，件数）— 5个独立字段<br>
+            5. 提交申请
+          </td>
+          <td class="role-cell">
+            <div class="person-list">
+              ① 丹凤 — KOL/红人样机<br>
+              ② 阿龙/诗媚 — C端平台备货<br>
+              ③ Mark — 销售订单<br>
+              ④ 王子骞 — 研发领料<br>
+              ⑤ 袁玉良 — 售后备货<br>
+              ⑥ 邓瑶 — B端备货<br>
+              ⑦ Mark — 客户送样
+            </div>
+          </td>
+          <td class="note-cell">不限制提交人的部门</td>
+        </tr>
+
+        <!-- ====== Step 2: 上级审核 ====== -->
+        <tr class="row-reject">
+          <td class="step-cell">
+            👤<br>上级审核
+            <div class="step-num">Step 2</div>
+          </td>
+          <td class="desc-cell">
+            <strong>需求申请人上级审核</strong><br>
+            <span class="decision-badge db-pass">✓ 通过</span> → 至销管审核<br>
+            <span class="decision-badge db-reject">✗ 不通过</span> → 流转回申请人
+          </td>
+          <td class="role-cell">
+            <div class="role-label">对应人员的直属上级</div>
+          </td>
+          <td class="note-cell"></td>
+        </tr>
+
+        <!-- ====== Step 3: 销管确认库存 ====== -->
+        <tr class="row-sales">
+          <td class="step-cell">
+            📊<br>销管确认库存
+            <div class="step-num">Step 3</div>
+          </td>
+          <td class="desc-cell">
+            <strong>销管确认库存是否可用</strong><br>
+            <span class="decision-badge db-pass">✓ 通过</span> → 至物流执行人员<br>
+            <span class="decision-badge db-reject">✗ 不通过</span> → 回到申请人
+          </td>
+          <td class="role-cell">
+            <div class="role-label">营销中心-销服-wade</div>
+          </td>
+          <td class="note-cell"></td>
+        </tr>
+
+        <!-- ====== Step 4: 物流执行方补充 ====== -->
+        <tr class="row-logistics">
+          <td class="step-cell">
+            🚚<br>物流执行方补充
+            <div class="step-num">Step 4</div>
+          </td>
+          <td class="desc-cell">
+            <strong>物流执行方补充：</strong><br>
+            1. 确认<strong>发货地到最小颗粒度</strong>（具体工厂/仓库）<br>
+            2. 选择<strong>发货主体</strong> / <strong>中转主体</strong> / <strong>收货主体</strong><br>
+            3. 填写<strong>物流发运成本</strong>（单台成本金额）<br>
+            4. 选择<strong>发运标签</strong><br>
+            5. 上传<strong>发运装箱指引</strong>
+          </td>
+          <td class="role-cell">
+            <div class="role-label">根据业务类别做区分：</div>
+            <div class="person-list">
+              <span class="biz-label">红人样机</span> — 张雨洁<br>
+              <span class="biz-label">C端配货</span> — 郑舒漫<br>
+              <span class="biz-label">销售订单</span> — 郑舒漫 + 黄婷<br>
+              <span class="biz-label">研发领料</span> — 张雨洁<br>
+              <span class="biz-label">售后备件</span> — 张雨洁<br>
+              <span class="biz-label">B端备货</span> — 郑舒漫<br>
+              <span class="biz-label">客户送样</span> — 张雨洁
+            </div>
+          </td>
+          <td class="note-cell"></td>
+        </tr>
+
+        <!-- ====== Step 5: 物流上级审核 ====== -->
+        <tr class="row-log-mgr">
+          <td class="step-cell">
+            ✅<br>物流上级审核
+            <div class="step-num">Step 5</div>
+          </td>
+          <td class="desc-cell">
+            <strong>物流上级确认物流补充信息，并审核方案</strong><br>
+            <span class="decision-badge db-pass">✓ 通过</span> → 到财务审核<br>
+            <span class="decision-badge db-reject">✗ 不通过</span> → 流转回申请人
+          </td>
+          <td class="role-cell">
+            <div class="role-label">营销中心-销服-金炜铮</div>
+          </td>
+          <td class="note-cell"></td>
+        </tr>
+
+        <!-- ====== Step 6: 财务审核成本 ====== -->
+        <tr class="row-finance">
+          <td class="step-cell">
+            💰<br>财务审核成本
+            <div class="step-num">Step 6</div>
+          </td>
+          <td class="desc-cell">
+            <strong>财务审核物流成本</strong><br>
+            <span class="decision-badge db-pass">✓ 通过</span> → 到质量审核<br>
+            <span class="decision-badge db-reject">✗ 不通过</span> → 打回物流执行人
+          </td>
+          <td class="role-cell">
+            <div class="role-label">孙会良，秋霞，海燕</div>
+          </td>
+          <td class="note-cell">驳回回到<br>物流执行人<br>(非申请人)</td>
+        </tr>
+
+        <!-- ====== Step 7: 质量审核 ====== -->
+        <tr class="row-quality">
+          <td class="step-cell">
+            🔍<br>质量审核
+            <div class="step-num">Step 7</div>
+          </td>
+          <td class="desc-cell">
+            <strong>质量审核，质量确认货物是否能发运</strong><br>
+            <span class="decision-badge db-pass">✓ 通过</span> → 流转至工厂<br>
+            <span class="decision-badge db-reject">✗ 不通过</span> → 打回至申请人
+          </td>
+          <td class="role-cell">
+            <div class="role-label">张扬帆，李加奇</div>
+          </td>
+          <td class="note-cell"></td>
+        </tr>
+
+        <!-- ====== Step 8: 工厂备货 ====== -->
+        <tr class="row-factory">
+          <td class="step-cell">
+            🏭<br>工厂备货
+            <div class="step-num">Step 8</div>
+          </td>
+          <td class="desc-cell">
+            <strong>工厂收到需求进行备货，补充信息</strong><br>
+            1. 上传<strong>装箱清单</strong><br>
+            2. 上传<strong>SN 文件</strong>
+          </td>
+          <td class="role-cell">
+            <div class="role-label">谭旋</div>
+          </td>
+          <td class="note-cell"></td>
+        </tr>
+
+        <!-- ====== Step 9: 最终审核 ====== -->
+        <tr class="row-final">
+          <td class="step-cell">
+            📋<br>最终审核
+            <div class="step-num">Step 9</div>
+          </td>
+          <td class="desc-cell">
+            <strong>基于所有文件进行最后一道的审核</strong><br>
+            <span class="decision-badge db-pass">✓ 通过</span> → 完成流程通知物流<br>
+            <span class="decision-badge db-reject">✗ 未通过</span> → 打回工厂执行
+          </td>
+          <td class="role-cell">
+            <div class="role-label">王政凯，张秦璐</div>
+          </td>
+          <td class="note-cell">驳回回到<br>工厂执行<br>(非申请人)</td>
+        </tr>
+
+        <!-- ====== Step 10: 物流上传报关单 ====== -->
+        <tr class="row-customs">
+          <td class="step-cell">
+            🛃<br>物流上传报关单
+            <div class="step-num">Step 10</div>
+          </td>
+          <td class="desc-cell">
+            <strong>物流执行上传报关单</strong><br>
+            （出口合同 / 出口发票 / 装箱清单 / 报关单 — 4个子字段）
+          </td>
+          <td class="role-cell">
+            <div class="role-label">根据业务类别做区分：</div>
+            <div class="person-list">
+              <span class="biz-label">红人样机</span> — 张雨洁<br>
+              <span class="biz-label">C端配货</span> — 郑舒漫<br>
+              <span class="biz-label">销售订单</span> — 郑舒漫 + 黄婷<br>
+              <span class="biz-label">研发领料</span> — 张雨洁<br>
+              <span class="biz-label">售后备件</span> — 张雨洁<br>
+              <span class="biz-label">B端备货</span> — 郑舒漫<br>
+              <span class="biz-label">客户送样</span> — 张雨洁
+            </div>
+          </td>
+          <td class="note-cell">报关资料<br>4个子字段</td>
+        </tr>
+
+        <!-- ====== Step 11: 财务审核单证 ====== -->
+        <tr class="row-fin-doc">
+          <td class="step-cell">
+            📑<br>财务审核单证
+            <div class="step-num">Step 11</div>
+          </td>
+          <td class="desc-cell">
+            <strong>财务审核物流发运单证</strong><br>
+            <span class="decision-badge db-pass">✓ 通过</span> → 完结订单<br>
+            <span class="decision-badge db-reject">✗ 未通过</span> → 打回物流
+          </td>
+          <td class="role-cell">
+            <div class="role-label">罗立进</div>
+          </td>
+          <td class="note-cell">第二次财务审核<br>（单证审核）</td>
+        </tr>
+
+        <!-- ====== Step 12: 完结 ====== -->
+        <tr class="row-end">
+          <td class="step-cell">
+            ✅<br>完结通知
+            <div class="step-num">Step 12</div>
+          </td>
+          <td class="desc-cell">
+            <strong>完结流程通知所有审核方</strong><br>
+            系统自动发送通知给：流程发起方 + 上级 + 销管 + 物流执行方 + 物流上级 + 财务(成本) + 质量 + 工厂 + 最终审核 + 财务(单证)
+          </td>
+          <td class="role-cell">
+            <div class="role-label">系统自动</div>
+          </td>
+          <td class="note-cell">通知全部<br>审核参与方</td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+
+</div>
+</body>
+</html>

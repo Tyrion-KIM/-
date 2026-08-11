@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>割草机发货OA流程 — Step2: 业务流程路由</title>
+<style>
+  :root {
+    --primary: #1a56db; --bg: #f8f9fb; --white: #fff; --border: #d0d5dd;
+    --text: #1d2939; --text-secondary: #667085; --header-bg: #1e3a5f;
+    --accent-blue: #e8f0fe; --accent-green: #e6f7ed; --accent-orange: #fff7e6;
+    --accent-red: #fef2f2; --accent-purple: #f3f0ff;
+    --pink: #fdf2f8; --teal: #e6fffa;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.6; padding: 20px;
+  }
+  .container { max-width: 1200px; margin: 0 auto; background: var(--white); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.04); overflow: hidden; }
+
+  .doc-header { background: var(--header-bg); color: #fff; padding: 28px 36px; }
+  .doc-header h1 { font-size: 22px; font-weight: 700; letter-spacing: .02em; margin-bottom: 6px; }
+  .doc-header .meta { font-size: 13px; opacity: .7; }
+
+  .section-title { font-size: 16px; font-weight: 700; color: var(--primary); padding: 24px 36px 8px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+  .section-title .num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: var(--primary); color: #fff; border-radius: 4px; font-size: 13px; }
+
+  .content-wrap { padding: 20px 36px 32px; }
+
+  /* ── Swimlane table ── */
+  .swimlane { width: 100%; border-collapse: collapse; font-size: 12.5px; table-layout: fixed; margin-bottom: 24px; }
+  .swimlane th { background: #f0f3f7; font-weight: 700; padding: 10px 8px; border: 1px solid var(--border); text-align: center; }
+  .swimlane td { border: 1px solid var(--border); padding: 8px 10px; vertical-align: top; }
+  .swimlane .step-cell { width: 90px; text-align: center; font-weight: 700; vertical-align: middle; font-size: 12px; }
+  .swimlane .desc-cell { width: 320px; }
+  .swimlane .role-cell { width: 210px; font-size: 11.5px; }
+  .swimlane .note-cell { width: 140px; font-size: 11px; color: var(--text-secondary); }
+
+  .row-start .step-cell { background: #e8f5e9; }
+  .row-app .step-cell, .row-app .desc-cell { background: var(--accent-blue); }
+  .row-log .step-cell, .row-log .desc-cell { background: var(--accent-orange); }
+  .row-fac .step-cell, .row-fac .desc-cell { background: var(--accent-green); }
+  .row-cus .step-cell, .row-cus .desc-cell { background: var(--purple); }
+  .row-end .step-cell { background: #e8f5e9; }
+
+  .step-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; }
+  .badge-decision { background: #fef3c7; color: #b45309; }
+  .badge-end { background: #d1fae5; color: #065f46; }
+  .badge-fill { background: #dbeafe; color: #1e40af; }
+
+  /* ── Business type cards ── */
+  .biz-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+  @media (max-width: 1000px) { .biz-grid { grid-template-columns: repeat(2, 1fr); } }
+  .biz-card {
+    border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+    font-size: 12px; transition: box-shadow .15s;
+  }
+  .biz-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+  .biz-card-header { padding: 10px 12px; font-weight: 700; color: #fff; font-size: 13px; }
+  .biz-card-body { padding: 10px 12px; }
+  .biz-card-body .kv { display: flex; gap: 6px; margin-bottom: 4px; }
+  .biz-card-body .kv .k { color: var(--text-secondary); flex-shrink: 0; }
+  .biz-card-body .kv .v { font-weight: 500; }
+
+  /* ── Routing table ── */
+  .route-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 24px; }
+  .route-table th { background: #1e3a5f; color: #fff; font-weight: 600; padding: 9px 10px; border: 1px solid #1e3a5f; text-align: center; }
+  .route-table td { border: 1px solid var(--border); padding: 7px 9px; vertical-align: top; }
+  .route-table tr:nth-child(even) td { background: #fafbfc; }
+  .route-table .type-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+
+  /* ── Info callout ── */
+  .info-box { margin: 0 36px 16px; padding: 14px 18px; background: #eff6ff; border-left: 4px solid var(--primary); border-radius: 0 6px 6px 0; font-size: 13px; }
+  .warn-box { margin: 0 36px 16px; padding: 14px 18px; background: #fefce8; border-left: 4px solid #eab308; border-radius: 0 6px 6px 0; font-size: 13px; }
+
+  h3 { font-size: 15px; margin: 20px 0 10px; color: var(--text); }
+  ol { margin: 4px 0 0 16px; }
+  li { margin-bottom: 2px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="doc-header">
+    <h1>割草机发货OA 流程图</h1>
+    <div class="meta">版本: V1.0 ｜ 日期: 2026-08-06 ｜ 适用: ANTHBOT 整机发运全业务模块</div>
+  </div>
+
+  <!-- ====== 1. 背景与目的 ====== -->
+  <div class="section-title"><span class="num">1</span> 背景与目的</div>
+  <div class="content-wrap" style="padding-bottom:8px">
+    <table style="width:100%;font-size:13px;">
+      <tr><td style="width:60px;font-weight:700;color:var(--primary)">背景</td><td>应用于所有 ANTHBOT 的整机发运，需要由 OA 覆盖所有业务模块。</td></tr>
+      <tr><td style="font-weight:700;color:var(--primary)">目的</td><td>让发运的管控有迹可循，做好监控管理。</td></tr>
+    </table>
+  </div>
+
+  <!-- ====== 2. 7种业务类别 ====== -->
+  <div class="section-title"><span class="num">2</span> 七种发货业务类别概览</div>
+  <div class="content-wrap">
+    <div class="biz-grid">
+      <div class="biz-card"><div class="biz-card-header" style="background:#1e40af;">① KOL / 红人样机</div><div class="biz-card-body"><div class="kv"><span class="k">举例人：</span><span class="v">吴丹凤</span></div><div class="kv"><span class="k">部门：</span><span class="v">用户运营部 / 品牌视觉部 / 品牌营销部 / 产品营销部</span></div><div class="kv"><span class="k">目的地：</span><span class="v">客户地址（C端个人客户）</span></div></div></div>
+      <div class="biz-card"><div class="biz-card-header" style="background:#2563eb;">② 订单备货（C端平台）</div><div class="biz-card-body"><div class="kv"><span class="k">举例人：</span><span class="v">谢阿龙 / 诗媚</span></div><div class="kv"><span class="k">部门：</span><span class="v">线上业务部 / 品牌商城部</span></div><div class="kv"><span class="k">目的地：</span><span class="v">海外仓-C端仓库</span></div></div></div>
+      <div class="biz-card"><div class="biz-card-header" style="background:#0891b2;">③ 销售订单</div><div class="biz-card-body"><div class="kv"><span class="k">举例人：</span><span class="v">Mark（B端销售）</span></div><div class="kv"><span class="k">部门：</span><span class="v">渠道业务部</span></div><div class="kv"><span class="k">目的地：</span><span class="v">客户地址（B端企业客户）</span></div></div></div>
+      <div class="biz-card"><div class="biz-card-header" style="background:#059669;">④ 研发领料</div><div class="biz-card-body"><div class="kv"><span class="k">举例人：</span><span class="v">王子骞</span></div><div class="kv"><span class="k">部门：</span><span class="v">割草机器人产品线-产品部</span></div><div class="kv"><span class="k">目的地：</span><span class="v">客户地址（C端个人客户）⚠️</span></div></div></div>
+      <div class="biz-card"><div class="biz-card-header" style="background:#d97706;">⑤ 售后备货</div><div class="biz-card-body"><div class="kv"><span class="k">举例人：</span><span class="v">袁玉良</span></div><div class="kv"><span class="k">部门：</span><span class="v">客户服务部-线下服务管理组</span></div><div class="kv"><span class="k">目的地：</span><span class="v">海外仓-维修仓 / B端客户</span></div></div></div>
+      <div class="biz-card"><div class="biz-card-header" style="background:#7c3aed;">⑥ 订单备货（B端）</div><div class="biz-card-body"><div class="kv"><span class="k">举例人：</span><span class="v">邓瑶</span></div><div class="kv"><span class="k">部门：</span><span class="v">销售管理部-订单交付组</span></div><div class="kv"><span class="k">目的地：</span><span class="v">海外仓-B端仓库 / 自营仓</span></div></div></div>
+      <div class="biz-card"><div class="biz-card-header" style="background:#be185d;">⑦ 客户送样</div><div class="biz-card-body"><div class="kv"><span class="k">举例人：</span><span class="v">Mark（B端销售）</span></div><div class="kv"><span class="k">部门：</span><span class="v">渠道业务部</span></div><div class="kv"><span class="k">目的地：</span><span class="v">客户地址（B端企业客户）</span></div></div></div>
+    </div>
+  </div>
+
+  <!-- ====== 3. 流转流程 - 泳道图 ====== -->
+  <div class="section-title"><span class="num">3</span> 流转流程 — 泳道图</div>
+  <div class="content-wrap">
+    <table class="swimlane">
+      <thead><tr><th style="width:90px">环节</th><th style="width:320px">活动描述</th><th style="width:210px">角色 / 部门</th><th style="width:160px">备注说明</th></tr></thead>
+      <tbody>
+
+        <tr class="row-start">
+          <td class="step-cell">🏁 开始</td>
+          <td class="desc-cell">—</td>
+          <td class="role-cell">—</td>
+          <td class="note-cell"></td>
+        </tr>
+
+        <tr class="row-app">
+          <td class="step-cell">📝<br>流程发起<br><span class="step-label">Step 1</span></td>
+          <td class="desc-cell">
+            <strong>需求方（申请人）发起并填写：</strong>
+            <ol>
+              <li>选择<strong>发货类型</strong>（7种业务类别，按部门权限可见）</li>
+              <li>选择<strong>发货地</strong>（国内工厂 / 海外仓）</li>
+              <li>填写<strong>发货需求总数</strong> + <strong>产品ERP料号</strong></li>
+              <li>填写<strong>规格型号</strong> + <strong>海关申报单价</strong></li>
+              <li>填写<strong>包装信息</strong>（长 × 宽 × 高，毛重）</li>
+              <li>上传<strong>箱唛发货指引附件</strong></li>
+              <li>提交申请 <span class="step-badge badge-fill">需求方必填</span></li>
+            </ol>
+          </td>
+          <td class="role-cell">
+            <div><strong>流程发起方</strong></div>
+            <div style="font-size:11px;margin-top:4px;">
+              根据业务类型区分：<br>
+              ① 丹凤（营销中心）<br>
+              ② 阿龙/诗媚（线上业务/品牌商城）<br>
+              ③ Mark（渠道业务）<br>
+              ④ 子骞（产品部）<br>
+              ⑤ 玉良（客户服务）<br>
+              ⑥ 邓瑶（订单交付）<br>
+              ⑦ Mark（渠道业务）
+            </div>
+          </td>
+          <td class="note-cell">根据部门区分可见业务类型</td>
+        </tr>
+
+        <tr class="row-log">
+          <td class="step-cell">🔍<br>物流确认<br><span class="step-label">Step 2</span></td>
+          <td class="desc-cell">
+            <strong>物流执行方审核并补充：</strong>
+            <ol>
+              <li>确认<strong>发货地到最小颗粒度</strong></li>
+              <li>选择<strong>发货主体</strong> / <strong>中转主体</strong> / <strong>收货主体</strong></li>
+              <li>填写<strong>物流发运成本</strong>（单台成本）</li>
+              <li>选择<strong>发运标签</strong></li>
+              <li>上传<strong>发运装箱指引</strong> <span class="step-badge badge-fill">物流方必填</span></li>
+            </ol>
+          </td>
+          <td class="role-cell">
+            <div><strong>物流执行方</strong></div>
+            <div style="font-size:11px;margin-top:4px;">物流部门 — 补充主体信息与成本</div>
+          </td>
+          <td class="note-cell"></td>
+        </tr>
+
+        <tr class="row-fac">
+          <td class="step-cell">🏭<br>工厂执行<br><span class="step-label">Step 3</span></td>
+          <td class="desc-cell">
+            <strong>工厂执行方准备出货：</strong>
+            <ol>
+              <li>上传<strong>发运装箱文件</strong></li>
+              <li>上传<strong>出货 SN 文件</strong></li>
+              <li>上传<strong>发运照片</strong> <span class="step-badge badge-fill">工厂方必填</span></li>
+            </ol>
+          </td>
+          <td class="role-cell">
+            <div><strong>工厂执行方</strong></div>
+            <div style="font-size:11px;margin-top:4px;">工厂仓库 — 实物出货准备</div>
+          </td>
+          <td class="note-cell"></td>
+        </tr>
+
+        <tr class="row-log">
+          <td class="step-cell">📋<br>报关补充<br><span class="step-label">Step 4</span></td>
+          <td class="desc-cell">
+            <strong>物流执行方补充报关资料：</strong>
+            <ol>
+              <li>上传<strong>出口合同</strong></li>
+              <li>上传<strong>出口发票</strong></li>
+              <li>上传<strong>装箱清单</strong></li>
+              <li>上传<strong>报关单</strong> <span class="step-badge badge-fill">物流方必填</span></li>
+            </ol>
+          </td>
+          <td class="role-cell">
+            <div><strong>物流执行</strong></div>
+            <div style="font-size:11px;margin-top:4px;">报关资料由物流方补充<br><em>原"出口报关资料"字段拆分为4个</em></div>
+          </td>
+          <td class="note-cell">拆分自"出口报关资料"</td>
+        </tr>
+
+        <tr class="row-end">
+          <td class="step-cell">✅<br>完结归档<br><span class="step-label">Step 5</span></td>
+          <td class="desc-cell">
+            <strong>流程完结，系统自动通知：</strong>
+            <div style="margin-top:4px;">完结归档后通知各个审核的协同方</div>
+          </td>
+          <td class="role-cell"><div><strong>系统自动</strong></div><div style="font-size:11px;">通知全部审核参与方</div></td>
+          <td class="note-cell"><span class="step-badge badge-end">完结</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ====== 4. 业务路由映射 ====== -->
+  <div class="section-title"><span class="num">4</span> 七种业务类型 — 完整路由映射</div>
+  <div class="content-wrap">
+    <table class="route-table">
+      <thead>
+        <tr><th>序号</th><th>业务类型</th><th>可选发货地</th><th>目的地</th><th>发货主体</th><th>中转主体</th><th>收货主体</th><th>需求方</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align:center">1</td>
+          <td><span class="type-tag" style="background:#1e40af;color:#fff;">KOL/红人样机</span></td>
+          <td>工厂-国内-乐动电子<br>工厂-国内-乐智<br>工厂-越南-博硕<br>海外仓-C端仓库<br>海外仓-B端仓库<br>海外仓-自营仓</td>
+          <td>客户地址<br>(C端个人客户)</td>
+          <td>乐动电子</td>
+          <td>香港萌果</td>
+          <td>德国安思博</td>
+          <td>吴丹凤</td>
+        </tr>
+        <tr>
+          <td style="text-align:center">2</td>
+          <td><span class="type-tag" style="background:#2563eb;color:#fff;">订单备货(C端)</span></td>
+          <td>工厂-国内-乐动电子<br>工厂-国内-乐智<br>工厂-越南-博硕<br>海外仓-C端仓库<br>海外仓-自营仓</td>
+          <td>海外仓-C端仓库</td>
+          <td>乐智</td>
+          <td>新加坡安思博</td>
+          <td>香港萌果</td>
+          <td>谢阿龙/诗媚</td>
+        </tr>
+        <tr>
+          <td style="text-align:center">3</td>
+          <td><span class="type-tag" style="background:#0891b2;color:#fff;">销售订单</span></td>
+          <td>工厂-国内-乐动电子<br>工厂-国内-乐智<br>工厂-越南-博硕<br>海外仓-B端仓库<br>海外仓-自营仓</td>
+          <td>客户地址<br>(B端企业客户)</td>
+          <td>越南博硕</td>
+          <td>—</td>
+          <td>新加坡安思博</td>
+          <td>Mark</td>
+        </tr>
+        <tr>
+          <td style="text-align:center">4</td>
+          <td><span class="type-tag" style="background:#059669;color:#fff;">研发领料</span></td>
+          <td>工厂-国内-乐动电子<br>工厂-国内-乐智<br>工厂-越南-博硕</td>
+          <td>客户地址<br>(C端个人客户) ⚠️</td>
+          <td>德国安思博</td>
+          <td>—</td>
+          <td>—</td>
+          <td>王子骞</td>
+        </tr>
+        <tr>
+          <td style="text-align:center">5</td>
+          <td><span class="type-tag" style="background:#d97706;color:#fff;">售后备货</span></td>
+          <td>工厂-国内-乐动电子<br>工厂-国内-乐智<br>工厂-越南-博硕</td>
+          <td>海外仓-维修仓<br>客户地址(B端企业客户)</td>
+          <td>香港萌果</td>
+          <td>—</td>
+          <td>—</td>
+          <td>袁玉良</td>
+        </tr>
+        <tr>
+          <td style="text-align:center">6</td>
+          <td><span class="type-tag" style="background:#7c3aed;color:#fff;">订单备货(B端)</span></td>
+          <td>工厂-国内-乐动电子<br>工厂-国内-乐智<br>工厂-越南-博硕</td>
+          <td>海外仓-B端仓库<br>海外仓-自营仓</td>
+          <td>新加坡安思博</td>
+          <td>—</td>
+          <td>—</td>
+          <td>邓瑶</td>
+        </tr>
+        <tr>
+          <td style="text-align:center">7</td>
+          <td><span class="type-tag" style="background:#be185d;color:#fff;">客户送样</span></td>
+          <td>工厂-国内-乐动电子<br>工厂-国内-乐智<br>工厂-越南-博硕<br>海外仓-B端仓库<br>海外仓-自营仓</td>
+          <td>客户地址<br>(B端企业客户)</td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+          <td>Mark</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="info-box">
+    <strong>📌 Step 2 预览说明：</strong>这是在 Step 1 框架基础上增加了 <strong>7种业务类别卡片</strong> 和 <strong>完整路由映射表</strong> 的版本。
+    后续步骤将补充：字段定义表（固定/新增/删除）、明细数据字段、各节点数据需求。
+  </div>
+
+</div>
+</body>
+</html>

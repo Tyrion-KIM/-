@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>割草机发货OA流程 — Step4: 各节点数据需求</title>
+<style>
+  :root { --primary: #1a56db; --bg: #f8f9fb; --white: #fff; --border: #d0d5dd; --text: #1d2939; --text-secondary: #667085; --header-bg: #1e3a5f; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; padding: 20px; }
+  .container { max-width: 1200px; margin: 0 auto; background: var(--white); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.04); overflow: hidden; }
+  .doc-header { background: var(--header-bg); color: #fff; padding: 28px 36px; }
+  .doc-header h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .doc-header .meta { font-size: 13px; opacity: .7; }
+  .section-title { font-size: 16px; font-weight: 700; color: var(--primary); padding: 24px 36px 8px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+  .section-title .num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: var(--primary); color: #fff; border-radius: 4px; font-size: 13px; }
+  .content-wrap { padding: 20px 36px 32px; }
+
+  /* Node cards */
+  .node-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px; }
+  @media (max-width: 800px) { .node-grid { grid-template-columns: 1fr; } }
+  .node-card { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .node-card-header { padding: 12px 16px; color: #fff; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+  .node-card-body { padding: 14px 16px; font-size: 13px; }
+  .node-card-body ul { margin: 0 0 0 16px; }
+  .node-card-body li { margin-bottom: 4px; }
+
+  .node-requester .node-card-header { background: #1e40af; }
+  .node-logistics .node-card-header { background: #d97706; }
+  .node-factory .node-card-header { background: #059669; }
+  .node-customs .node-card-header { background: #7c3aed; }
+
+  /* Notification section */
+  .notify-flow { display: flex; align-items: center; gap: 12px; padding: 20px; background: #f9fafb; border-radius: 10px; border: 1px solid var(--border); flex-wrap: wrap; margin-bottom: 24px; }
+  .notify-step { padding: 10px 16px; border-radius: 8px; font-weight: 600; font-size: 13px; text-align: center; }
+  .notify-step.end { background: #d1fae5; color: #065f46; }
+  .notify-step.send { background: #dbeafe; color: #1e40af; }
+  .notify-step.people { background: #fef3c7; color: #92400e; font-weight: 400; font-size: 12px; }
+  .notify-arrow { font-size: 18px; color: var(--text-secondary); }
+
+  /* Swimlane */
+  .swimlane { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 24px; }
+  .swimlane th { background: #f0f3f7; font-weight: 700; padding: 10px 8px; border: 1px solid var(--border); text-align: center; }
+  .swimlane td { border: 1px solid var(--border); padding: 8px 10px; vertical-align: top; }
+  .step-cell { text-align: center; font-weight: 700; vertical-align: middle; width: 90px; }
+  .row-start .step-cell { background: #e8f5e9; }
+  .row-app .step-cell, .row-app .desc-cell { background: #e8f0fe; }
+  .row-log .step-cell, .row-log .desc-cell { background: #fff7e6; }
+  .row-fac .step-cell, .row-fac .desc-cell { background: #e6f7ed; }
+  .row-end .step-cell { background: #e8f5e9; }
+
+  .tag { display: inline-block; padding: 2px 10px; border-radius: 4px; font-size: 10px; font-weight: 600; }
+  .tag-required { background: #fce7f3; color: #9d174d; }
+  .tag-logistics { background: #fff7ed; color: #c2410c; }
+  .tag-factory { background: #ecfdf5; color: #065f46; }
+  .tag-system { background: #f5f3ff; color: #6d28d9; }
+
+  .info-box { margin: 0 36px 16px; padding: 14px 18px; background: #eff6ff; border-left: 4px solid var(--primary); border-radius: 0 6px 6px 0; font-size: 13px; }
+  .warn-box { margin: 0 36px 16px; padding: 14px 18px; background: #fefce8; border-left: 4px solid #eab308; border-radius: 0 6px 6px 0; font-size: 13px; }
+
+  h3 { font-size: 15px; margin: 20px 0 10px; color: var(--text); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="doc-header">
+    <h1>割草机发货OA 流程图</h1>
+    <div class="meta">版本: V1.0 ｜ 日期: 2026-08-06 ｜ 适用: ANTHBOT 整机发运全业务模块</div>
+  </div>
+
+  <!-- ====== 各节点数据需求 ====== -->
+  <div class="section-title"><span class="num">5</span> 各节点需要补充的数据</div>
+  <div class="content-wrap">
+
+    <div class="node-grid">
+      <!-- 5.1 流程发起方 -->
+      <div class="node-card node-requester">
+        <div class="node-card-header">📝 Step 1 — 流程发起方</div>
+        <div class="node-card-body">
+          <p style="margin-bottom:6px;"><strong>需填写：</strong></p>
+          <ul>
+            <li><strong>发货类型</strong> — 从7种业务类别中选择</li>
+            <li><strong>发货地</strong> — 选择到"国内/国外"维度</li>
+            <li><strong>发货需求总数</strong> — 实际发运数量</li>
+            <li><strong>产品ERP料号</strong> — 工厂物料编码</li>
+          </ul>
+          <p style="margin-top:8px;font-size:11px;color:var(--text-secondary);">权限规则：根据申请人部门自动过滤可选的业务类型</p>
+        </div>
+      </div>
+
+      <!-- 5.2 物流执行方 -->
+      <div class="node-card node-logistics">
+        <div class="node-card-header">🚚 Step 2 — 物流执行方</div>
+        <div class="node-card-body">
+          <p style="margin-bottom:6px;"><strong>需补充：</strong></p>
+          <ul>
+            <li><strong>发货地</strong> — 维护到最小颗粒度</li>
+            <li><strong>发货主体</strong> — 选择公司主体</li>
+            <li><strong>中转主体</strong> — 按需选择</li>
+            <li><strong>收货主体</strong> — 选择收货公司</li>
+            <li><strong>物流发运成本</strong> — 单台成本金额</li>
+            <li><strong>发运标签</strong> — 分类标签</li>
+            <li><strong>发运装箱指引</strong> — 附件上传</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 5.3 工厂执行方 -->
+      <div class="node-card node-factory">
+        <div class="node-card-header">🏭 Step 3 — 工厂执行方</div>
+        <div class="node-card-body">
+          <p style="margin-bottom:6px;"><strong>需补充：</strong></p>
+          <ul>
+            <li><strong>发运装箱文件</strong> — 装箱清单附件</li>
+            <li><strong>出货 SN 文件</strong> — 序列号清单</li>
+            <li><strong>发运照片</strong> — 出货现场照片</li>
+          </ul>
+          <p style="margin-top:8px;font-size:11px;color:var(--text-secondary);">备注：SN文件格式和校验规则需进一步明确</p>
+        </div>
+      </div>
+
+      <!-- 5.4 物流报关 -->
+      <div class="node-card node-customs">
+        <div class="node-card-header">📋 Step 4 — 物流执行（报关）</div>
+        <div class="node-card-body">
+          <p style="margin-bottom:6px;"><strong>需补充：</strong></p>
+          <ul>
+            <li><strong>出口合同</strong> — 附件上传</li>
+            <li><strong>出口发票</strong> — 附件上传</li>
+            <li><strong>装箱清单</strong> — 附件上传</li>
+            <li><strong>报关单</strong> — 附件上传</li>
+          </ul>
+          <p style="margin-top:8px;font-size:11px;color:var(--text-secondary);">由原"出口报关资料"一个字段拆分而来</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 通知机制 ====== -->
+  <div class="section-title"><span class="num">6</span> 通知机制</div>
+  <div class="content-wrap">
+    <div class="notify-flow">
+      <div class="notify-step end">✅ 流程完结归档</div>
+      <div class="notify-arrow">→</div>
+      <div class="notify-step send">📢 系统自动发送通知</div>
+      <div class="notify-arrow">→</div>
+      <div class="notify-step people">👤 流程发起方（申请人）</div>
+      <div class="notify-step people">👤 物流执行方</div>
+      <div class="notify-step people">👤 工厂执行方</div>
+      <div class="notify-step people">👤 财务</div>
+      <div class="notify-step people">👤 其他审核协同方</div>
+    </div>
+    <p style="font-size:13px;color:var(--text-secondary);">通知内容应包含：申请单号、发货类型、完结状态、归档时间等关键信息。</p>
+  </div>
+
+  <!-- ====== 完整流程图（精简版） ====== -->
+  <div class="section-title"><span class="num">7</span> 完整流程图（汇总）</div>
+  <div class="content-wrap">
+    <table class="swimlane">
+      <thead><tr><th style="width:90px">环节</th><th>活动描述</th><th>角色 / 部门</th><th>备注</th></tr></thead>
+      <tbody>
+        <tr class="row-start"><td class="step-cell">🏁 开始</td><td>—</td><td>—</td><td></td></tr>
+        <tr class="row-app">
+          <td class="step-cell">📝 流程发起</td>
+          <td class="desc-cell">选择发货类型 + 发货地 + 填写发货总数 + ERP料号<br><span class="tag tag-required">需求方必填</span></td>
+          <td>流程发起方<br><small>丹凤/阿龙/Mark/子骞/玉良/邓瑶</small></td>
+          <td>按部门权限<br>过滤业务类型</td>
+        </tr>
+        <tr class="row-log">
+          <td class="step-cell">🔍 物流确认</td>
+          <td class="desc-cell">维护发货地到最小颗粒 + 补充主体 + 物流成本 + 发运标签<br><span class="tag tag-logistics">物流方填写</span></td>
+          <td>物流执行方</td>
+          <td></td>
+        </tr>
+        <tr class="row-fac">
+          <td class="step-cell">🏭 工厂执行</td>
+          <td class="desc-cell">上传装箱文件 + SN文件 + 发运照片<br><span class="tag tag-factory">工厂方填写</span></td>
+          <td>工厂执行方</td>
+          <td></td>
+        </tr>
+        <tr class="row-log">
+          <td class="step-cell">📋 报关补充</td>
+          <td class="desc-cell">上传合同/发票/装箱清单/报关单<br><span class="tag tag-logistics">物流方填写</span></td>
+          <td>物流执行</td>
+          <td>4个子字段</td>
+        </tr>
+        <tr class="row-end">
+          <td class="step-cell">✅ 完结归档</td>
+          <td class="desc-cell">系统通知全部协同方<br><span class="tag tag-system">系统自动</span></td>
+          <td>系统自动</td>
+          <td>通知机制</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="info-box">
+    <strong>📌 Step 4 预览说明：</strong>在 Step 1-3 基础上增加了 <strong>各节点数据需求卡片</strong> 和 <strong>通知机制</strong>。<br>
+    下一步（最终版）：合并全部章节为一份完整的 HTML 文档。
+  </div>
+
+</div>
+</body>
+</html>

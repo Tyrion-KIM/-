@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>割草机发货OA流程 — Step1: 框架结构</title>
+<style>
+  :root {
+    --primary: #1a56db;
+    --bg: #f8f9fb;
+    --white: #fff;
+    --border: #d0d5dd;
+    --text: #1d2939;
+    --text-secondary: #667085;
+    --header-bg: #1e3a5f;
+    --step-col-width: 120px;
+    --desc-col-width: 340px;
+    --role-col-width: 200px;
+    --note-col-width: 150px;
+    --accent-blue: #e8f0fe;
+    --accent-green: #e6f7ed;
+    --accent-orange: #fff7e6;
+    --accent-red: #fef2f2;
+    --accent-purple: #f3f0ff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 20px;
+  }
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.04);
+    overflow: hidden;
+  }
+
+  /* ── Header ── */
+  .doc-header {
+    background: var(--header-bg);
+    color: #fff;
+    padding: 28px 36px;
+  }
+  .doc-header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    margin-bottom: 6px;
+  }
+  .doc-header .meta {
+    font-size: 13px;
+    opacity: .7;
+  }
+
+  /* ── Section titles ── */
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--primary);
+    padding: 24px 36px 8px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px; height: 22px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+
+  /* ── Swimlane table ── */
+  .swimlane-wrap {
+    padding: 20px 36px 32px;
+    overflow-x: auto;
+  }
+  .swimlane {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    table-layout: fixed;
+  }
+  .swimlane th {
+    background: #f0f3f7;
+    font-weight: 700;
+    padding: 10px 10px;
+    border: 1px solid var(--border);
+    text-align: center;
+  }
+  .swimlane td {
+    border: 1px solid var(--border);
+    padding: 8px 10px;
+    vertical-align: top;
+  }
+  .swimlane .step-cell {
+    width: var(--step-col-width);
+    text-align: center;
+    font-weight: 700;
+    vertical-align: middle;
+  }
+  .swimlane .desc-cell {
+    width: var(--desc-col-width);
+  }
+  .swimlane .role-cell {
+    width: var(--role-col-width);
+    font-size: 11.5px;
+    color: var(--text-secondary);
+  }
+  .swimlane .note-cell {
+    width: var(--note-col-width);
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+
+  /* Row backgrounds */
+  .row-start    .step-cell { background: #e8f5e9; }
+  .row-applicant .step-cell, .row-applicant .desc-cell { background: var(--accent-blue); }
+  .row-logistics .step-cell, .row-logistics .desc-cell { background: var(--accent-orange); }
+  .row-factory   .step-cell, .row-factory   .desc-cell { background: var(--accent-green); }
+  .row-finance   .step-cell, .row-finance   .desc-cell { background: var(--accent-purple); }
+  .row-end       .step-cell { background: #e8f5e9; }
+
+  .step-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge-decision { background: #fef3c7; color: #b45309; }
+  .badge-parallel { background: #dbeafe; color: #1e40af; }
+  .badge-end      { background: #d1fae5; color: #065f46; }
+
+  /* ── Step indicator ── */
+  .step-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+  .step-label strong { color: var(--primary); }
+
+  /* ── Decision diamond ── */
+  .decision {
+    display: inline-block;
+    padding: 3px 12px;
+    border: 2px solid #f59e0b;
+    color: #b45309;
+    font-weight: 700;
+    transform: skewX(-5deg);
+    font-size: 11px;
+  }
+
+  /* ── ARROW between rows ── */
+  .arrow-down {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 16px;
+    padding: 2px 0;
+  }
+
+  /* ── Info callout ── */
+  .info-box {
+    margin: 16px 36px;
+    padding: 14px 18px;
+    background: #eff6ff;
+    border-left: 4px solid var(--primary);
+    border-radius: 0 6px 6px 0;
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ======== HEADER ======== -->
+  <div class="doc-header">
+    <h1>割草机发货OA 流程图</h1>
+    <div class="meta">版本: V1.0 ｜ 日期: 2026-08-06 ｜ 适用: ANTHBOT 整机发运全业务模块</div>
+  </div>
+
+  <!-- ======== 1. 背景与目的 ======== -->
+  <div class="section-title"><span class="num">1</span> 背景与目的</div>
+  <div class="swimlane-wrap" style="padding-bottom:8px">
+    <table style="width:100%; font-size:13px;">
+      <tr><td style="width:60px;font-weight:700;color:var(--primary)">背景</td><td>应用于所有 ANTHBOT 的整机发运，需要由 OA 覆盖所有业务模块。</td></tr>
+      <tr><td style="font-weight:700;color:var(--primary)">目的</td><td>让发运的管控有迹可循，做好监控管理。</td></tr>
+    </table>
+  </div>
+
+  <!-- ======== 2. 流转流程 (SWIMLANE) ======== -->
+  <div class="section-title"><span class="num">2</span> 流转流程 — 泳道图</div>
+  <div class="swimlane-wrap">
+    <table class="swimlane">
+      <thead>
+        <tr>
+          <th style="width:100px">环节</th>
+          <th style="width:320px">活动描述</th>
+          <th style="width:200px">角色 / 部门</th>
+          <th style="width:160px">备注说明</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <!-- ── 开始 ── -->
+        <tr class="row-start">
+          <td class="step-cell">🏁 开始</td>
+          <td class="desc-cell">—</td>
+          <td class="role-cell">—</td>
+          <td class="note-cell"></td>
+        </tr>
+
+        <!-- ── 流程发起方 ── -->
+        <tr class="row-applicant">
+          <td class="step-cell">
+            <div>📝 流程发起</div>
+            <div class="step-label">Step <strong>1</strong></div>
+          </td>
+          <td class="desc-cell">
+            <strong>需求方（申请人）发起并填写：</strong>
+            <ol style="margin:4px 0 0 16px;">
+              <li>选择发货类型（7种业务类别）</li>
+              <li>选择发货地（国内 / 海外）</li>
+              <li>填写发货需求总数 + 产品ERP料号</li>
+              <li>填写包装信息（长宽高、毛重）</li>
+              <li>上传箱唛发货指引附件</li>
+              <li>提交申请</li>
+            </ol>
+          </td>
+          <td class="role-cell">
+            <div><strong>流程发起方</strong></div>
+            <div style="margin-top:4px;">
+              根据产品类别区分：<br>
+              • 割草机器人 → 丹凤<br>
+              • 割草机器人 → 阿龙 / 诗媚<br>
+              • 割草机器人 → Mark<br>
+              • 割草机器人 → 子骞<br>
+              • 割草机器人 → 玉良<br>
+              • 割草机器人 → 邓瑶
+            </div>
+          </td>
+          <td class="note-cell">根据部门区分可见业务类型</td>
+        </tr>
+
+        <!-- ── 物流执行方审核 ── -->
+        <tr class="row-logistics">
+          <td class="step-cell">
+            <div>🔍 物流确认</div>
+            <div class="step-label">Step <strong>2</strong></div>
+          </td>
+          <td class="desc-cell">
+            <strong>物流执行方审核并补充：</strong>
+            <ol style="margin:4px 0 0 16px;">
+              <li>确认发货地到最小颗粒度</li>
+              <li>选择发货主体 / 中转主体 / 收货主体</li>
+              <li>填写物流发运成本（单台成本）</li>
+              <li>选择发运标签</li>
+              <li>上传发运装箱指引</li>
+            </ol>
+          </td>
+          <td class="role-cell">
+            <div><strong>物流执行方</strong></div>
+            <div style="margin-top:4px;font-size:11px;">物流部门 — 补充主体与成本信息</div>
+          </td>
+          <td class="note-cell"></td>
+        </tr>
+
+        <!-- ── 工厂执行方 ── -->
+        <tr class="row-factory">
+          <td class="step-cell">
+            <div>🏭 工厂执行</div>
+            <div class="step-label">Step <strong>3</strong></div>
+          </td>
+          <td class="desc-cell">
+            <strong>工厂执行方准备出货文件：</strong>
+            <ol style="margin:4px 0 0 16px;">
+              <li>上传发运装箱文件</li>
+              <li>上传出货 SN 文件</li>
+              <li>上传发运照片</li>
+            </ol>
+          </td>
+          <td class="role-cell">
+            <div><strong>工厂执行方</strong></div>
+            <div style="margin-top:4px;font-size:11px;">工厂仓库 — 实物出货准备</div>
+          </td>
+          <td class="note-cell"></td>
+        </tr>
+
+        <!-- ── 物流报关 ── -->
+        <tr class="row-logistics">
+          <td class="step-cell">
+            <div>📋 报关补充</div>
+            <div class="step-label">Step <strong>4</strong></div>
+          </td>
+          <td class="desc-cell">
+            <strong>物流执行方补充报关资料：</strong>
+            <ol style="margin:4px 0 0 16px;">
+              <li>上传出口合同</li>
+              <li>上传出口发票</li>
+              <li>上传装箱清单</li>
+              <li>上传报关单</li>
+            </ol>
+          </td>
+          <td class="role-cell">
+            <div><strong>物流执行</strong></div>
+            <div style="margin-top:4px;font-size:11px;">报关资料由物流方补充</div>
+          </td>
+          <td class="note-cell">报关资料由原"出口报关资料"字段拆分为4个子字段</td>
+        </tr>
+
+        <!-- ── 完结归档 ── -->
+        <tr class="row-end">
+          <td class="step-cell">
+            <div>✅ 完结归档</div>
+            <div class="step-label">Step <strong>5</strong></div>
+          </td>
+          <td class="desc-cell">
+            <strong>流程完结，通知各方：</strong>
+            <div style="margin-top:4px;">完结归档后通知各个审核协同方</div>
+          </td>
+          <td class="role-cell">
+            <div><strong>系统自动</strong></div>
+            <div style="margin-top:4px;font-size:11px;">通知所有审核参与方</div>
+          </td>
+          <td class="note-cell"><span class="step-badge badge-end">完结</span></td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Step indicator -->
+  <div class="info-box">
+    <strong>📌 预览说明：</strong>这是 <strong>Step 1 — 框架结构</strong> 的 HTML 样品。展示了泳道图的完整框架，包含5个主要环节（发起→物流确认→工厂执行→报关补充→完结归档）。
+    后续步骤将补充：字段定义表、7种业务类型路由映射、各节点数据需求明细。
+  </div>
+
+</div>
+</body>
+</html>

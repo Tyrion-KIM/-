@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>割草机发货OA流程 — Step3: 字段定义</title>
+<style>
+  :root {
+    --primary: #1a56db; --bg: #f8f9fb; --white: #fff; --border: #d0d5dd;
+    --text: #1d2939; --text-secondary: #667085; --header-bg: #1e3a5f;
+    --green: #059669; --red: #dc2626; --orange: #d97706;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; padding: 20px; }
+  .container { max-width: 1200px; margin: 0 auto; background: var(--white); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.04); overflow: hidden; }
+
+  .doc-header { background: var(--header-bg); color: #fff; padding: 28px 36px; }
+  .doc-header h1 { font-size: 22px; font-weight: 700; letter-spacing: .02em; margin-bottom: 6px; }
+  .doc-header .meta { font-size: 13px; opacity: .7; }
+
+  .section-title { font-size: 16px; font-weight: 700; color: var(--primary); padding: 24px 36px 8px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+  .section-title .num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: var(--primary); color: #fff; border-radius: 4px; font-size: 13px; }
+
+  .content-wrap { padding: 20px 36px 32px; }
+
+  /* ── Tables ── */
+  table.fields { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 24px; }
+  table.fields th { background: #f0f3f7; font-weight: 700; padding: 10px 12px; border: 1px solid var(--border); text-align: left; }
+  table.fields td { border: 1px solid var(--border); padding: 9px 12px; vertical-align: top; }
+  table.fields tr:nth-child(even) td { background: #fafbfc; }
+
+  .tag { display: inline-block; padding: 2px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .tag-fixed    { background: #dbeafe; color: #1e40af; }
+  .tag-new      { background: #d1fae5; color: #065f46; }
+  .tag-deleted  { background: #fee2e2; color: #991b1b; text-decoration: line-through; }
+  .tag-adjusted { background: #fef3c7; color: #92400e; }
+  .tag-required { background: #fce7f3; color: #9d174d; }
+  .tag-logistics { background: #fff7ed; color: #c2410c; }
+
+  .field-group-title { font-size: 14px; font-weight: 700; margin: 20px 0 10px; padding: 8px 14px; border-radius: 6px; display: flex; align-items: center; gap: 8px; }
+  .field-group-title.fixed { background: #eff6ff; color: #1e40af; }
+  .field-group-title.requester { background: #f0fdf4; color: #065f46; }
+  .field-group-title.logistics { background: #fff7ed; color: #c2410c; }
+  .field-group-title.deleted { background: #fef2f2; color: #991b1b; }
+  .field-group-title.detail { background: #f5f3ff; color: #6d28d9; }
+
+  .info-box { margin: 0 36px 16px; padding: 14px 18px; background: #eff6ff; border-left: 4px solid var(--primary); border-radius: 0 6px 6px 0; font-size: 13px; }
+
+  .split-detail { margin-left: 20px; border-left: 3px solid var(--orange); padding: 8px 14px; background: #fffbf0; border-radius: 0 6px 6px 0; font-size: 12px; }
+  .split-detail th { background: #fef3c7; font-size:11px; padding:6px 8px; }
+  .split-detail td { padding:6px 8px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="doc-header">
+    <h1>割草机发货OA 流程图</h1>
+    <div class="meta">版本: V1.0 ｜ 日期: 2026-08-06 ｜ 适用: ANTHBOT 整机发运全业务模块</div>
+  </div>
+
+  <!-- ====== 字段总览 ====== -->
+  <div class="section-title"><span class="num">3</span> OA 关键字段定义</div>
+  <div class="content-wrap">
+
+    <!-- 3.1 固定字段 -->
+    <div class="field-group-title fixed">📌 固定字段（系统自动生成，不可编辑）</div>
+    <table class="fields">
+      <thead><tr><th style="width:30px">#</th><th style="width:150px">字段名称</th><th style="width:100px">字段类型</th><th>说明</th><th style="width:80px">状态</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>申请单号</td><td>文本</td><td>系统自动生成，编码规则待定（建议：FH-YYYYMMDD-XXX）</td><td><span class="tag tag-fixed">固定</span></td></tr>
+        <tr><td>2</td><td>申请日期</td><td>日期</td><td>系统自动填入当前日期（默认值）</td><td><span class="tag tag-fixed">固定</span></td></tr>
+        <tr><td>3</td><td>申请部门</td><td>文本</td><td>系统自动填入申请人所属部门（默认值）</td><td><span class="tag tag-fixed">固定</span></td></tr>
+        <tr><td>4</td><td>申请人</td><td>文本</td><td>系统自动填入当前登录用户</td><td><span class="tag tag-fixed">固定</span></td></tr>
+        <tr><td>5</td><td>发货类型</td><td>下拉选择</td><td>7种业务类别，根据申请人部门过滤可见选项</td><td><span class="tag tag-fixed">固定</span></td></tr>
+      </tbody>
+    </table>
+
+    <!-- 3.2 需求方填写字段 -->
+    <div class="field-group-title requester">✏️ 需求方必填字段（流程发起方填写）</div>
+    <table class="fields">
+      <thead><tr><th style="width:30px">#</th><th style="width:150px">字段名称</th><th style="width:100px">字段类型</th><th>说明</th><th style="width:80px">状态</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>发货地</td><td>下拉选择</td><td>仅需选择"国内"或"国外"维度<br>详细颗粒度由物流方后续补充</td><td><span class="tag tag-adjusted">调整</span></td></tr>
+        <tr><td>2</td><td>发货需求总数</td><td>数字</td><td>按照实际需要发运的数量填写</td><td><span class="tag tag-required">需求方必填</span></td></tr>
+        <tr><td>3</td><td>产品ERP料号</td><td>文本</td><td>按照工厂的产品物料编码填写<br>建议：对接ERP系统，选料号后自动填充规格型号+海关申报单价</td><td><span class="tag tag-required">需求方必填</span></td></tr>
+        <tr><td>4</td><td>规格型号</td><td>文本</td><td>产品规格型号描述</td><td><span class="tag tag-new">新增</span></td></tr>
+        <tr><td>5</td><td>海关申报单价</td><td>数字（金额）</td><td>出口报关用申报单价</td><td><span class="tag tag-new">新增</span></td></tr>
+        <tr><td>6</td><td>包装-长(cm)</td><td>数字</td><td rowspan="5">原"包装（长宽高，毛重）"拆分为5个独立字段<br>便于数据校验与统计</td><td><span class="tag tag-adjusted">拆分</span></td></tr>
+        <tr><td>7</td><td>包装-宽(cm)</td><td>数字</td><td><span class="tag tag-adjusted">拆分</span></td></tr>
+        <tr><td>8</td><td>包装-高(cm)</td><td>数字</td><td><span class="tag tag-adjusted">拆分</span></td></tr>
+        <tr><td>9</td><td>包装-毛重(kg)</td><td>数字</td><td><span class="tag tag-adjusted">拆分</span></td></tr>
+        <tr><td>10</td><td>包装-件数</td><td>数字</td><td><span class="tag tag-adjusted">拆分</span></td></tr>
+        <tr><td>11</td><td>箱唛发货指引</td><td>附件上传</td><td>箱唛 + 发货指引文件上传</td><td><span class="tag tag-new">新增</span></td></tr>
+      </tbody>
+    </table>
+
+    <!-- 3.3 物流方填写字段 -->
+    <div class="field-group-title logistics">🚚 物流执行方填写字段（公司主体 + 成本）</div>
+    <table class="fields">
+      <thead><tr><th style="width:30px">#</th><th style="width:150px">字段名称</th><th style="width:100px">字段类型</th><th>说明</th><th style="width:80px">状态</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>发货地（最小颗粒度）</td><td>下拉选择</td><td>在需求方选择的"国内/国外"基础上<br>补充到具体仓库/工厂（如：工厂-国内-乐动电子）</td><td><span class="tag tag-logistics">物流方填写</span></td></tr>
+        <tr><td>2</td><td>发货主体</td><td>下拉选择</td><td>乐动电子 / 乐智 / 越南博硕 / 德国安思博 / 香港萌果 / 新加坡安思博</td><td><span class="tag tag-logistics">物流方填写</span></td></tr>
+        <tr><td>3</td><td>中转主体</td><td>下拉选择</td><td>香港萌果 / 新加坡安思博 / 无<br>（根据发货地+目的地组合决定是否需要）</td><td><span class="tag tag-logistics">物流方填写</span></td></tr>
+        <tr><td>4</td><td>收货主体</td><td>下拉选择</td><td>德国安思博 / 香港萌果 / 新加坡安思博</td><td><span class="tag tag-logistics">物流方填写</span></td></tr>
+        <tr><td>5</td><td>物流发运成本</td><td>数字（金额）</td><td><strong>新增字段</strong>：选择业务到最小颗粒度，并补充单台成本</td><td><span class="tag tag-new">新增</span></td></tr>
+        <tr><td>6</td><td>发运标签</td><td>下拉/文本</td><td>发运分类标签</td><td><span class="tag tag-new">新增</span></td></tr>
+        <tr><td>7</td><td>发运装箱指引</td><td>附件上传</td><td>物流方上传装箱指引文件</td><td><span class="tag tag-new">新增</span></td></tr>
+      </tbody>
+    </table>
+
+    <!-- 3.4 出口报关资料拆分 -->
+    <div class="field-group-title logistics" style="background:#fffbf0;color:#92400e;">📋 出口报关资料 — 拆分（物流方填写）</div>
+    <table class="fields">
+      <thead><tr><th style="width:30px">#</th><th style="width:150px">字段名称</th><th style="width:100px">字段类型</th><th>说明</th><th style="width:80px">状态</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>出口合同</td><td>附件上传</td><td rowspan="4">原"出口报关资料"字段拆分为4个独立字段<br>便于分别管理与审核</td><td><span class="tag tag-adjusted">拆分</span></td></tr>
+        <tr><td>2</td><td>出口发票</td><td>附件上传</td><td><span class="tag tag-adjusted">拆分</span></td></tr>
+        <tr><td>3</td><td>装箱清单</td><td>附件上传</td><td><span class="tag tag-adjusted">拆分</span></td></tr>
+        <tr><td>4</td><td>报关单</td><td>附件上传</td><td><span class="tag tag-adjusted">拆分</span></td></tr>
+      </tbody>
+    </table>
+
+    <!-- 3.5 工厂执行方 -->
+    <div class="field-group-title" style="background:#ecfdf5;color:#065f46;">🏭 工厂执行方填写字段</div>
+    <table class="fields">
+      <thead><tr><th style="width:30px">#</th><th style="width:150px">字段名称</th><th style="width:100px">字段类型</th><th>说明</th><th style="width:80px">状态</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>发运装箱文件</td><td>附件上传</td><td>工厂出货装箱清单文件</td><td><span class="tag tag-new">新增</span></td></tr>
+        <tr><td>2</td><td>出货SN文件</td><td>附件上传</td><td>出货产品序列号清单<br>（需明确格式：Excel/CSV？SN校验规则？）</td><td><span class="tag tag-new">新增</span></td></tr>
+        <tr><td>3</td><td>发运照片</td><td>附件上传</td><td>出货现场照片</td><td><span class="tag tag-new">新增</span></td></tr>
+      </tbody>
+    </table>
+
+    <!-- 3.6 需要删除字段 -->
+    <div class="field-group-title deleted">🗑️ 需要删除的字段</div>
+    <table class="fields">
+      <thead><tr><th style="width:30px">#</th><th style="width:150px">字段名称</th><th>删除原因</th><th style="width:80px">状态</th></tr></thead>
+      <tbody style="color:#991b1b;">
+        <tr><td>1</td><td>关联产品线</td><td>标记删除 — 不再需要产品线维度关联</td><td><span class="tag tag-deleted">删除</span></td></tr>
+        <tr><td>2</td><td>客户</td><td>标记删除 — 客户信息合并到其他字段或不再需要</td><td><span class="tag tag-deleted">删除</span></td></tr>
+        <tr><td>3</td><td>业务类别</td><td>标记删除 — 已被"发货类型"字段替代</td><td><span class="tag tag-deleted">删除</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="info-box">
+    <strong>📌 Step 3 预览说明：</strong>这是在 Step 1+2 基础上增加了 <strong>完整字段定义</strong> 的版本。包含：固定字段(5个)、需求方必填字段(11个)、物流方填写字段(7个)、报关资料拆分(4个)、工厂方字段(3个)、需删除字段(3个)。<br>
+    下一步将补充：各节点数据需求明细 + 通知机制。
+  </div>
+
+</div>
+</body>
+</html>
