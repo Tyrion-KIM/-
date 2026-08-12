@@ -4,112 +4,107 @@ import os
 from datetime import date
 from openpyxl import load_workbook
 
+
 # === 配置 ===
-EXCEL_PATH = os.path.join(os.path.dirname(__file__), "..", "AGL海运价卡 2026.7.31.xlsx")
+EXCEL_PATH = os.path.join(os.path.dirname(__file__), "..", "AGL 2026年8月8日生效美线日线海运价格.xlsx")
 OUTPUT_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "fba_us_cost_model.json")
+
+
+# === 工具函数 ===
+
+def safe_str(v):
+    return str(v).strip() if v else ""
+
+
+def safe_float(v):
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return 0.0
 
 
 # === AGL 数据提取 ===
 
-def extract_agl(excel_path: str) -> dict:
-    """从 AGL 海运价卡 Excel 提取所有路由和运价"""
-    wb = load_workbook(excel_path, data_only=True)
-    ws = wb["sheet1"]
-
-    # 列映射 (0-indexed, 共 17 列):
-    # 0:No.  1:Dest.Region  2:SpeedMode  3:Currency  4:Product  5:FOB
-    # 6:OriginPort(中英|分隔)  7:DestRegion(中英)  8:DestCity(中英)
-    # 9:AmazonFC(中英)  10:FCType(中英)
-    # 11:FixedFee  12:1-5CBM  13:5-10CBM  14:10-15CBM  15:>15CBM  16:RateKey
-
-    def safe_str(v):
-        return str(v).strip() if v else ""
-
-    def safe_float(v):
-        try:
-            return float(v)
-        except (TypeError, ValueError):
-            return 0.0
-
-    def split_cn_en(raw: str) -> tuple:
-        """解析 'English | 中文' 或 '中文' 格式的混合列"""
-        raw = raw.strip()
-        if " | " in raw:
-            parts = raw.split(" | ", 1)
-            return parts[0].strip(), parts[1].strip()
-        return raw, ""
-
+def _extract_sheet(wb, sheet_name: str, shipment_mode: str) -> list:
+    """通用 Sheet 提取。FCL 和 LCL 列结构相同（前 12 列），仅费率列不同。"""
+    ws = wb[sheet_name]
     routes = []
+
+    is_fcl = (shipment_mode == "FCL")
+
     for row in ws.iter_rows(min_row=2, values_only=True):
-        if len(row) < 17:
+        if len(row) < 12:
             continue
-        if not row[1] or str(row[1]).strip() != "US":
+        if not row[1] or safe_str(row[1]) != "US":
             continue
 
-        origin_en, origin_cn = split_cn_en(safe_str(row[6]))
-        dest_region_en, dest_region_cn = split_cn_en(safe_str(row[7]))
-        dest_city_en, dest_city_cn = split_cn_en(safe_str(row[8]))
-        fc_en, fc_cn = split_cn_en(safe_str(row[9]))
-        fc_type_en, fc_type_cn = split_cn_en(safe_str(row[10]))
-
-        routes.append({
-            "origin_port": origin_en,
-            "origin_port_cn": origin_cn,
-            "dest_region": dest_region_en,
-            "dest_region_cn": dest_region_cn,
-            "dest_city": dest_city_en,
-            "dest_city_cn": dest_city_cn,
-            "amazon_fc": fc_en,
-            "amazon_fc_cn": fc_cn,
-            "fc_type": fc_type_en,
-            "fc_type_cn": fc_type_cn,
+        route = {
+            "shipment_mode": shipment_mode,
+            "origin_port": safe_str(row[6]),
+            "dest_region": safe_str(row[7]),
+            "dest_city": safe_str(row[8]),
+            "amazon_fc": safe_str(row[9]),
+            "fc_type": safe_str(row[10]),
             "speed_mode": safe_str(row[2]),
             "fob": safe_str(row[5]),
             "currency": safe_str(row[3]),
             "product": safe_str(row[4]),
             "fixed_fee": safe_float(row[11]),
-            "rate_1_5_cbm": safe_float(row[12]),
-            "rate_5_10_cbm": safe_float(row[13]),
-            "rate_10_15_cbm": safe_float(row[14]),
-            "rate_gt15_cbm": safe_float(row[15])
-        })
+        }
 
+        if is_fcl:
+            route["rate_20gp"] = safe_float(row[12])
+            route["rate_40gp"] = safe_float(row[13])
+            route["rate_40hq"] = safe_float(row[14])
+        else:
+            route["rate_1_5_cbm"] = safe_float(row[12])
+            route["rate_5_10_cbm"] = safe_float(row[13])
+            route["rate_10_15_cbm"] = safe_float(row[14])
+            route["rate_gt15_cbm"] = safe_float(row[15])
+
+        routes.append(route)
+
+    return routes
+
+
+def extract_agl(excel_path: str) -> dict:
+    """从 AGL 海运价卡 Excel 提取所有路由（FCL 整柜 + LCL 散货）"""
+    wb = load_workbook(excel_path, data_only=True)
+
+    fcl_routes = _extract_sheet(wb, "FCL价卡", "FCL")
+    lcl_routes = _extract_sheet(wb, "LCL价卡", "LCL")
     wb.close()
 
-    # 汇总统计
-    origins = sorted(set(r["origin_port"] for r in routes))
-    dest_cities = sorted(set(r["dest_city"] for r in routes))
-    fc_types = sorted(set(r["fc_type"] for r in routes))
-    fob_types = sorted(set(r["fob"] for r in routes))
-    currencies = sorted(set(r["currency"] for r in routes))
-    speed_modes = sorted(set(r["speed_mode"] for r in routes))
+    all_routes = fcl_routes + lcl_routes
+
+    def _uniq(key):
+        return sorted(set(r[key] for r in all_routes if r.get(key)))
 
     return {
-        "description": "AGL海运头程价卡 — 中国→美国",
+        "description": "AGL海运头程价卡 — 中国→美国 (含FCL整柜+LCL散货)",
         "source_file": os.path.basename(excel_path),
-        "valid_from": "2026-07-31",
+        "valid_from": "2026-08-08",
         "summary": {
-            "total_routes": len(routes),
-            "origin_ports": origins,
-            "dest_cities": dest_cities,
-            "fc_types": fc_types,
-            "fob_types": fob_types,
-            "currencies": currencies,
-            "speed_modes": speed_modes
+            "total_routes": len(all_routes),
+            "fcl_routes": len(fcl_routes),
+            "lcl_routes": len(lcl_routes),
+            "origin_ports": _uniq("origin_port"),
+            "dest_regions": _uniq("dest_region"),
+            "dest_cities": _uniq("dest_city"),
+            "fc_types": _uniq("fc_type"),
+            "fob_types": _uniq("fob"),
+            "currencies": _uniq("currency"),
+            "speed_modes": _uniq("speed_mode"),
+            "products": _uniq("product"),
         },
-        "routes": routes
+        "routes": all_routes
     }
 
 
 # === FBA 配送费 ===
 
 def build_fulfillment() -> dict:
-    """FBA 配送费 — 美国站 2026 费率
-    数据来源: Amazon Seller Central, 2026/1/15 生效
-    费率分三个售价档位: under_10 (<$10), 10_to_50 ($10-$50), over_50 (>$50)
-    旺季: 2026/10/15-2027/1/14, 非旺季: 2026/1/15-2026/10/14
-    2026/4/17 起叠加 3.5% 燃油附加费 (未包含在基础费率内)
-    """
+    """FBA 配送费 — 美国站 2026 费率"""
     return {
         "description": "FBA配送费 — 美国站 2026（2026/1/15生效）",
         "currency": "USD",
@@ -137,7 +132,6 @@ def build_fulfillment() -> dict:
 def _fulfillment_tiers() -> list:
     """构建完整的尺寸分段费率数据"""
 
-    # === 小号标准，非服装 ===
     small_std = {
         "tier_name": "小号标准 (Small Standard)",
         "tier_name_cn": "小号标准",
@@ -155,7 +149,6 @@ def _fulfillment_tiers() -> list:
         ]
     }
 
-    # === 小号标准，服装 (peak rates available) ===
     small_std_apparel = {
         "tier_name": "小号标准-服装 (Small Standard - Apparel)",
         "tier_name_cn": "小号标准(服装)",
@@ -171,10 +164,9 @@ def _fulfillment_tiers() -> list:
             {"max_weight_oz": 14, "non_peak": {}, "peak": {"under_10": 3.50, "10_to_50": 4.27, "over_50": 4.27}},
             {"max_weight_oz": 16, "non_peak": {}, "peak": {"under_10": 3.50, "10_to_50": 4.27, "over_50": 4.27}}
         ],
-        "_note": "服装非旺季费率待补充，旺季费率来自 amzprep.com"
+        "_note": "服装非旺季费率待补充"
     }
 
-    # === 大号标准，非服装 ===
     large_std = {
         "tier_name": "大号标准 (Large Standard)",
         "tier_name_cn": "大号标准",
@@ -197,7 +189,6 @@ def _fulfillment_tiers() -> list:
         ]
     }
 
-    # === 大号标准，服装 ===
     large_std_apparel = {
         "tier_name": "大号标准-服装 (Large Standard - Apparel)",
         "tier_name_cn": "大号标准(服装)",
@@ -221,11 +212,10 @@ def _fulfillment_tiers() -> list:
         "_note": "服装非旺季费率待补充"
     }
 
-    # === 小号大件 ===
     small_bulky = {
         "tier_name": "小号大件 (Small Bulky)",
         "tier_name_cn": "小号大件",
-        "size_limits": "超出大号标准限制，≤50 lb (不含SIPP加收~$2.07/件)",
+        "size_limits": "≤60 in, L+girth≤130 in, ≤50 lb",
         "is_apparel": False,
         "weight_breakpoints": [
             {"max_weight_lb": 50.0,
@@ -234,11 +224,10 @@ def _fulfillment_tiers() -> list:
         ]
     }
 
-    # === 大号大件 ===
     large_bulky = {
         "tier_name": "大号大件 (Large Bulky)",
         "tier_name_cn": "大号大件",
-        "size_limits": "超出大号标准限制，≤50 lb",
+        "size_limits": ">小号大件限制, ≤50 lb",
         "is_apparel": False,
         "weight_breakpoints": [
             {"max_weight_lb": 50.0,
@@ -247,7 +236,6 @@ def _fulfillment_tiers() -> list:
         ]
     }
 
-    # === 超大件 ===
     extra_large = {
         "tier_name": "超大件 (Extra Large)",
         "tier_name_cn": "超大件",
@@ -311,7 +299,7 @@ def build_storage() -> dict:
 def assemble(agl: dict, fulfillment: dict, storage: dict) -> dict:
     return {
         "meta": {
-            "version": "1.0",
+            "version": "2.0",
             "generated_at": date.today().isoformat(),
             "source_urls": {
                 "fba_fulfillment": "https://sellercentral.amazon.com/help/hub/reference/external/GMUTB89XM7AATPR3",
@@ -320,7 +308,8 @@ def assemble(agl: dict, fulfillment: dict, storage: dict) -> dict:
                 "chinese_summary": "https://gs.amazon.cn/news/news-notices-251016"
             },
             "effective_date": "2026-01-15",
-            "notes": "美国站FBA全链路成本核心项：AGL海运头程 + FBA配送费 + FBA月度仓储费。不含长期仓储/移除/退货/低库存等附加费。"
+            "agl_effective_date": "2026-08-08",
+            "notes": "美国站FBA全链路成本核心项：AGL海运头程(含FCL整柜+LCL散货) + FBA配送费 + FBA月度仓储费。不含长期仓储/移除/退货/低库存等附加费。AGL币种以USD为主(含少量RMB)。"
         },
         "agl_ocean_freight": agl,
         "fba_fulfillment": fulfillment,
@@ -333,11 +322,16 @@ def assemble(agl: dict, fulfillment: dict, storage: dict) -> dict:
 def main():
     print("Extracting AGL rates...")
     agl = extract_agl(EXCEL_PATH)
-    print(f"  -> {agl['summary']['total_routes']} routes extracted")
-    print(f"  -> Origins: {', '.join(agl['summary']['origin_ports'])}")
-    print(f"  -> Destinations: {', '.join(agl['summary']['dest_cities'])}")
-    print(f"  -> FC types: {', '.join(agl['summary']['fc_types'])}")
-    print(f"  -> FOB types: {', '.join(agl['summary']['fob_types'])}")
+    s = agl["summary"]
+    print(f"  -> {s['total_routes']} routes (FCL:{s['fcl_routes']} + LCL:{s['lcl_routes']})")
+    print(f"  -> Origins: {', '.join(s['origin_ports'])}")
+    print(f"  -> Dest regions: {', '.join(s['dest_regions'])}")
+    print(f"  -> Dest cities: {', '.join(s['dest_cities'])}")
+    print(f"  -> FC types: {', '.join(s['fc_types'])}")
+    print(f"  -> FOB types: {', '.join(s['fob_types'])}")
+    print(f"  -> Currencies: {', '.join(s['currencies'])}")
+    print(f"  -> Speed modes: {', '.join(s['speed_modes'])}")
+    print(f"  -> Products: {', '.join(s['products'])}")
 
     print("Building fulfillment rates...")
     fulfillment = build_fulfillment()
