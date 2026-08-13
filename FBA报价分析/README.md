@@ -1,6 +1,7 @@
 # FBA 美国站全链路成本分析
 
-> 最后更新: 2026-08-12 | 数据版本: 2.0 (AGL 8.8 新版)
+> **状态: ⚠ 暂定稿 (DRAFT)** — 数据与页面已可正常使用，但费率数据仍有缺口（见「已知限制」），待人工从 Seller Central 补齐后定稿。
+> 最后更新: 2026-08-13 | 数据版本: 2.0 (AGL 8.8 新版)
 
 ## 项目概述
 
@@ -177,3 +178,51 @@ with open('output/fba_us_cost_panorama.html', 'w', encoding='utf-8') as f:
 - **图表**: 自建 SVG builder (纯 JS, viewBox 响应式)
 - **主题**: CSS 自定义属性双主题 (light/dark + localStorage 持久化)
 - **JSON 嵌入**: Python `json.dumps(ensure_ascii=False)` → 直接写入 HTML `<script>` 标签
+
+---
+
+## 变更历史 (Changelog)
+
+| 日期 | 版本 | 变更 |
+|---|---|---|
+| 2026-08-11 | v1.0 | 初版 — 基于 `AGL海运价卡 2026.7.31.xlsx` (RMB/LCL only, 434 路由) + FBA 配送费 + 仓储费，构建三 Tab 单页 HTML |
+| 2026-08-12 | v2.0 | **AGL 价卡切换** — 新文件 `AGL 2026年8月8日...xlsx` (USD+RMB / FCL整柜+LCL散货, 2828 路由)，新增整柜 20GP/40GP/40HQ 运价、越南港口(海防/胡志明)、更细目的地分区 |
+| 2026-08-13 | v2.0 draft | 标记为「暂定稿」，补齐工程文档与待办清单 |
+
+---
+
+## 待办事项 (TODO)
+
+**定稿前必须完成：**
+
+- [ ] **服装非旺季费率** — 目前仅有旺季数据，需登录 Seller Central 补齐
+- [ ] **旺季 under_10 / over_50 售价档位** — 部分缺失，需补齐
+- [ ] **超大件 150+lb 旺季费率** — 未找到公开数据
+
+**可选增强：**
+
+- [ ] 计算器支持「指定起运港 + 目的 FC」精确匹配 AGL 费率（当前用全量 LCL 均价）
+- [ ] 计算器支持「整柜 FCL」分摊模式（输入整柜件数，摊 20GP/40GP 运价）
+- [ ] 欧洲站 (EU FBA) 扩展 — 复用相同框架
+- [ ] 加入长期仓储费、退货处理费、低库存费等附加费
+
+---
+
+## 关键设计决策
+
+| 决策 | 理由 |
+|---|---|
+| **计算器 AGL 用 LCL 散货均价** | FCL 整柜是按柜计价，无法直接摊到单件；LCL 按 CBM 计价适合单件估算 |
+| **USD 直接计价 + RMB 按 7.25 换算** | 新价卡半 USD 半 RMB，统一折算成 USD 后取均值 |
+| **JSON 用 Python 嵌入而非手工粘贴** | PowerShell/记事本会损坏 CJK UTF-8（曾出现 `。`→`€` 乱码），Python `ensure_ascii=False` 保证编码安全 |
+| **Tab 切换用 JS 而非纯 CSS** | CSS `~` 兄弟选择器无法跨 `.tab-nav` 边界，改用 JS 直接 toggle `display` |
+| **尺寸分段名匹配时去下划线** | 数据 `small_standard` vs 显示 `Small Standard`，匹配前 `replace(/_/g,' ')` |
+| **混合 oz/lb 断点换算** | 早期断点用 oz、后期用 lb，匹配时 `max_weight_oz/16` 折算成 lb |
+
+---
+
+## 快速上手 (3 步)
+
+1. **看结果**: 双击 `output/fba_us_cost_panorama.html` 直接打开
+2. **改数据**: 编辑 `scripts/build_fba_cost_model.py` → 运行 → 自动更新 JSON
+3. **刷新 HTML**: 用上文「更新 HTML」的 Python 片段重新嵌入 JSON
