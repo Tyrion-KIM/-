@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>卡派询价工具</title>
+<style>
+  :root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --bg: #f5f7fa;
+    --card: #ffffff;
+    --border: #e5e7eb;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --danger: #dc2626;
+    --ok: #16a34a;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: -apple-system, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.5;
+  }
+  header {
+    background: linear-gradient(120deg, #1e3a8a, var(--primary));
+    color: #fff; padding: 20px 28px;
+  }
+  header h1 { margin: 0; font-size: 20px; }
+  header p { margin: 4px 0 0; font-size: 13px; opacity: .85; }
+  main { max-width: 900px; margin: 20px auto; padding: 0 16px 40px; }
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px 20px; margin-bottom: 16px;
+  }
+  .card h2 {
+    margin: 0 0 14px; font-size: 15px; color: var(--primary-dark);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card h2 .tag {
+    font-size: 11px; font-weight: normal; color: var(--muted);
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 20px; padding: 1px 8px;
+  }
+  label { display: block; font-size: 13px; color: var(--muted); margin: 10px 0 4px; }
+  input[type=text], input[type=number], input[type=date], input[type=email], select {
+    width: 100%; padding: 8px 10px; font-size: 14px;
+    border: 1px solid var(--border); border-radius: 6px; background: #fff;
+  }
+  input:focus, select:focus { outline: none; border-color: var(--primary); }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .row > div { flex: 1; min-width: 140px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .inline { display: flex; align-items: center; gap: 8px; }
+  .inline input[type=checkbox] { width: auto; }
+  .btn {
+    display: inline-block; background: var(--primary); color: #fff; border: none;
+    padding: 11px 22px; font-size: 15px; border-radius: 8px; cursor: pointer;
+  }
+  .btn:hover { background: var(--primary-dark); }
+  .btn:disabled { background: #9ca3af; cursor: not-allowed; }
+  .btn-ghost { background: #fff; color: var(--primary); border: 1px solid var(--primary); }
+  .btn-ghost:hover { background: #eff6ff; }
+  .btn-sm { padding: 6px 12px; font-size: 13px; }
+  .big-btn { width: 100%; font-size: 16px; padding: 14px; }
+  .err { color: var(--danger); font-size: 12px; min-height: 16px; margin-top: 2px; }
+  .field-bad { border-color: var(--danger) !important; }
+  .muted { color: var(--muted); font-size: 12px; }
+  .switch { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--muted); }
+  .dest-info { font-size: 13px; color: var(--muted); margin-top: 6px; }
+  .goods-row { display: grid; grid-template-columns: 1.2fr 1fr 1fr 1fr 1fr .8fr .8fr 1fr auto; gap: 8px; align-items: end; margin-bottom: 8px; }
+  .goods-row label { margin: 0; font-size: 11px; }
+  .goods-head { display: grid; grid-template-columns: 1.2fr 1fr 1fr 1fr 1fr .8fr .8fr 1fr auto; gap: 8px; font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+  .del-btn { background: #fee2e2; color: var(--danger); border: 1px solid #fecaca; border-radius: 6px; padding: 8px 10px; cursor: pointer; }
+  .del-btn:hover { background: #fecaca; }
+  .result-price { font-size: 30px; font-weight: 700; color: var(--primary-dark); }
+  .result-meta { color: var(--muted); font-size: 13px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 500; background: #fafafa; }
+  .alert { padding: 12px 14px; border-radius: 8px; font-size: 14px; margin-bottom: 12px; }
+  .alert-err { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+  .alert-ok { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+  .demo-badge { display: inline-block; background: #fef9c3; color: #854d0e; border: 1px solid #fde68a; border-radius: 20px; padding: 1px 10px; font-size: 12px; margin-left: 8px; }
+  details { margin-top: 8px; }
+  summary { cursor: pointer; color: var(--muted); font-size: 13px; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<header>
+  <h1>卡派询价工具 <span class="demo-badge" id="demoBadge">演示模式</span></h1>
+  <p>途兔卡派 · 欧洲尾程实时报价（Groupage / LTL）</p>
+</header>
+
+<main>
+  <!-- 发货仓 -->
+  <div class="card">
+    <h2>① 发货仓 <span class="tag">默认德国自营仓 Neuss</span></h2>
+    <div class="grid2">
+      <div>
+        <label>公司名称</label>
+        <input type="text" id="oCompanyName" value="ANTHBOT GER GMBH">
+      </div>
+      <div>
+        <label>联系人</label>
+        <input type="text" id="oContactPerson" value="ANTHBOT GER GMBH">
+      </div>
+      <div>
+        <label>地址（街道）</label>
+        <input type="text" id="oAddressLine" value="Bussardweg 4">
+      </div>
+      <div class="row">
+        <div><label>国家</label><input type="text" id="oCountry" value="DE"></div>
+        <div><label>邮编</label><input type="text" id="oPostCode" value="41468"></div>
+        <div><label>城市</label><input type="text" id="oCity" value="Neuss"></div>
+      </div>
+      <div class="row">
+        <div><label>电话前缀</label><input type="text" id="oPhonePrefix" value="+49"></div>
+        <div><label>联系电话</label><input type="text" id="oContactPhone" value="15223942230"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 目的地 -->
+  <div class="card">
+    <h2>② 目的地 <span class="tag">99 个车行地址库 + 手动输入</span></h2>
+    <div class="inline" style="margin-bottom:8px;">
+      <label class="switch"><input type="checkbox" id="manualToggle"> 手动输入（不选地址库）</label>
+    </div>
+
+    <div id="destFromBook">
+      <label>搜索 / 选择目的地</label>
+      <input type="text" id="destSearch" placeholder="输入城市 / 邮编 / 公司名 过滤，或直接在下拉选择">
+      <select id="destSelect" size="7" style="margin-top:8px;"></select>
+      <div class="dest-info" id="destInfo"></div>
+    </div>
+
+    <div id="destManual" class="hidden">
+      <div class="grid2">
+        <div><label>公司名称（可空）</label><input type="text" id="mCompanyName"><div class="err" id="e_mCompanyName"></div></div>
+        <div><label>联系人 *</label><input type="text" id="mContactPerson"><div class="err" id="e_mContactPerson"></div></div>
+        <div><label>联系邮箱 *</label><input type="email" id="mContactEmail"><div class="err" id="e_mContactEmail"></div></div>
+        <div class="row">
+          <div><label>电话前缀 *</label><input type="text" id="mPhonePrefix" value="+49"><div class="err" id="e_mPhonePrefix"></div></div>
+          <div><label>联系电话 *</label><input type="text" id="mContactPhone"><div class="err" id="e_mContactPhone"></div></div>
+        </div>
+        <div><label>国家（2位码）*</label>
+          <select id="mCountry"></select>
+          <div class="err" id="e_mCountry"></div>
+        </div>
+        <div><label>邮编 *</label><input type="text" id="mPostCode"><div class="err" id="e_mPostCode"></div></div>
+        <div><label>城市 *</label><input type="text" id="mCity"><div class="err" id="e_mCity"></div></div>
+        <div><label>地址（街道）*</label><input type="text" id="mAddressLine"><div class="err" id="e_mAddressLine"></div></div>
+        <div class="inline"><input type="checkbox" id="mIsPrivate"> <span>私人地址</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 货物 -->
+  <div class="card">
+    <h2>③ 货物 <span class="tag">默认 1 托 · 120×80×200 · 240kg</span></h2>
+    <div class="goods-head">
+      <span>包装类型</span><span>重量kg</span><span>长cm</span><span>宽cm</span><span>高cm</span><span>件数</span><span>品名</span><span>堆叠/危险</span><span></span>
+    </div>
+    <div id="goodsList"></div>
+    <button class="btn btn-ghost btn-sm" type="button" id="addGoods">＋ 增加一行货物</button>
+  </div>
+
+  <!-- 日期 + 高级 -->
+  <div class="card">
+    <div class="grid2">
+      <div>
+        <h2>④ 拣货日期</h2>
+        <input type="date" id="pickDate">
+      </div>
+      <div>
+        <h2>⑤ 高级项（可选）</h2>
+        <details>
+          <summary>展开：附加服务 / 固定产品 / 货值 / 托盘交换</summary>
+          <label>附加服务（可多选，来自途兔产品服务）</label>
+          <select id="serviceCodes" multiple size="4"></select>
+          <label>固定产品编码（留空则自动取最低价）</label>
+          <input type="text" id="productCode" placeholder="如 LTL-xxx">
+          <div class="row">
+            <div><label>货值（EUR）</label><input type="number" id="valueOfGoods" step="any"></div>
+            <div><label>托盘交换数量</label><input type="number" id="packageExchangeQuantity" step="1"></div>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn big-btn" id="quoteBtn" type="button">计算报价</button>
+  <div class="err" id="formErr"></div>
+
+  <!-- 结果 -->
+  <div class="card hidden" id="resultCard">
+    <h2>报价结果</h2>
+    <div id="resultBody"></div>
+  </div>
+</main>
+
+<script src="address_book.js"></script>
+<script>
+  "use strict";
+
+  // ================= ① 配置区 =================
+  const CONFIG = {
+    API_BASE: "http://test.teknihall-trucking.com:8080/api",
+    API_KEY: "sk_o4BEldSLEhr4o4x4D5Nu7pi75Cz8pb6dZzGnRlGNAfk74upSEUqkBeD_9UQK5f04",
+    DEMO_MODE: true, // 演示模式：key 未开通前置 true；开通后改 false
+    ORIGIN: {
+      companyName: "ANTHBOT GER GMBH",
+      contactPerson: "ANTHBOT GER GMBH", contactEmail: "",
+      contactPhone: "15223942230", phonePrefix: "+49",
+      addressLine: "Bussardweg 4", addressLine2: "",
+      country: "DE", city: "Neuss", postCode: "41468", isPrivate: false,
+    },
+    DEFAULT_CONTACT: {
+      contactPerson: "ANTHBOT GER GMBH", contactEmail: "",
+      contactPhone: "15223942230", phonePrefix: "+49",
+    },
+  };
+
+  const PACKAGE_TYPES = [
+    ["FP", "FP 欧托"], ["HP", "HP 半托"], ["KT", "KT 纸箱"],
+    ["EP", "EP 一次性托"], ["KI", "KI 木箱/航空箱"],
+  ];
+
+  const COUNTRY_LIST = [
+    ["AT","奥地利"],["BE","比利时"],["BG","保加利亚"],["HR","克罗地亚"],["CZ","捷克"],
+    ["DK","丹麦"],["EE","爱沙尼亚"],["FI","芬兰"],["FR","法国"],["DE","德国"],
+    ["GR","希腊"],["HU","匈牙利"],["IE","爱尔兰"],["IT","意大利"],["LV","拉脱维亚"],
+    ["LT","立陶宛"],["LU","卢森堡"],["NL","荷兰"],["NO","挪威"],["PL","波兰"],
+    ["PT","葡萄牙"],["RO","罗马尼亚"],["SK","斯洛伐克"],["SI","斯洛文尼亚"],["ES","西班牙"],
+    ["SE","瑞典"],["CH","瑞士"],["GB","英国"],["US","美国"],
+  ];
+
+  const CJK = /[一-鿿　-〿＀-￯—“”]/;
+  const hasChinese = (s) => CJK.test(s || "");
+
+  // ================= ② 地址库 =================
+  const BOOK = window.ADDRESS_BOOK || [];
+  let selectedDest = null;
+
+  function fillDestSelect() {
+    const sel = document.getElementById("destSelect");
+    sel.innerHTML = "";
+    const byCountry = {};
+    BOOK.forEach((e) => {
+      (byCountry[e.countryName] = byCountry[e.countryName] || []).push(e);
+    });
+    Object.keys(byCountry).sort().forEach((cn) => {
+      const g = document.createElement("optgroup");
+      g.label = cn + " (" + byCountry[cn][0].country + ")";
+      byCountry[cn].forEach((e) => {
+        const o = document.createElement("option");
+        o.value = String(e.id);
+        o.textContent = e.label;
+        g.appendChild(o);
+      });
+      sel.appendChild(g);
+    });
+  }
+
+  function destInfoText(e) {
+    return [e.countryName, e.postCode, e.city, e.addressLine].filter(Boolean).join(" · ");
+  }
+
+  document.getElementById("destSearch").addEventListener("input", function () {
+    const kw = this.value.trim().toLowerCase();
+    const sel = document.getElementById("destSelect");
+    [...sel.querySelectorAll("option")].forEach((o) => {
+      const e = BOOK[parseInt(o.value, 10) - 1];
+      const hay = (e.label + " " + e.countryName + " " + e.city + " " + e.postCode).toLowerCase();
+      o.hidden = !hay.includes(kw);
+    });
+  });
+
+  document.getElementById("destSelect").addEventListener("change", function () {
+    const id = parseInt(this.value, 10);
+    selectedDest = BOOK.find((e) => e.id === id) || null;
+    document.getElementById("destInfo").textContent =
+      selectedDest ? "已选：" + destInfoText(selectedDest) : "";
+  });
+
+  document.getElementById("manualToggle").addEventListener("change", function () {
+    const on = this.checked;
+    document.getElementById("destFromBook").classList.toggle("hidden", on);
+    document.getElementById("destManual").classList.toggle("hidden", !on);
+  });
+
+  // ================= ③ 货物 =================
+  function goodsRowHTML(idx, g) {
+    g = g || { pkg: "FP", weight: 240, length: 120, width: 80, height: 200,
+               unit: 1, stackable: true, name: "pallet", dangerous: false };
+    const pkgOpts = PACKAGE_TYPES.map(([v, t]) =>
+      `<option value="${v}" ${v === g.pkg ? "selected" : ""}>${t}</option>`).join("");
+    return `
+      <div class="goods-row" data-idx="${idx}">
+        <div><label>包装</label><select class="g-pkg">${pkgOpts}</select></div>
+        <div><label>重量</label><input type="number" class="g-weight" value="${g.weight}" step="any"></div>
+        <div><label>长</label><input type="number" class="g-length" value="${g.length}" step="any"></div>
+        <div><label>宽</label><input type="number" class="g-width" value="${g.width}" step="any"></div>
+        <div><label>高</label><input type="number" class="g-height" value="${g.height}" step="any"></div>
+        <div><label>件数</label><input type="number" class="g-unit" value="${g.unit}" step="1"></div>
+        <div><label>品名</label><input type="text" class="g-name" value="${g.name}"></div>
+        <div>
+          <label class="inline"><input type="checkbox" class="g-stack" ${g.stackable ? "checked" : ""}>堆叠</label>
+          <label class="inline"><input type="checkbox" class="g-danger" ${g.dangerous ? "checked" : ""}>危险</label>
+        </div>
+        <button class="del-btn" type="button" onclick="removeGoods(this)">×</button>
+      </div>`;
+  }
+
+  window.removeGoods = function (btn) {
+    const list = document.getElementById("goodsList");
+    if (list.querySelectorAll(".goods-row").length > 1) btn.parentElement.remove();
+  };
+
+  document.getElementById("addGoods").addEventListener("click", function () {
+    document.getElementById("goodsList").insertAdjacentHTML("beforeend", goodsRowHTML(Date.now(), null));
+  });
+
+  function collectGoods() {
+    return [...document.querySelectorAll("#goodsList .goods-row")].map((row) => {
+      const v = (sel) => row.querySelector(sel).value.trim();
+      return {
+        packageTypeCode: v(".g-pkg"),
+        weight: parseFloat(v(".g-weight")),
+        length: parseFloat(v(".g-length")),
+        width: parseFloat(v(".g-width")),
+        height: parseFloat(v(".g-height")),
+        packageUnit: parseInt(v(".g-unit"), 10),
+        stackable: row.querySelector(".g-stack").checked,
+        goodsName: v(".g-name"),
+        isDangerous: row.querySelector(".g-danger").checked,
+      };
+    });
+  }
+
+  // ================= ④ 请求拼装 =================
+  const val = (id) => document.getElementById(id).value.trim();
+
+  function buildDropAddress() {
+    if (!document.getElementById("manualToggle").checked) {
+      const e = selectedDest;
+      if (!e) return null;
+      return Object.assign({}, CONFIG.DEFAULT_CONTACT, {
+        companyName: e.companyName, addressLine: e.addressLine,
+        country: e.country, city: e.city, postCode: e.postCode, isPrivate: false,
+      });
+    }
+    return {
+      companyName: val("mCompanyName"),
+      contactPerson: val("mContactPerson"),
+      contactEmail: val("mContactEmail"),
+      contactPhone: val("mContactPhone"),
+      phonePrefix: val("mPhonePrefix"),
+      addressLine: val("mAddressLine"),
+      country: val("mCountry"),
+      city: val("mCity"),
+      postCode: val("mPostCode"),
+      isPrivate: document.getElementById("mIsPrivate").checked,
+    };
+  }
+
+  function buildQuotationRequest() {
+    const drop = buildDropAddress();
+    const goods = collectGoods();
+    const req = {
+      pickAddress: {
+        companyName: val("oCompanyName"),
+        contactPerson: val("oContactPerson"),
+        contactEmail: "",
+        contactPhone: val("oContactPhone"),
+        phonePrefix: val("oPhonePrefix"),
+        addressLine: val("oAddressLine"),
+        country: val("oCountry"),
+        city: val("oCity"),
+        postCode: val("oPostCode"),
+        isPrivate: false,
+      },
+      dropAddress: drop,
+      goodsInfoList: goods,
+      pickDate: val("pickDate"),
+    };
+    const svc = [...document.getElementById("serviceCodes").selectedOptions].map((o) => o.value).filter(Boolean);
+    if (svc.length) req.serviceCodes = svc;
+    const prod = val("productCode");
+    if (prod) req.productCode = prod;
+    const vg = parseFloat(val("valueOfGoods"));
+    if (!isNaN(vg)) req.valueOfGoods = vg;
+    const ex = parseInt(val("packageExchangeQuantity"), 10);
+    if (!isNaN(ex)) req.packageExchangeQuantity = ex;
+    return req;
+  }
+
+  // ================= ⑤ 校验 =================
+  function markField(id, ok, msg) {
+    const el = document.getElementById(id);
+    const err = document.getElementById("e_" + id);
+    el.classList.toggle("field-bad", !ok);
+    if (err) err.textContent = ok ? "" : (msg || "");
+  }
+
+  function validateForm() {
+    let ok = true;
+    // 目的地
+    if (document.getElementById("manualToggle").checked) {
+      const required = ["mContactPerson", "mContactEmail", "mContactPhone", "mPhonePrefix",
+                        "mAddressLine", "mCountry", "mPostCode", "mCity"];
+      required.forEach((id) => {
+        const v = val(id);
+        const pass = v.length > 0 && !hasChinese(v);
+        markField(id, pass, v.length === 0 ? "必填" : "不能含中文");
+        if (!pass) ok = false;
+      });
+    } else if (!selectedDest) {
+      document.getElementById("destSelect").classList.add("field-bad");
+      document.getElementById("formErr").textContent = "请先选择目的地（或勾选手动输入）";
+      ok = false;
+    } else {
+      document.getElementById("destSelect").classList.remove("field-bad");
+    }
+    // 货物
+    if (ok) {
+      const bad = collectGoods().some((g) =>
+        !g.packageTypeCode || isNaN(g.weight) || isNaN(g.length) || isNaN(g.width) ||
+        isNaN(g.height) || isNaN(g.packageUnit) || !g.goodsName || hasChinese(g.goodsName));
+      if (bad) { document.getElementById("formErr").textContent = "货物信息不完整或品名含中文"; ok = false; }
+    }
+    // 日期
+    if (ok && !val("pickDate")) { document.getElementById("formErr").textContent = "请选择拣货日期"; ok = false; }
+    if (ok) document.getElementById("formErr").textContent = "";
+    return ok;
+  }
+
+  // 演示报价：按目的地国家「距离系数」+ 计重 + 多件 算出一个随输入变化的假价
+  const DISTANCE_FEE = {
+    DE: 15, NL: 20, BE: 20, LU: 20, DK: 25, FR: 35, CH: 40, AT: 30,
+    CZ: 45, PL: 45, GB: 60, IE: 65,
+    IT: 80, SI: 85, HR: 90, HU: 90,
+    ES: 120, PT: 120, SE: 120, NO: 130, FI: 130,
+    EE: 95, LV: 95, LT: 95,
+    RO: 95, BG: 95, GR: 150, US: 320,
+  };
+
+  function demoQuote(body) {
+    const drop = (body && body.dropAddress) || {};
+    const country = drop.country || "DE";
+    const dist = (DISTANCE_FEE[country] != null) ? DISTANCE_FEE[country] : 60;
+    const goods = (body && body.goodsInfoList) || [];
+    const totalWeight = goods.reduce((s, g) => s + (g.weight || 0) * (g.packageUnit || 1), 0);
+    const totalUnits = goods.reduce((s, g) => s + (g.packageUnit || 1), 0);
+    const base = 200;
+    const weightFee = Math.round(totalWeight * 0.35);
+    const unitFee = Math.max(0, totalUnits - 1) * 15;
+    const total = base + dist + weightFee + unitFee;
+    return { code: 0, msg: "", data: {
+      productCode: "DEMO-LTL", productName: "零担卡派（演示·" + country + "）", channel: "DEMO",
+      price: total,
+      priceDetail: [
+        { code: "base", price: base + dist, name: "基础运费（含距离）" },
+        { code: "weight", price: weightFee, name: "计重费" },
+      ].concat(unitFee ? [{ code: "unit", price: unitFee, name: "多件附加费" }] : []),
+    } };
+  }
+
+  // ================= 网络层（唯一出口，转 C 只改这里）=================
+  async function callTutu(path, body) {
+    if (CONFIG.DEMO_MODE) {
+      if (path.indexOf("listProductAndService") >= 0) {
+        return { code: 0, msg: "", data: [] };
+      }
+      return demoQuote(body);
+    }
+    const url = CONFIG.API_BASE + path;
+    const opts = {
+      method: body ? "POST" : "GET",
+      headers: { "Api-Key": CONFIG.API_KEY, "Content-Type": "application/json" },
+    };
+    if (body) opts.body = JSON.stringify(body);
+    try {
+      const res = await fetch(url, opts);
+      return await res.json();
+    } catch (e) {
+      return { code: -1, msg: "网络错误：无法连接途兔服务（请检查网络，或确认已切回真实模式）", data: null };
+    }
+  }
+
+  // ================= 渲染 =================
+  function renderResult(data) {
+    const body = document.getElementById("resultBody");
+    const rows = (data.priceDetail || []).map((d) =>
+      `<tr><td>${d.name || d.code || ""}</td><td>${d.code || ""}</td><td style="text-align:right">€ ${d.price}</td></tr>`).join("");
+    body.innerHTML = `
+      <div class="row" style="align-items:baseline;">
+        <div>
+          <div class="result-price">€ ${data.price}</div>
+          <div class="result-meta">${data.productName || ""} · 渠道 ${data.channel || "—"}</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" type="button" onclick="copyQuote()">复制报价</button>
+      </div>
+      ${rows ? `<table><thead><tr><th>费用项</th><th>编码</th><th style="text-align:right">金额</th></tr></thead><tbody>${rows}</tbody></table>` : ""}`;
+    document.getElementById("resultCard").classList.remove("hidden");
+  }
+
+  function renderError(msg) {
+    const body = document.getElementById("resultBody");
+    body.innerHTML = `<div class="alert alert-err">${msg}</div>`;
+    document.getElementById("resultCard").classList.remove("hidden");
+  }
+
+  window.copyQuote = function () {
+    const el = document.getElementById("resultBody");
+    const txt = el.innerText.replace(/\n+/g, "\n");
+    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject())
+      .then(() => alert("已复制到剪贴板"))
+      .catch(() => { /* fallback */ const ta = document.createElement("textarea"); ta.value = txt; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); alert("已复制到剪贴板"); });
+  };
+
+  // ================= 主流程 =================
+  async function onQuote() {
+    if (!validateForm()) return;
+    const btn = document.getElementById("quoteBtn");
+    btn.disabled = true; btn.textContent = "计算中…";
+    try {
+      const body = buildQuotationRequest();
+      const r = await callTutu("/external/orders/v2/quotation", body);
+      if (r.code === 0 && r.data) renderResult(r.data);
+      else renderError(r.code === 500 ? "秘钥未开通权限，请联系途兔销售经理开通后重试" : (r.msg || "报价失败"));
+    } finally {
+      btn.disabled = false; btn.textContent = "计算报价";
+    }
+  }
+
+  async function loadServiceCodes() {
+    const sel = document.getElementById("serviceCodes");
+    sel.innerHTML = "";
+    const r = await callTutu("/external/orders/v2/listProductAndService");
+    const list = (r.code === 0 && r.data) ? r.data : [];
+    list.forEach((p) => (p.serviceList || []).forEach((s) => {
+      const o = document.createElement("option");
+      o.value = s.serviceCode; o.textContent = `${s.serviceName} (${s.serviceCode})`;
+      sel.appendChild(o);
+    }));
+    if (!list.length) {
+      const o = document.createElement("option");
+      o.value = ""; o.textContent = "（演示模式无附加服务）"; o.disabled = true; o.selected = true;
+      sel.appendChild(o);
+    }
+  }
+
+  // ================= 初始化 =================
+  function init() {
+    // 演示模式标识
+    if (!CONFIG.DEMO_MODE) document.getElementById("demoBadge").classList.add("hidden");
+    // 日期默认今天
+    const today = new Date();
+    const iso = today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, "0") + "-" + String(today.getDate()).padStart(2, "0");
+    document.getElementById("pickDate").value = iso;
+    // 国家下拉
+    document.getElementById("mCountry").innerHTML =
+      `<option value="">请选择</option>` +
+      COUNTRY_LIST.map(([c, n]) => `<option value="${c}">${n} (${c})</option>`).join("");
+    // 地址库
+    fillDestSelect();
+    // 默认货物一行
+    document.getElementById("goodsList").innerHTML = goodsRowHTML(0, null);
+    // 附加服务
+    loadServiceCodes();
+    // 事件
+    document.getElementById("quoteBtn").addEventListener("click", onQuote);
+  }
+
+  init();
+</script>
+</body>
+</html>
