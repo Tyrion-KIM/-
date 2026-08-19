@@ -27,9 +27,6 @@ def test_std_sheet_has_29_indicators():
     ids = [str(r[0].value) for r in ws.iter_rows(min_row=4) if r[0].value]
     assert len(ids) == 29 and ids[0] == "K01" and ids[-1] == "K29"
 
-# tests/test_kpi_template.py 追加
-from scripts.build_kpi_template import SCORE_FIRST_ROW  # =4
-
 def _score_ws():
     return build_workbook()["打分表模板"]
 
@@ -59,8 +56,17 @@ def test_total_block_formulas():
 
 def test_data_validation_and_monitor():
     ws = _score_ws()
-    dvs = {dv.sqref.__str__(): dv for dv in ws.data_validations.dataValidation}
     assert any("是,NA" in dv.formula1 for dv in ws.data_validations.dataValidation)
     assert ws["A35"].value == "M01"
     assert "MIN(100,$I35/$J35*100)" in ws["M35"].value
     assert ws["N35"].value in (None, "—")
+
+def test_rate_row_col9_general_and_m_iferror():
+    ws = _score_ws()
+    # K02 达标率（行5）：原始1=达标单数(计数)，列9 不加 % 格式
+    assert ws.cell(row=5, column=9).number_format == "General"
+    # K03 缺货率（行6，上限，%）：列9 保留 0.0%
+    assert ws.cell(row=6, column=9).number_format == "0.0%"
+    # M 列公式统一 IFERROR 包裹，避免半填时 #DIV/0!
+    assert ws.cell(row=4, column=13).value.startswith("=IFERROR(")
+    assert ws.cell(row=31, column=13).value.startswith("=IFERROR(")  # K28 引用类也包裹

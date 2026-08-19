@@ -99,29 +99,31 @@ TOTAL_FIRST_ROW = 39   # 总分区人员首行（39-44，顺序=PEOPLE）
 def _m_formula(ind, r):
     t = ind.ftype
     if t == "成本-计算":
-        return f'=IF($H{r}<>"是","",IF(OR($I{r}=0,$I{r}=""),"",MIN(100,100*$F{r}/($J{r}/$I{r}))))'
-    if t == "成本-直填":
-        return f'=IF($H{r}<>"是","",IF($I{r}="","",MIN(100,100*$F{r}/$I{r})))'
-    if t == "达标率":
-        return f'=IF($H{r}<>"是","",IF(OR($J{r}=0,$J{r}=""),"",MIN(100,$I{r}/$J{r}*100)))'
-    if t == "上限":
-        return f'=IF($H{r}<>"是","",IF($I{r}="","",IF($I{r}<=$F{r},100,100*$F{r}/$I{r})))'
-    if t == "下限":
-        return f'=IF($H{r}<>"是","",IF($I{r}="","",IF($I{r}>=$F{r},100,100*$I{r}/$F{r})))'
-    if t == "请款":
-        return f'=IF($H{r}<>"是","",0.5*MAX(0,100-20*$I{r})+0.5*MIN(100,$J{r}/0.9*100))'
-    if t == "库存综合":
-        return (f'=IF($H{r}<>"是","",IFERROR(AVERAGE(IF($I{r}<=0.03,100,100*0.03/$I{r}),'
-                f'IF($J{r}<=120,100,100*120/$J{r}),IF($K{r}<=5,100,100*5/$K{r})),""))')
-    if t == "三段综合":
-        return (f'=IF($H{r}<>"是","",IFERROR(AVERAGE(MIN(100,100*15/$I{r}),'
-                f'MIN(100,100*15/$J{r}),MIN(100,100*6/$K{r})),""))')
-    if t == "引用-请款均":
+        f = f'IF($H{r}<>"是","",IF(OR($I{r}=0,$I{r}=""),"",MIN(100,100*$F{r}/($J{r}/$I{r}))))'
+    elif t == "成本-直填":
+        f = f'IF($H{r}<>"是","",IF($I{r}="","",MIN(100,100*$F{r}/$I{r})))'
+    elif t == "达标率":
+        f = f'IF($H{r}<>"是","",IF(OR($J{r}=0,$J{r}=""),"",MIN(100,$I{r}/$J{r}*100)))'
+    elif t == "上限":
+        f = f'IF($H{r}<>"是","",IF($I{r}="","",IF($I{r}<=$F{r},100,100*$F{r}/$I{r})))'
+    elif t == "下限":
+        f = f'IF($H{r}<>"是","",IF($I{r}="","",IF($I{r}>=$F{r},100,100*$I{r}/$F{r})))'
+    elif t == "请款":
+        f = f'IF($H{r}<>"是","",0.5*MAX(0,100-20*$I{r})+0.5*MIN(100,$J{r}/0.9*100))'
+    elif t == "库存综合":
+        f = (f'IF($H{r}<>"是","",IFERROR(AVERAGE(IF($I{r}<=0.03,100,100*0.03/$I{r}),'
+             f'IF($J{r}<=120,100,100*120/$J{r}),IF($K{r}<=5,100,100*5/$K{r})),""))')
+    elif t == "三段综合":
+        f = (f'IF($H{r}<>"是","",IFERROR(AVERAGE(MIN(100,100*15/$I{r}),'
+             f'MIN(100,100*15/$J{r}),MIN(100,100*6/$K{r})),""))')
+    elif t == "引用-请款均":
         refs = ",".join(f"$M${ROW_OF[k]}" for k in PAY_ROWS)
-        return f'=IF($H{r}<>"是","",IFERROR(AVERAGE({refs}),""))'
-    if t == "引用-专员均分":
-        return f'=IF($H{r}<>"是","",IFERROR(AVERAGE($F$39:$F$42),""))'
-    raise ValueError(t)
+        f = f'IF($H{r}<>"是","",IFERROR(AVERAGE({refs}),""))'
+    elif t == "引用-专员均分":
+        f = f'IF($H{r}<>"是","",IFERROR(AVERAGE($F$39:$F$42),""))'
+    else:
+        raise ValueError(t)
+    return f'=IFERROR({f},"")'
 
 def _score(wb):
     ws = wb.create_sheet(SHEET_SCORE)
@@ -139,7 +141,8 @@ def _score(wb):
         ws.cell(row=r, column=16, value=f'=IF(ISNUMBER($M{r}),$M{r}*$O{r},0)')
         if ind.unit == "%":
             ws.cell(row=r, column=6).number_format = "0.0%"
-            ws.cell(row=r, column=9).number_format = "0.0%"
+            if ind.ftype != "达标率":
+                ws.cell(row=r, column=9).number_format = "0.0%"
         if ind.ftype == "请款":
             ws.cell(row=r, column=10).number_format = "0.0%"
     # 数据校验：H 列 是/NA
