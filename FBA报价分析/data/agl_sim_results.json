@@ -1,0 +1,890 @@
+{
+ "meta": {
+  "fx": 7.25,
+  "day0": "2026-10-01",
+  "horizon": 545,
+  "share_base": 0.25,
+  "generated": "2026-08-19"
+ },
+ "matrix": {
+  "G": {
+   "0.5": {
+    "A": {
+     "total": 335004,
+     "sold": 462,
+     "per_delivered": 725,
+     "per_container_pc": 725,
+     "storage": 34482,
+     "util_sur": 0,
+     "aged_sur": 0,
+     "removal": 0,
+     "head": 160448,
+     "tail": 140074,
+     "leftover": 0,
+     "clearance_day": 406
+    },
+    "B": {
+     "total": 449518,
+     "sold": 462,
+     "per_delivered": 973,
+     "per_container_pc": 973,
+     "storage": 101769,
+     "util_sur": 68690,
+     "aged_sur": 91885,
+     "removal": 0,
+     "head": 70834,
+     "tail": 116341,
+     "leftover": 0,
+     "clearance_day": 406
+    },
+    "C": {
+     "total": 283925,
+     "sold": 462,
+     "per_delivered": 615,
+     "per_container_pc": 615,
+     "storage": 10417,
+     "util_sur": 0,
+     "aged_sur": 0,
+     "removal": 0,
+     "head": 157167,
+     "tail": 116341,
+     "leftover": 0,
+     "clearance_day": 408
+    },
+    "B_fix": {
+     "total": 416601,
+     "sold": 462,
+     "per_delivered": 902,
+     "per_container_pc": 902,
+     "storage": 101769,
+     "util_sur": 68690,
+     "aged_sur": 91885,
+     "removal": 0,
+     "leftover": 0,
+     "clearance_day": 406
+    }
+   },
+   "1.0": {
+    "A": {
+     "total": 319153,
+     "sold": 462,
+     "per_delivered": 691,
+     "per_container_pc": 691,
+     "storage": 18632,
+     "util_sur": 0,
+     "aged_sur": 0,
+     "removal": 0,
+     "head": 160448,
+     "tail": 140074,
+     "leftover": 0,
+     "clearance_day": 203
+    },
+    "B": {
+     "total": 257727,
+     "sold": 462,
+     "per_delivered": 558,
+     "per_container_pc": 558,
+     "storage": 64660,
+     "util_sur": 5561,
+     "aged_sur": 331,
+     "removal": 0,
+     "head": 70834,
+     "tail": 116341,
+     "leftover": 0,
+     "clearance_day": 203
+    },
+    "C": {
+     "total": 281582,
+     "sold": 462,
+     "per_delivered": 609,
+     "per_container_pc": 609,
+     "storage": 11744,
+     "util_sur": 0,
+     "aged_sur": 0,
+     "removal": 0,
+     "head": 153497,
+     "tail": 116341,
+     "leftover": 0,
+     "clearance_day": 202
+    },
+    "B_fix": {
+     "total": 224810,
+     "sold": 462,
+     "per_delivered": 487,
+     "per_container_pc": 487,
+     "storage": 64660,
+     "util_sur": 5561,
+     "aged_sur": 331,
+     "removal": 0,
+     "leftover": 0,
+     "clearance_day": 203
+    }
+   },
+   "1.5": {
+    "A": {
+     "total": 313870,
+     "sold": 462,
+     "per_delivered": 679,
+     "per_container_pc": 679,
+     "storage": 13348,
+     "util_sur": 0,
+     "aged_sur": 0,
+     "removal": 0,
+     "head": 160448,
+     "tail": 140074,
+     "leftover": 0,
+     "clearance_day": 136
+    },
+    "B": {
+     "total": 236578,
+     "sold": 462,
+     "per_delivered": 512,
+     "per_container_pc": 512,
+     "storage": 49404,
+     "util_sur": 0,
+     "aged_sur": 0,
+     "removal": 0,
+     "head": 70834,
+     "tail": 116341,
+     "leftover": 0,
+     "clearance_day": 136
+    },
+    "C": {
+     "total": 282926,
+     "sold": 462,
+     "per_delivered": 612,
+     "per_container_pc": 612,
+     "storage": 14556,
+     "util_sur": 0,
+     "aged_sur": 0,
+     "removal": 0,
+     "head": 152030,
+     "tail": 116341,
+     "leftover": 0,
+     "clearance_day": 136
+    },
+    "B_fix": {
+     "total": 203661,
+     "sold": 462,
+     "per_delivered": 441,
+     "per_container_pc": 441,
+     "storage": 49404,
+     "util_sur": 0,
+     "aged_sur": 0,
+     "removal": 0,
+     "leftover": 0,
+     "clearance_day": 136
+    }
+   }
+  },
+  "M": {
+   "0.5": {
+    "A": {
+     "total": 318890,
+     "sold": 574,
+     "per_delivered": 556,
+     "per_container_pc": 556,
+     "storage": 13620,
+     "util_sur": 0,
+     "aged_sur": 0,
+     "removal": 0,
+     "head": 160450,
+     "tail": 144820,
+     "leftover": 0,
+     "clearance_day": 151
+    },
+    "B": {
+     "total": 216773,
+     "sold": 574,
+     "per_delivered": 378,
+     "per_container_pc": 378,
+     "storage": 53292,
+     "util_sur": 0,
+     "aged_sur": 0,
+     "removal": 0,
+     "head": 70837,
+     "tail": 92644,
+     "leftover": 0,
+     "clearance_day": 151
+    },
+    "C": {
+     "total": 187095,
+     "sold": 574,
+     "per_delivered": 326,
+     "per_container_pc": 326,
+     "storage": 13369,
+     "util_sur": 0,
+     "aged_sur": 0,
+     "removal": 0,
+     "head": 81082,
+     "tail": 92644,
+     "leftover": 0,
+     "clearance_day": 151
+    },
+    "B_fix": {
+     "total": 183854,
+     "sold": 574,
+     "per_delivered": 320,
+     "per_container_pc": 320,
+     "storage": 53292,
+     "util_sur": 0,
+     "aged_sur": 0,
+     "removal": 0,
+     "leftover": 0,
+     "clearance_day": 151
+    }
+   },
+   "1.0": {
+    "A": {
+     "total": 313465,
+     "sold": 574,
+     "per_delivered": 546,
+     "per_container_pc": 546,
+     "storage": 8195,
+     "util_sur": 0,
+     "aged_sur": 0,
+     "removal": 0,
+     "head": 160450,
+     "tail": 144820,
+     "leftover": 0,
+     "clearance_day": 76
+    },
+    "B": {
+     "total": 193012,
+     "sold": 574,
+     "per_delivered": 336,
+     "per_container_pc": 336,
+     "storage": 29531,
+     "util_sur": 0,
+     "aged_sur": 0,
+     "removal": 0,
+     "head": 70837,
+     "tail": 92644,
+     "leftover": 0,
+     "clearance_day": 76
+    },
+    "C": {
+     "total": 187773,
+     "sold": 574,
+     "per_delivered": 327,
+     "per_container_pc": 327,
+     "storage": 15514,
+     "util_sur": 0,
+     "aged_sur": 0,
+     "removal": 0,
+     "head": 79615,
+     "tail": 92644,
+     "leftover": 0,
+     "clearance_day": 76
+    },
+    "B_fix": {
+     "total": 160093,
+     "sold": 574,
+     "per_delivered": 279,
+     "per_container_pc": 279,
+     "storage": 29531,
+     "util_sur": 0,
+     "aged_sur": 0,
+     "removal": 0,
+     "leftover": 0,
+     "clearance_day": 76
+    }
+   },
+   "1.5": {
+    "A": {
+     "total": 311657,
+     "sold": 574,
+     "per_delivered": 543,
+     "per_container_pc": 543,
+     "storage": 6387,
+     "util_sur": 0,
+     "aged_sur": 0,
+     "removal": 0,
+     "head": 160450,
+     "tail": 144820,
+     "leftover": 0,
+     "clearance_day": 51
+    },
+    "B": {
+     "total": 183298,
+     "sold": 574,
+     "per_delivered": 319,
+     "per_container_pc": 319,
+     "storage": 19817,
+     "util_sur": 0,
+     "aged_sur": 0,
+     "removal": 0,
+     "head": 70837,
+     "tail": 92644,
+     "leftover": 0,
+     "clearance_day": 51
+    },
+    "C": {
+     "total": 188491,
+     "sold": 574,
+     "per_delivered": 328,
+     "per_container_pc": 328,
+     "storage": 16233,
+     "util_sur": 0,
+     "aged_sur": 0,
+     "removal": 0,
+     "head": 79615,
+     "tail": 92644,
+     "leftover": 0,
+     "clearance_day": 51
+    },
+    "B_fix": {
+     "total": 150379,
+     "sold": 574,
+     "per_delivered": 262,
+     "per_container_pc": 262,
+     "storage": 19817,
+     "util_sur": 0,
+     "aged_sur": 0,
+     "removal": 0,
+     "leftover": 0,
+     "clearance_day": 51
+    }
+   }
+  },
+  "N": {
+   "0.5": {
+    "A": {
+     "total": 259234,
+     "sold": 94,
+     "per_delivered": 2767,
+     "per_container_pc": 786,
+     "storage": 69026,
+     "util_sur": 0,
+     "aged_sur": 0,
+     "removal": 0,
+     "head": 160449,
+     "tail": 29760,
+     "leftover": 236,
+     "clearance_day": null
+    },
+    "B": {
+     "total": 1644029,
+     "sold": 94,
+     "per_delivered": 17551,
+     "per_container_pc": 4982,
+     "storage": 224994,
+     "util_sur": 311163,
+     "aged_sur": 869277,
+     "removal": 135323,
+     "head": 70834,
+     "tail": 32438,
+     "leftover": 236,
+     "clearance_day": null
+    },
+    "C": {
+     "total": 98728,
+     "sold": 97,
+     "per_delivered": 1019,
+     "per_container_pc": 299,
+     "storage": 3363,
+     "util_sur": 0,
+     "aged_sur": 0,
+     "removal": 4089,
+     "head": 57735,
+     "tail": 33541,
+     "leftover": 233,
+     "clearance_day": null
+    },
+    "B_fix": {
+     "total": 1611112,
+     "sold": 94,
+     "per_delivered": 17200,
+     "per_container_pc": 4882,
+     "storage": 224994,
+     "util_sur": 311163,
+     "aged_sur": 869277,
+     "removal": 135323,
+     "leftover": 236,
+     "clearance_day": null
+    }
+   },
+   "1.0": {
+    "A": {
+     "total": 278043,
+     "sold": 187,
+     "per_delivered": 1484,
+     "per_container_pc": 843,
+     "storage": 58074,
+     "util_sur": 0,
+     "aged_sur": 0,
+     "removal": 0,
+     "head": 160449,
+     "tail": 59519,
+     "leftover": 143,
+     "clearance_day": null
+    },
+    "B": {
+     "total": 1297735,
+     "sold": 187,
+     "per_delivered": 6927,
+     "per_container_pc": 3933,
+     "storage": 190191,
+     "util_sur": 256364,
+     "aged_sur": 633785,
+     "removal": 81686,
+     "head": 70834,
+     "tail": 64875,
+     "leftover": 143,
+     "clearance_day": null
+    },
+    "C": {
+     "total": 176366,
+     "sold": 182,
+     "per_delivered": 971,
+     "per_container_pc": 534,
+     "storage": 5928,
+     "util_sur": 0,
+     "aged_sur": 0,
+     "removal": 7605,
+     "head": 99905,
+     "tail": 62927,
+     "leftover": 148,
+     "clearance_day": null
+    },
+    "B_fix": {
+     "total": 1264818,
+     "sold": 187,
+     "per_delivered": 6751,
+     "per_container_pc": 3833,
+     "storage": 190191,
+     "util_sur": 256364,
+     "aged_sur": 633785,
+     "removal": 81686,
+     "leftover": 143,
+     "clearance_day": null
+    }
+   },
+   "1.5": {
+    "A": {
+     "total": 296851,
+     "sold": 281,
+     "per_delivered": 1056,
+     "per_container_pc": 900,
+     "storage": 47123,
+     "util_sur": 0,
+     "aged_sur": 0,
+     "removal": 0,
+     "head": 160449,
+     "tail": 89279,
+     "leftover": 49,
+     "clearance_day": null
+    },
+    "B": {
+     "total": 923218,
+     "sold": 281,
+     "per_delivered": 3285,
+     "per_container_pc": 2798,
+     "storage": 155388,
+     "util_sur": 173342,
+     "aged_sur": 398293,
+     "removal": 28049,
+     "head": 70834,
+     "tail": 97313,
+     "leftover": 49,
+     "clearance_day": null
+    },
+    "C": {
+     "total": 265545,
+     "sold": 279,
+     "per_delivered": 953,
+     "per_container_pc": 805,
+     "storage": 9282,
+     "util_sur": 0,
+     "aged_sur": 0,
+     "removal": 11694,
+     "head": 148100,
+     "tail": 96469,
+     "leftover": 51,
+     "clearance_day": null
+    },
+    "B_fix": {
+     "total": 890301,
+     "sold": 281,
+     "per_delivered": 3168,
+     "per_container_pc": 2698,
+     "storage": 155388,
+     "util_sur": 173342,
+     "aged_sur": 398293,
+     "removal": 28049,
+     "leftover": 49,
+     "clearance_day": null
+    }
+   }
+  }
+ },
+ "breakeven": {
+  "G": {
+   "0.2": {
+    "mult": 0.798,
+    "ds_us": 1.457,
+    "days_of_supply": 317
+   },
+   "0.25": {
+    "mult": 0.639,
+    "ds_us": 1.457,
+    "days_of_supply": 317
+   },
+   "0.3": {
+    "mult": 0.532,
+    "ds_us": 1.457,
+    "days_of_supply": 317
+   }
+  },
+  "M": {
+   "0.2": {
+    "mult": 0.274,
+    "ds_us": 1.673,
+    "days_of_supply": 343
+   },
+   "0.25": {
+    "mult": 0.219,
+    "ds_us": 1.673,
+    "days_of_supply": 343
+   },
+   "0.3": {
+    "mult": 0.183,
+    "ds_us": 1.673,
+    "days_of_supply": 343
+   }
+  },
+  "N": {
+   "0.2": null,
+   "0.25": {
+    "mult": 3.647,
+    "ds_us": 1.254,
+    "days_of_supply": 263
+   },
+   "0.3": {
+    "mult": 3.039,
+    "ds_us": 1.254,
+    "days_of_supply": 263
+   }
+  }
+ },
+ "sku_penetration": {
+  "G": [
+   {
+    "policy": "equal_cover",
+    "sku": "SKU1",
+    "ds_site": 4.875,
+    "ds_us": 1.219,
+    "qty": 247,
+    "clear_day": 203,
+    "aged_sur": 177,
+    "aged_per_pc": 1,
+    "total_per_pc": 558
+   },
+   {
+    "policy": "equal_cover",
+    "sku": "SKU2",
+    "ds_site": 2.0,
+    "ds_us": 0.5,
+    "qty": 101,
+    "clear_day": 203,
+    "aged_sur": 73,
+    "aged_per_pc": 1,
+    "total_per_pc": 558
+   },
+   {
+    "policy": "equal_cover",
+    "sku": "SKU3",
+    "ds_site": 1.5,
+    "ds_us": 0.375,
+    "qty": 76,
+    "clear_day": 203,
+    "aged_sur": 54,
+    "aged_per_pc": 1,
+    "total_per_pc": 558
+   },
+   {
+    "policy": "equal_cover",
+    "sku": "SKU4",
+    "ds_site": 0.25,
+    "ds_us": 0.062,
+    "qty": 13,
+    "clear_day": 203,
+    "aged_sur": 9,
+    "aged_per_pc": 1,
+    "total_per_pc": 558
+   },
+   {
+    "policy": "equal_cover",
+    "sku": "SKU5",
+    "ds_site": 0.25,
+    "ds_us": 0.062,
+    "qty": 13,
+    "clear_day": 203,
+    "aged_sur": 9,
+    "aged_per_pc": 1,
+    "total_per_pc": 558
+   },
+   {
+    "policy": "equal_cover",
+    "sku": "SKU6",
+    "ds_site": 0.125,
+    "ds_us": 0.031,
+    "qty": 6,
+    "clear_day": 203,
+    "aged_sur": 5,
+    "aged_per_pc": 1,
+    "total_per_pc": 558
+   },
+   {
+    "policy": "equal_cover",
+    "sku": "SKU7",
+    "ds_site": 0.125,
+    "ds_us": 0.031,
+    "qty": 6,
+    "clear_day": 203,
+    "aged_sur": 5,
+    "aged_per_pc": 1,
+    "total_per_pc": 558
+   },
+   {
+    "policy": "equal_qty",
+    "sku": "SKU1",
+    "ds_site": 4.875,
+    "ds_us": 1.219,
+    "qty": 66,
+    "clear_day": 55,
+    "aged_sur": 0,
+    "aged_per_pc": 0,
+    "total_per_pc": 451
+   },
+   {
+    "policy": "equal_qty",
+    "sku": "SKU2",
+    "ds_site": 2.0,
+    "ds_us": 0.5,
+    "qty": 66,
+    "clear_day": 132,
+    "aged_sur": 0,
+    "aged_per_pc": 0,
+    "total_per_pc": 510
+   },
+   {
+    "policy": "equal_qty",
+    "sku": "SKU3",
+    "ds_site": 1.5,
+    "ds_us": 0.375,
+    "qty": 66,
+    "clear_day": 176,
+    "aged_sur": 0,
+    "aged_per_pc": 0,
+    "total_per_pc": 536
+   },
+   {
+    "policy": "equal_qty",
+    "sku": "SKU4",
+    "ds_site": 0.25,
+    "ds_us": 0.062,
+    "qty": 66,
+    "clear_day": null,
+    "aged_sur": 94611,
+    "aged_per_pc": 1434,
+    "total_per_pc": 2899
+   },
+   {
+    "policy": "equal_qty",
+    "sku": "SKU5",
+    "ds_site": 0.25,
+    "ds_us": 0.062,
+    "qty": 66,
+    "clear_day": null,
+    "aged_sur": 94611,
+    "aged_per_pc": 1434,
+    "total_per_pc": 2899
+   },
+   {
+    "policy": "equal_qty",
+    "sku": "SKU6",
+    "ds_site": 0.125,
+    "ds_us": 0.031,
+    "qty": 66,
+    "clear_day": null,
+    "aged_sur": 124547,
+    "aged_per_pc": 1887,
+    "total_per_pc": 3568
+   },
+   {
+    "policy": "equal_qty",
+    "sku": "SKU7",
+    "ds_site": 0.125,
+    "ds_us": 0.031,
+    "qty": 66,
+    "clear_day": null,
+    "aged_sur": 124547,
+    "aged_per_pc": 1887,
+    "total_per_pc": 3568
+   }
+  ],
+  "M": [
+   {
+    "policy": "equal_cover",
+    "sku": "SKU1",
+    "ds_site": 14.0,
+    "ds_us": 3.5,
+    "qty": 263,
+    "clear_day": 76,
+    "aged_sur": 0,
+    "aged_per_pc": 0,
+    "total_per_pc": 336
+   },
+   {
+    "policy": "equal_cover",
+    "sku": "SKU2",
+    "ds_site": 6.875,
+    "ds_us": 1.719,
+    "qty": 129,
+    "clear_day": 76,
+    "aged_sur": 0,
+    "aged_per_pc": 0,
+    "total_per_pc": 336
+   },
+   {
+    "policy": "equal_cover",
+    "sku": "SKU3",
+    "ds_site": 5.25,
+    "ds_us": 1.312,
+    "qty": 99,
+    "clear_day": 76,
+    "aged_sur": 0,
+    "aged_per_pc": 0,
+    "total_per_pc": 336
+   },
+   {
+    "policy": "equal_cover",
+    "sku": "SKU4",
+    "ds_site": 2.75,
+    "ds_us": 0.688,
+    "qty": 52,
+    "clear_day": 76,
+    "aged_sur": 0,
+    "aged_per_pc": 0,
+    "total_per_pc": 336
+   },
+   {
+    "policy": "equal_cover",
+    "sku": "SKU5",
+    "ds_site": 1.125,
+    "ds_us": 0.281,
+    "qty": 21,
+    "clear_day": 76,
+    "aged_sur": 0,
+    "aged_per_pc": 0,
+    "total_per_pc": 336
+   },
+   {
+    "policy": "equal_cover",
+    "sku": "SKU6",
+    "ds_site": 0.5,
+    "ds_us": 0.125,
+    "qty": 9,
+    "clear_day": 76,
+    "aged_sur": 0,
+    "aged_per_pc": 0,
+    "total_per_pc": 336
+   },
+   {
+    "policy": "equal_qty",
+    "sku": "SKU1",
+    "ds_site": 14.0,
+    "ds_us": 3.5,
+    "qty": 96,
+    "clear_day": 28,
+    "aged_sur": 0,
+    "aged_per_pc": 0,
+    "total_per_pc": 304
+   },
+   {
+    "policy": "equal_qty",
+    "sku": "SKU2",
+    "ds_site": 6.875,
+    "ds_us": 1.719,
+    "qty": 96,
+    "clear_day": 56,
+    "aged_sur": 0,
+    "aged_per_pc": 0,
+    "total_per_pc": 323
+   },
+   {
+    "policy": "equal_qty",
+    "sku": "SKU3",
+    "ds_site": 5.25,
+    "ds_us": 1.312,
+    "qty": 96,
+    "clear_day": 73,
+    "aged_sur": 0,
+    "aged_per_pc": 0,
+    "total_per_pc": 335
+   },
+   {
+    "policy": "equal_qty",
+    "sku": "SKU4",
+    "ds_site": 2.75,
+    "ds_us": 0.688,
+    "qty": 96,
+    "clear_day": 140,
+    "aged_sur": 0,
+    "aged_per_pc": 0,
+    "total_per_pc": 373
+   },
+   {
+    "policy": "equal_qty",
+    "sku": "SKU5",
+    "ds_site": 1.125,
+    "ds_us": 0.281,
+    "qty": 96,
+    "clear_day": 341,
+    "aged_sur": 6190,
+    "aged_per_pc": 65,
+    "total_per_pc": 574
+   },
+   {
+    "policy": "equal_qty",
+    "sku": "SKU6",
+    "ds_site": 0.5,
+    "ds_us": 0.125,
+    "qty": 96,
+    "clear_day": null,
+    "aged_sur": 83841,
+    "aged_per_pc": 876,
+    "total_per_pc": 1885
+   }
+  ],
+  "N": [
+   {
+    "policy": "equal_cover",
+    "sku": "SKU1",
+    "ds_site": 1.375,
+    "ds_us": 0.344,
+    "qty": 330,
+    "clear_day": null,
+    "aged_sur": 633785,
+    "aged_per_pc": 1921,
+    "total_per_pc": 3933
+   },
+   {
+    "policy": "equal_qty",
+    "sku": "SKU1",
+    "ds_site": 1.375,
+    "ds_us": 0.344,
+    "qty": 330,
+    "clear_day": null,
+    "aged_sur": 633785,
+    "aged_per_pc": 1921,
+    "total_per_pc": 3933
+   }
+  ]
+ },
+ "aggregate_util": {
+  "day0_weeks": 22.4,
+  "note": "三系列整柜同日入仓时大件分段合并利用率(供应周数)；>22周即触发利用率附加费"
+ }
+}
