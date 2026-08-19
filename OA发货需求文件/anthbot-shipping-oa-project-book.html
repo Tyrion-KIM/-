@@ -354,6 +354,7 @@ body {
   <span class="sep">|</span><a href="#s2">2.业务全景</a>
   <span class="sep">|</span><a href="#s3">3.审批流程</a>
   <span class="sep">|</span><a href="#s4">4.角色职责</a>
+  <span class="sep">|</span><a href="#s5">5.时效与截单</a>
   <span class="sep">|</span><a href="#s6">6.字段定义</a>
   <span class="sep">|</span><a href="#s7">7.通知机制</a>  <span style="flex:1"></span>
   <button id="themeToggle" title="切换白天/夜间模式" aria-label="切换白天/夜间模式">🌙 夜间</button>
@@ -366,8 +367,8 @@ body {
   <h1>ANTHBOT 整机发运OA 业务项目书</h1>
   <div class="subtitle">全业务模块覆盖 · 11步完整审批链 · 7种发货类型统一管理</div>
   <div class="meta">
-    <span>版本 V1.0 定稿</span>
-    <span>日期 2026-08-11</span>
+    <span>版本 V1.1 定稿</span>
+    <span>日期 2026-08-19</span>
     <span>明日会议宣导用</span>
     <span>模板参照：成品特采放行流程 2026.6.22</span>
   </div>
@@ -927,6 +928,106 @@ body {
     </div>
 
   </div>
+
+</div>
+
+<!-- ================================================================ -->
+<!-- SECTION 5: 执行时效与截单管理 -->
+<!-- ================================================================ -->
+<div class="section-title" id="s5"><span class="num">5</span> 执行时效与截单管理</div>
+<div class="content-wrap">
+
+  <div class="callout callout-info">
+    <strong>定位：</strong>本章解决两个落地问题——① 审批不能为了形式拖慢实际发货效率；② 尾端发运的截单时间需要统一口径。核心思路：<strong>在"审完才能动"的强合规前提下，审批链各环节 SLA 由截单时间倒推定标</strong>，而不是各环节自行掌握节奏。
+  </div>
+
+  <!-- 5.1 设计原则 -->
+  <div class="field-group-title fg-fixed">⏱️ 5.1 设计原则</div>
+  <table class="data-table">
+    <thead><tr><th class="ctr" style="width:30px">#</th><th style="width:180px">原则</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td class="ctr">1</td><td><strong>强合规：审完才能动</strong></td><td>所有物理动作（备货、订舱、交运）必须待审批链走完方可执行，不为提效牺牲合规管控</td></tr>
+      <tr><td class="ctr">2</td><td><strong>SLA 由截单倒推定标</strong></td><td>审批链各环节时限不由个人感觉决定，由下游截单时间倒推得出——先定截单，再定 SLA</td></tr>
+      <tr><td class="ctr">3</td><td><strong>统一时间口径</strong></td><td>截单时间表全部采用<strong>北京时间</strong>（含海外仓节点），避免跨时区导致"当天处理"语义错乱</td></tr>
+    </tbody>
+  </table>
+
+  <!-- 5.2 截单时间基准表 -->
+  <div class="field-group-title fg-log">✂️ 5.2 截单时间基准表（四层倒推）</div>
+  <div class="callout callout-green">
+    <strong>定标公式：</strong>节点截单时间 = 下游硬截止时间 − 本节点标准作业时长 − 安全缓冲。截单时间不是"我们习惯几点收口"，而是从下游最硬的时间点一层层倒推出来的。
+  </div>
+  <table class="data-table">
+    <thead><tr><th class="ctr" style="width:60px">层级</th><th style="width:150px">节点</th><th style="width:110px" class="ctr">截单时间</th><th class="ctr" style="width:80px">状态</th><th>制定依据</th></tr></thead>
+    <tbody>
+      <tr><td class="ctr">第4层</td><td>申请人最晚提交</td><td class="ctr"><strong>13:00</strong></td><td class="ctr"><span class="tag tag-new">推导值</span></td><td>= 物流收单 15:00 − Step2/3 审批 SLA（合计 2h）；晚于此时间提交，当日无法进入物流环节</td></tr>
+      <tr><td class="ctr">第3层</td><td>物流收单</td><td class="ctr"><strong>15:00</strong></td><td class="ctr"><span class="tag tag-fixed">已定</span></td><td>跟随海外仓收单节点收口；当日完成审单补充、订舱、发运指令下达等必做动作</td></tr>
+      <tr><td class="ctr">第2层</td><td>海外仓</td><td class="ctr"><strong>15:00</strong></td><td class="ctr"><span class="tag tag-fixed">已定</span></td><td>15:00 前下单当日处理，15:00 后次日处理（北京时间口径）</td></tr>
+      <tr><td class="ctr">第2层</td><td>工厂</td><td class="ctr"><strong>16:00</strong></td><td class="ctr"><span class="tag tag-fixed">已定</span></td><td>留出当日打包操作时间；16:00 后到达的订单次日处理</td></tr>
+      <tr><td class="ctr">第1层</td><td>外部硬截止</td><td class="ctr">—</td><td class="ctr"><span class="tag tag-adjusted">不可控</span></td><td>承运商取件 / 航班 / 车辆班次时间，只能遵守、无法谈判</td></tr>
+    </tbody>
+  </table>
+  <div class="callout callout-warn">
+    <strong>执行节点绑定：</strong>以海外仓为发货执行地的单据，收口卡 <strong>15:00</strong>；以工厂为执行地的单据，收口卡 <strong>16:00</strong>。<br>
+    <strong>对申请人的行为引导：</strong>标准链 13:00 后提交的单自动落入次日处理——系统在提交时明确提示，而不是事后才发现错过了当天。
+  </div>
+
+  <!-- 5.3 全链审批 SLA -->
+  <div class="field-group-title fg-req">📋 5.3 全链审批 SLA 与超时升级（建议值 · 待评审）</div>
+  <table class="data-table">
+    <thead><tr><th class="ctr" style="width:70px">步骤</th><th style="width:170px">环节</th><th class="ctr" style="width:90px">SLA</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td class="ctr">Step 2</td><td>上级审核</td><td class="ctr">1 小时</td><td>移动端可审，重点看需求合理性</td></tr>
+      <tr><td class="ctr">Step 3</td><td>销管确认库存</td><td class="ctr">1 小时</td><td>ERP 料号与库存数量核对</td></tr>
+      <tr><td class="ctr">Step 4</td><td>物流补充信息</td><td class="ctr">3 小时</td><td>含询比价、订舱、编制发运指引等实际作业时间</td></tr>
+      <tr><td class="ctr">Step 5</td><td>物流上级审核</td><td class="ctr">1 小时</td><td>审核物流方案与成本</td></tr>
+      <tr><td class="ctr">Step 6</td><td>财务审核成本</td><td class="ctr">1 小时</td><td>成本合规性审核</td></tr>
+      <tr><td class="ctr">Step 7</td><td>质量审核</td><td class="ctr">1 小时</td><td>包装、合规性审核</td></tr>
+      <tr><td class="ctr"><strong>合计</strong></td><td><strong>全链审批</strong></td><td class="ctr"><strong>8 小时</strong></td><td>按工作时间内累计；当日 13:00 前提交可当日走完物流环节</td></tr>
+    </tbody>
+  </table>
+
+  <div class="field-group-title fg-fixed" style="font-size:13px;">⏰ 超时升级机制</div>
+  <table class="data-table">
+    <thead><tr><th class="ctr" style="width:60px">级别</th><th style="width:200px">触发条件</th><th>动作</th></tr></thead>
+    <tbody>
+      <tr><td class="ctr">L1</td><td>单据在本步骤停留达到 SLA</td><td>钉钉 DING 提醒当前处理人，文案注明截单后果（如"将错过今日 16:00 工厂截单，顺延一天"）</td></tr>
+      <tr><td class="ctr">L2</td><td>提醒后仍超时 30 分钟</td><td>自动升级直属上级代审，同时在流程群同步</td></tr>
+      <tr><td class="ctr">L3</td><td>超时导致错过当日截单</td><td>单据标红，物流负责人与申请人同时收到顺延告知</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-green">
+    <strong>标准链示例：</strong>10:00 提交 → 11:00 上级审完 → 12:00 销管确认 → 15:00 物流完成补充+订舱 → 16:00 物流上级 → 17:00 财务 → 18:00 质量审完 → 工厂次日收单备货 → <strong>次日交运</strong>。<br>
+    <strong>加急链示例：</strong>10:00 提交（SLA 减半）→ 10:30 / 11:00 前两级审完 → 12:30 物流完成 → 14:00 全链审完 → 工厂当日收单（&lt;16:00）→ <strong>当日备货、当日/次日早交运</strong>。
+  </div>
+
+  <!-- 5.4 加急通道 -->
+  <div class="field-group-title fg-del">🚀 5.4 加急通道</div>
+  <table class="data-table">
+    <thead><tr><th style="width:150px">要素</th><th>规则</th></tr></thead>
+    <tbody>
+      <tr><td><strong>触发方式</strong></td><td>申请人提交时勾选"加急"+ <strong>加急理由必填</strong>（赶船期 / 客户活动 / 客诉处理等）</td></tr>
+      <tr><td><strong>生效效果</strong></td><td>全链各环节 SLA 减半，提醒频率与升级门槛同步收紧</td></tr>
+      <tr><td><strong>系统辅助</strong></td><td>提交时间逼近当日 13:00 提交线时，系统自动建议勾选加急</td></tr>
+      <tr><td><strong>防滥用</strong></td><td>月度统计各部门加急率并通报；加急率异常的部门由流程 Owner 复核申请质量</td></tr>
+    </tbody>
+  </table>
+  <div class="callout callout-warn">
+    ⚠️ 加急<strong>不改变审批环节与驳回规则</strong>——只压缩时限，不跳过任何审核步骤。
+  </div>
+
+  <!-- 5.5 OA 系统时效功能 -->
+  <div class="field-group-title fg-fixed">🤖 5.5 OA 系统时效功能</div>
+  <table class="data-table">
+    <thead><tr><th class="ctr" style="width:30px">#</th><th style="width:170px">功能</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td class="ctr">1</td><td><strong>预计执行日计算</strong></td><td>提交时按"当前时刻 + 链条 SLA + 截单基准表"自动提示"今日可完成 / 预计明日处理"</td></tr>
+      <tr><td class="ctr">2</td><td><strong>停留时长显示</strong></td><td>单据详情实时显示当前步骤已停留时间与 SLA 剩余</td></tr>
+      <tr><td class="ctr">3</td><td><strong>超时后果显性化</strong></td><td>所有超时提醒文案注明将错过的具体截单节点及顺延后果，给审批人明确的时间压力</td></tr>
+      <tr><td class="ctr">4</td><td><strong>截单基准表维护</strong></td><td>由物流执行方作为主数据维护；调整时走变更通知，同步更新本章基准表</td></tr>
+    </tbody>
+  </table>
 
 </div>
 
