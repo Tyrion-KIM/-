@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import pytest
 from scripts.build_kpi_template import (build_workbook, SHEET_GUIDE,
-    SHEET_WEIGHTS, SHEET_STD, SHEET_SCORE, SHEET_TASK, SEED_TASKS)
+    SHEET_WEIGHTS, SHEET_STD, SHEET_SCORE, SHEET_TASK, SEED_TASKS, ROW_OF)
 
 def test_workbook_has_five_sheets():
     wb = build_workbook()
@@ -90,3 +90,24 @@ def test_task_sheet_seeded_2026_09():
 def test_task_score_validation():
     ws = build_workbook()[SHEET_TASK]
     assert any("0,50,100" in dv.formula1 for dv in ws.data_validations.dataValidation)
+
+
+def test_payment_and_stock_formulas_guard_blank_inputs():
+    ws = build_workbook()["打分表模板"]
+    # 请款 K06：I/J 任一空 → ""
+    r_pay = ROW_OF["K06"]
+    f_pay = ws.cell(row=r_pay, column=13).value
+    assert f'IF(OR($I{r_pay}="",$J{r_pay}=""),"",' in f_pay
+    # 库存综合 K15：I/J/K 任一空 → ""
+    r_stk = ROW_OF["K15"]
+    f_stk = ws.cell(row=r_stk, column=13).value
+    assert f'IF(OR($I{r_stk}="",$J{r_stk}="",$K{r_stk}=""),"",' in f_stk
+    # 内层公式未被改动
+    assert f"MAX(0,100-20*$I{r_pay})" in f_pay and f"MIN(100,$J{r_pay}/0.9*100)" in f_pay
+    assert "AVERAGE(" in f_stk
+
+
+def test_stock_ratio_cell_percent_format():
+    ws = build_workbook()["打分表模板"]
+    for kid in ("K15", "K21"):
+        assert ws.cell(row=ROW_OF[kid], column=9).number_format == "0.0%"

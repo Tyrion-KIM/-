@@ -109,10 +109,11 @@ def _m_formula(ind, r):
     elif t == "下限":
         f = f'IF($H{r}<>"是","",IF($I{r}="","",IF($I{r}>=$F{r},100,100*$I{r}/$F{r})))'
     elif t == "请款":
-        f = f'IF($H{r}<>"是","",0.5*MAX(0,100-20*$I{r})+0.5*MIN(100,$J{r}/0.9*100))'
+        f = (f'IF($H{r}<>"是","",IF(OR($I{r}="",$J{r}=""),"",'
+             f'0.5*MAX(0,100-20*$I{r})+0.5*MIN(100,$J{r}/0.9*100)))')
     elif t == "库存综合":
-        f = (f'IF($H{r}<>"是","",IFERROR(AVERAGE(IF($I{r}<=0.03,100,100*0.03/$I{r}),'
-             f'IF($J{r}<=120,100,100*120/$J{r}),IF($K{r}<=5,100,100*5/$K{r})),""))')
+        f = (f'IF($H{r}<>"是","",IF(OR($I{r}="",$J{r}="",$K{r}=""),"",AVERAGE(IF($I{r}<=0.03,100,100*0.03/$I{r}),'
+             f'IF($J{r}<=120,100,100*120/$J{r}),IF($K{r}<=5,100,100*5/$K{r}))))')
     elif t == "三段综合":
         f = (f'IF($H{r}<>"是","",IFERROR(AVERAGE(MIN(100,100*15/$I{r}),'
              f'MIN(100,100*15/$J{r}),MIN(100,100*6/$K{r})),""))')
@@ -145,6 +146,8 @@ def _score(wb):
                 ws.cell(row=r, column=9).number_format = "0.0%"
         if ind.ftype == "请款":
             ws.cell(row=r, column=10).number_format = "0.0%"
+        if ind.ftype == "库存综合":
+            ws.cell(row=r, column=9).number_format = "0.0%"
     # 数据校验：H 列 是/NA
     dv = DataValidation(type="list", formula1='"是,NA"', allow_blank=True)
     ws.add_data_validation(dv)
