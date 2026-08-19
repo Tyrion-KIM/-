@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FBA费率官方核对报告 · v2.2</title>
+<style>
+:root{
+  --bg:#f6f8fb; --card:#ffffff; --ink:#1e293b; --sub:#64748b; --line:#e2e8f0;
+  --blue:#2563eb; --blue-bg:#eff6ff; --teal:#0d9488; --teal-bg:#f0fdfa;
+  --amber:#d97706; --amber-bg:#fffbeb; --rose:#e11d48; --rose-bg:#fff1f2;
+  --violet:#7c3aed; --violet-bg:#f5f3ff; --green:#16a34a; --green-bg:#f0fdf4;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Segoe UI","Microsoft YaHei",-apple-system,sans-serif;background:var(--bg);color:var(--ink);line-height:1.65;padding:0 0 60px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+header{background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;padding:38px 0 30px;margin-bottom:28px}
+header h1{font-size:26px;font-weight:700;letter-spacing:.5px}
+header p{opacity:.85;margin-top:6px;font-size:14px}
+.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.meta span{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:3px 14px;font-size:12.5px}
+h2{font-size:19px;margin:38px 0 14px;padding-left:12px;border-left:4px solid var(--blue)}
+h3{font-size:15.5px;margin:20px 0 8px;color:#0f172a}
+p.note{font-size:13px;color:var(--sub);margin:6px 0 10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin-bottom:16px;box-shadow:0 1px 3px rgba(15,23,42,.05)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:16px 0}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;text-align:center}
+.stat b{display:block;font-size:24px;color:var(--blue)}
+.stat span{font-size:12.5px;color:var(--sub)}
+table{width:100%;border-collapse:collapse;font-size:13px;background:var(--card)}
+th{background:#f1f5f9;text-align:left;padding:8px 10px;font-weight:600;border:1px solid var(--line);white-space:nowrap}
+td{padding:7px 10px;border:1px solid var(--line);vertical-align:top}
+tr:nth-child(even) td{background:#fafcff}
+.badge{display:inline-block;border-radius:999px;padding:1px 10px;font-size:11.5px;font-weight:600;white-space:nowrap}
+.b-blue{background:var(--blue-bg);color:var(--blue)} .b-teal{background:var(--teal-bg);color:var(--teal)}
+.b-amber{background:var(--amber-bg);color:var(--amber)} .b-rose{background:var(--rose-bg);color:var(--rose)}
+.b-violet{background:var(--violet-bg);color:var(--violet)} .b-green{background:var(--green-bg);color:var(--green)}
+.b-gray{background:#f1f5f9;color:#475569}
+.alert{background:var(--rose-bg);border:1px solid #fecdd3;border-left:5px solid var(--rose);border-radius:10px;padding:16px 20px;margin:14px 0}
+.alert h4{color:var(--rose);font-size:15px;margin-bottom:6px}
+.info{background:var(--amber-bg);border:1px solid #fde68a;border-left:5px solid var(--amber);border-radius:10px;padding:14px 18px;margin:12px 0;font-size:13.5px}
+.ok{background:var(--green-bg);border:1px solid #bbf7d0;border-left:5px solid var(--green);border-radius:10px;padding:14px 18px;margin:12px 0;font-size:13.5px}
+code{background:#f1f5f9;border-radius:4px;padding:1px 6px;font-size:12px;font-family:Consolas,monospace}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.was{color:#94a3b8;text-decoration:line-through}
+.new{color:var(--blue);font-weight:700}
+footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);font-size:12.5px;color:var(--sub);text-align:center}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 4px}
+.toc a{font-size:12.5px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px 14px;color:var(--ink);text-decoration:none}
+.toc a:hover{border-color:var(--blue);color:var(--blue)}
+@media print{body{background:#fff}.card{box-shadow:none}header{background:#1e3a8a!important;-webkit-print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>FBA 费率官方核对报告（v2.1 → v2.2）</h1>
+    <p>Seller Central 官方 12 页全量重读 · 费率缺口清零 · 2026 尺寸分段与体积重计费修正</p>
+    <div class="meta">
+      <span>📅 2026-08-19</span><span>数据版本 v2.2</span><span>commit ed3aa9e</span><span>范围：美国站 FBA 费率 + 尺寸分段</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<div class="toc">
+  <a href="#s1">① 核对范围</a><a href="#s2">② 修正总览</a><a href="#s3">③ 费率补齐</a><a href="#s4">④ 尺寸分段修正</a><a href="#s5">⑤ 体积重与重分级</a><a href="#s6">⑥ 仓储费</a><a href="#s7">⑦ 相关费用</a><a href="#s8">⑧ 三产品重算</a><a href="#s9">⑨ 结论建议</a>
+</div>
+
+<!-- ================= 1 核对范围 ================= -->
+<h2 id="s1">① 核对范围：12 个 Seller Central 官方页面</h2>
+<div class="card">
+<table>
+<tr><th>页面 ID</th><th>主题</th><th>在模型中的用途</th><th>核对结果</th></tr>
+<tr><td><code>ABBX6GZPA8MSZGW</code></td><td>2026 费用变更总览</td><td>配送费标准主表（费率主来源）</td><td><span class="badge b-green">全表提取 ✓</span></td></tr>
+<tr><td><code>GMUTB89XM7AATPR3</code></td><td>低价商品（&lt;$10）配送费</td><td>under_10 档位</td><td><span class="badge b-green">已提取 ✓</span> <span class="badge b-amber">身份修正：非标准主表</span></td></tr>
+<tr><td><code>GG5KW835AHDJCH8W</code></td><td>商品尺寸分段</td><td>六级分段判定</td><td><span class="badge b-rose">发现旧边界错误 → 已修</span></td></tr>
+<tr><td><code>G53Z9EKF8VVZVH29</code></td><td>体积重量</td><td>体积重公式</td><td><span class="badge b-violet">新增计费逻辑</span></td></tr>
+<tr><td><code>GEVWP48HPBLEFJEY</code></td><td>发货重量</td><td>发货重量 = max(商品重, 体积重)</td><td><span class="badge b-violet">新增计费逻辑</span></td></tr>
+<tr><td><code>GE3VC5FGJE9TYJKM</code></td><td>单件重量 (Unit weight)</td><td>分段判定参照</td><td><span class="badge b-gray">参考</span></td></tr>
+<tr><td><code>G37G73BJXHF75ACH</code></td><td>商品尺寸和体积</td><td>测量规则参照</td><td><span class="badge b-gray">参考</span></td></tr>
+<tr><td><code>G3EDYEF6KUCFQTNM</code></td><td>月度仓储费</td><td>仓储费率 + 利用率附加费</td><td><span class="badge b-blue">补 2 类别 + 5 档</span></td></tr>
+<tr><td><code>GJQNPA23YWVA4SBD</code></td><td>超龄库存附加费</td><td>参考费率入库</td><td><span class="badge b-teal">JSON 入库</span></td></tr>
+<tr><td><code>G9W7FVTLY343ZBKN</code></td><td>移除费</td><td>参考费率入库</td><td><span class="badge b-teal">JSON 入库</span></td></tr>
+<tr><td><code>201112650</code></td><td>MCF 配送费</td><td>交叉校验参照</td><td><span class="badge b-gray">参考</span></td></tr>
+<tr><td><code>GL7U4JFSDXUTQAJ</code></td><td>费用赔偿政策</td><td>政策边界参照</td><td><span class="badge b-gray">参考</span></td></tr>
+</table>
+<p class="note">核对日期 2026-08-19，费率口径为 2026-01-15 生效的美国站新规。读页配方：<code>mons_sel_locale=zh_CN</code>（Unit weight 页需 <code>locale=zh-CN</code>）。</p>
+</div>
+
+<!-- ================= 2 修正总览 ================= -->
+<h2 id="s2">② 修正总览</h2>
+<div class="stats">
+  <div class="stat"><b>3 → 0</b><span>费率缺口清零</span></div>
+  <div class="stat"><b>2 处</b><span>尺寸分段边界修正</span></div>
+  <div class="stat"><b>+1</b><span>体积重计费逻辑</span></div>
+  <div class="stat"><b>+2类 +5档</b><span>仓储危险品/利用率附加费</span></div>
+  <div class="stat"><b>6 段</b><span>相关费用参考入库</span></div>
+  <div class="stat"><b>3 款</b><span>三产品验证重算</span></div>
+</div>
+<div class="ok">v2.1 标记的三个「定稿前必须完成」缺口（服装非旺季、旺季 under_10/over_50、超大件 150+ 旺季）<b>全部补齐</b>，7 尺寸分段 × 48 重量断点 × 3 售价档 × 2 季节全表无缺口。</div>
+
+<!-- ================= 3 费率补齐 ================= -->
+<h2 id="s3">③ 费率补齐明细</h2>
+<div class="card">
+<h3>3.1 本次补齐的档位</h3>
+<table>
+<tr><th>缺口</th><th>状态</th><th>补齐内容</th></tr>
+<tr><td>服装费率非旺季档</td><td><span class="badge b-green">已补</span></td><td>服装小标/大标 非旺季全重量档（旺季此前已有，现双季全表）</td></tr>
+<tr><td>旺季 under_10 / over_50</td><td><span class="badge b-green">已补</span></td><td>小号标准旺季：&lt;$10 档 $2.62–3.17，&gt;$50 档 $3.77–4.44（按重量递增）</td></tr>
+<tr><td>超大件 150+lb 旺季</td><td><span class="badge b-green">已补</span></td><td>基础价 $203.46（非旺季 $194.95），续重 $0.19/lb above 151 lb</td></tr>
+</table>
+
+<h3>3.2 旺季上浮幅度速查（非旺季 → 旺季基础价）</h3>
+<table>
+<tr><th>分段</th><th class="num">非旺季</th><th class="num">旺季</th><th class="num">上浮</th></tr>
+<tr><td>标准件（小标/大标）</td><td class="num">—</td><td class="num">—</td><td class="num">+5% ~ +8%</td></tr>
+<tr><td>小号大件</td><td class="num">$7.55 + $0.38/lb</td><td class="num">$8.59 + $0.38/lb</td><td class="num"><b>+13.8%</b></td></tr>
+<tr><td>大号大件</td><td class="num">$9.35 + $0.38/lb</td><td class="num">$10.39 + $0.38/lb</td><td class="num"><b>+11.2%</b></td></tr>
+<tr><td>超大件 0-50lb</td><td class="num">$26.33 + $0.38/lb</td><td class="num">—</td><td class="num">—</td></tr>
+<tr><td>超大件 50-70lb</td><td class="num">$37.32（首51lb）+ $0.75/lb</td><td class="num">$40.13</td><td class="num">+7.5%</td></tr>
+<tr><td>超大件 70-150lb</td><td class="num">$51.32（首71lb）+ $0.75/lb</td><td class="num">$55.74</td><td class="num">+8.6%</td></tr>
+<tr><td>超大件 150+lb</td><td class="num">$194.95（首151lb）+ $0.19/lb</td><td class="num">$203.46</td><td class="num">+4.4%</td></tr>
+</table>
+<p class="note">旺季窗口：配送费 10/15 – 次年 1/14。小号大件/大号大件上浮（13.8% / 11.2%）显著高于标准件——大件产品旺季前入仓的价值更高。</p>
+</div>
+
+<!-- ================= 4 尺寸分段 ================= -->
+<h2 id="s4">④ 2026 尺寸分段修正（关键）</h2>
+<div class="card">
+<p class="note">依据 <code>GG5KW835AHDJCH8W</code>（2026-01-15 生效新分段）。旧模型小号大件边界为 ≤60"（2025 旧规），与官方新规不符。</p>
+<table>
+<tr><th>分段</th><th>最长边</th><th>次长边</th><th>最短边</th><th>长+围长</th><th>重量</th><th>修正</th></tr>
+<tr><td>小号标准</td><td>≤15"</td><td>≤12"</td><td>≤0.75"</td><td>—</td><td>≤16oz</td><td><span class="badge b-gray">未变</span></td></tr>
+<tr><td>大号标准</td><td>≤18"</td><td>≤14"</td><td>≤8"</td><td>—</td><td>发货重量≤20lb</td><td><span class="badge b-gray">未变</span></td></tr>
+<tr><td>小号大件</td><td class="new">≤37"</td><td class="new">≤28"</td><td class="new">≤20"</td><td class="new">≤130"</td><td>发货重量≤50lb</td><td><span class="badge b-rose">修正</span> <span class="was">≤60"</span></td></tr>
+<tr><td>大号大件</td><td>≤59"</td><td>≤33"</td><td>≤33"</td><td>≤130"</td><td>发货重量≤50lb</td><td><span class="badge b-amber">边界补全</span></td></tr>
+<tr><td>超大件</td><td colspan="3">任一超限 或 &gt;50lb</td><td>&gt;130"</td><td>子分段 0-50 / 50-70 / 70-150 / 150+ lb</td><td><span class="badge b-gray">未变</span></td></tr>
+<tr><td>特大号 (XL)</td><td colspan="3">超大件 ≤150lb 且 最长边&gt;96" 或 长+围&gt;130"</td><td>—</td><td>≤150lb</td><td><span class="badge b-violet">定义入库</span></td></tr>
+</table>
+<div class="info">⚠ 影响：小号大件从「≤60" 塞进超长货」收紧为 37/28/20" —— 长边 37–60" 的货物现在直接判大号大件或超大件。三款在售产品恰好全部落在修正后的超大件档。</div>
+</div>
+
+<!-- ================= 5 体积重 ================= -->
+<h2 id="s5">⑤ 体积重与发货重量（新增计费逻辑）</h2>
+<div class="card">
+<h3>5.1 官方规则</h3>
+<table>
+<tr><th>项目</th><th>规则</th></tr>
+<tr><td>体积重 (DIM)</td><td><code>长 × max(次长边, 2") × max(最短边, 2") ÷ 139</code></td></tr>
+<tr><td>发货重量</td><td>大号标准 / 小号大件 / 大号大件 / 超大件≤150lb：<b>max(商品重, 体积重)</b></td></tr>
+<tr><td></td><td>小号标准、超大件&gt;150lb：仅按商品重</td></tr>
+</table>
+
+<h3>5.2 三产品分级重算（含体积重）</h3>
+<table>
+<tr><th>产品</th><th>尺寸 (cm→in)</th><th class="num">商品重</th><th class="num">体积重</th><th class="num">发货重量</th><th>长+围</th><th>v2.1 分段</th><th>v2.2 分段</th></tr>
+<tr><td><b>P1</b>（G系列）</td><td>80×48×37 → 31.5×18.9×14.6</td><td class="num">50.7lb</td><td class="num">62.4lb</td><td class="num"><b>62.4lb</b></td><td>98"</td><td>超大件</td><td><span class="badge b-rose">超大件 50-70</span></td></tr>
+<tr><td><b>P2</b>（M系列）</td><td>68×48×35 → 26.8×18.9×13.8</td><td class="num">44.1lb</td><td class="num">50.2lb</td><td class="num"><b>50.2lb</b></td><td>92"</td><td><span class="was">小号大件</span></td><td><span class="badge b-rose">超大件 50-70</span></td></tr>
+<tr><td><b>P3</b>（N系列）</td><td>76×53.5×50 → 29.9×21.1×19.7</td><td class="num">71.0lb</td><td class="num">89.3lb</td><td class="num"><b>89.3lb</b></td><td>111"</td><td>超大件</td><td><span class="badge b-rose">超大件 70-150</span></td></tr>
+</table>
+
+<div class="alert">
+<h4>⚠ 最重要的发现：P2 / M系列 重分级，配送费 +56%</h4>
+<p>P2 商品重 44.1lb 本属小号大件（$23.92），但<b>体积重 50.16lb 刚过 50lb 分段线（仅超 0.16lb）</b>，按官方规则跳档超大件 50-70，配送费 $37.32，<b>每件多付 $13.40</b>。</p>
+<p style="margin-top:8px">体积重超线仅 0.16lb ≈ 最短边压缩 1mm 即可回落。但注意回落后的计费重量仍取 max(商品重, 体积重)：体积重需压到 ≤44.1lb 才拿到 $23.92；只压到 50lb 以下（如 49lb）则按 49lb 计 ≈ $25.79，仍省 $11.53/件。<b>M系列包装优化（护角/内衬减薄/箱型收紧）直接价值 $11.5–13.4/件</b>，按整柜件数放大后是六位数/柜级别的节省。</p>
+</div>
+</div>
+
+<!-- ================= 6 仓储费 ================= -->
+<h2 id="s6">⑥ 仓储费修正</h2>
+<div class="card">
+<h3>6.1 基础费率（$/立方英尺/月，现已 4 类别）</h3>
+<table>
+<tr><th>类别</th><th class="num">非旺季 (1-9月)</th><th class="num">旺季 (10-12月)</th><th>修正</th></tr>
+<tr><td>标准件</td><td class="num">$0.78</td><td class="num">$2.40</td><td><span class="badge b-gray">未变</span></td></tr>
+<tr><td>大件</td><td class="num">$0.56</td><td class="num">$1.40</td><td><span class="badge b-gray">未变</span></td></tr>
+<tr><td>危险品-标准件</td><td class="num">$0.99</td><td class="num">$3.63</td><td><span class="badge b-green">新增</span></td></tr>
+<tr><td>危险品-大件</td><td class="num">$0.78</td><td class="num">$2.43</td><td><span class="badge b-green">新增</span></td></tr>
+</table>
+
+<h3>6.2 利用率附加费（低库存利用率，5 档）</h3>
+<table>
+<tr><th>供货天数（月末快照）</th><th class="num">标准件 $/cuft</th><th class="num">大件 $/cuft</th></tr>
+<tr><td>&gt;22 周 且 ≤26 周</td><td class="num">+0.44</td><td class="num">+0.23</td></tr>
+<tr><td>≤32 周</td><td class="num">+0.76</td><td class="num">+0.46</td></tr>
+<tr><td>≤39 周</td><td class="num">+1.16</td><td class="num">+0.63</td></tr>
+<tr><td>&lt;44 周</td><td class="num">+1.58</td><td class="num">+0.76</td></tr>
+<tr><td>≥44 周</td><td class="num">+1.88</td><td class="num">+1.26</td></tr>
+</table>
+<p class="note">触发条件：供货 &gt;22 周、库龄 &gt;30 天、按月末快照计量。通过 AWD 发货且占比 ≥70% 可豁免。附加费叠加在基础仓储费之上。</p>
+
+<div class="info">⚠ <b>两个旺季窗口不同，已显式标注：</b>配送费旺季 = 10/15 – 1/14；仓储费旺季 = <b>10-12 月整自然月</b>。v2.1 数据键位原本就正确，本次在计算器页面与 JSON <code>season_definition</code> 补充了窗口说明，避免误读。</div>
+</div>
+
+<!-- ================= 7 相关费用 ================= -->
+<h2 id="s7">⑦ 相关费用参考（JSON <code>fba_related_fees</code> 段，不进计算器公式）</h2>
+<div class="card">
+<table>
+<tr><th>费用</th><th>关键费率（2026）</th><th>要点</th></tr>
+<tr><td>超龄库存附加费</td><td>181-210天 $0.50 → 331-365天 $5.90；366-455天 $6.90 或 $0.30/件 取大；456天+ $7.90 或 $0.35/件 取大</td><td>2026 新增 366天+/456天+ 两档「按件取大」规则；完整 8 档见 JSON</td></tr>
+<tr><td>移除/弃置费</td><td>大件 &gt;10lb：$14.32 + $1.06/lb；0-0.5lb 档 2026-01-15 起降至 $0.84</td><td>2026-03-01 起单件移除也收费（原免）；完整 9 档见 JSON</td></tr>
+<tr><td>特大号处理费</td><td>最长边 &gt;96" 触发</td><td>定义已入库，费率见 JSON</td></tr>
+<tr><td>低库存费</td><td>供货 &lt;28 天触发</td><td>定义已入库</td></tr>
+<tr><td>燃油附加费</td><td>FBA 配送费 × <b>3.5%</b>（2026-04-17 起；MCF 5/2 起）</td><td>计算器已含此系数</td></tr>
+</table>
+</div>
+
+<!-- ================= 8 三产品重算 ================= -->
+<h2 id="s8">⑧ 三产品全链路成本重算（v2.1 → v2.2）</h2>
+<div class="card">
+<table>
+<tr><th>产品</th><th>分段</th><th class="num">配送费</th><th class="num">燃油 3.5%</th><th class="num">仓储 3个月</th><th class="num">AGL 头程</th><th class="num">合计</th><th class="num">vs v2.1</th></tr>
+<tr><td><b>P1</b> G系列</td><td><span class="was">超大件</span> → 超大件 50-70（62.4lb 计费）</td><td class="num">$45.87</td><td class="num">$1.60</td><td class="num">$8.43</td><td class="num">$212.17</td><td class="num"><b>$268.07</b></td><td class="num" style="color:var(--rose)">+$8.84</td></tr>
+<tr><td><b>P2</b> M系列</td><td><span class="was">小号大件</span> → <b>超大件 50-70</b>（50.2lb 计费）</td><td class="num">$37.32</td><td class="num">$1.31</td><td class="num">$6.78</td><td class="num">$212.17</td><td class="num"><b>$257.58</b></td><td class="num" style="color:var(--rose)">+$13.87</td></tr>
+<tr><td><b>P3</b> N系列</td><td><span class="was">超大件</span> → 超大件 70-150（89.3lb 计费）</td><td class="num">$65.05</td><td class="num">$2.28</td><td class="num">$12.06</td><td class="num">$212.17</td><td class="num"><b>$291.56</b></td><td class="num" style="color:var(--rose)">+$14.21</td></tr>
+</table>
+<p class="note">条件：FOB / 非旺季 / 非服装 / $10-50 售价档 / 仓储 3 个月。v2.1 合计：P1 $259.23 / P2 $243.71 / P3 $277.35。配送费变化来源：① 分段边界修正（P2）② 体积重计费重量（P1/P2/P3）③ 超大件续重公式（$0.75/lb above 首档）。</p>
+<div class="ok">✅ <b>AGL 切换评估结论不受影响</b>：谷仓 vs AGL 两策略最终都进 FBA，配送费两侧同额抵消；仿真中的仓储/超龄/移除费参数未变，M整柜 / G散货LCL / N禁整柜 结论维持有效。</div>
+</div>
+
+<!-- ================= 9 结论 ================= -->
+<h2 id="s9">⑨ 结论与建议</h2>
+<div class="card">
+<table>
+<tr><th>#</th><th>建议</th><th>优先级</th></tr>
+<tr><td>1</td><td><b>M系列包装优化立项</b>：体积重 50.16lb 压线，压缩最短边即可回落小号大件，价值 $11.5–13.4/件（整柜放大六位数）。先测实际外箱尺寸复核 0.16lb 边界。</td><td><span class="badge b-rose">高</span></td></tr>
+<tr><td>2</td><td><b>人工复核抽查</b>：官方费率已全量录入，定稿前抽查 3-5 档与 Seller Central 页面比对（建议抽：小号大件非旺/旺、超大件 50-70 两档、危险品仓储）。</td><td><span class="badge b-amber">中</span></td></tr>
+<tr><td>3</td><td><b>旺季入库节奏</b>：小号大件/大号大件旺季配送费上浮 13.8%/11.2%，大件产品尽量 10/15 前完成旺季入库；同时注意仓储费旺季是 10-12 整月，9 月底入库可省半月旺季仓储。</td><td><span class="badge b-amber">中</span></td></tr>
+<tr><td>4</td><td><b>欧洲站费率</b>：欧洲目前仅 AGL 头程价卡，FBA 配送/仓储费仍按美站估算——欧洲站报价需单列口径或补欧站数据。</td><td><span class="badge b-blue">低</span></td></tr>
+</table>
+</div>
+
+<footer>
+  FBA 全链路成本模型 v2.2 · 官方核对报告 · 2026-08-19 · commit ed3aa9e<br>
+  自包含单文件，零外部依赖 · 费率来源：Amazon Seller Central（12 页，2026-01-15 生效口径） · 详细数据：data/fba_us_cost_model.json
+</footer>
+
+</div>
+</body>
+</html>
