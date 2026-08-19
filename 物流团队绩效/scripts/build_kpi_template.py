@@ -178,11 +178,36 @@ def _score(wb):
     for col, w in zip("ABCDEFGHIJKLMNOP", (8, 8, 10, 16, 10, 8, 8, 9, 9, 9, 9, 9, 9, 8, 8, 9)):
         ws.column_dimensions[col].width = w
 
+SEED_TASKS = [
+    ("2026-09", "吴佳钒", "DDP头程交接平稳", "当月零错发（头程大表核对）"),
+    ("2026-09", "吴佳钒", "易仓货件数据打通", "易仓导出口径文档+首月数据回填"),
+    ("2026-09", "郑舒漫", "FOB货代台账上线", "台账含单证+订舱时效字段、近3个月数据"),
+    ("2026-09", "黄婷", "B端库存三项指标基线摸底", "各仓长周期/库龄/库内成本基线表"),
+    ("2026-09", "吴定佳", "一件代发时效分段标准定稿", "打包/运输分段标准文档，主管签认"),
+    ("2026-09", "张雨洁", "进口时效分段标准整理", "分段标准表（无现成标准则注明NA）"),
+    ("2026-09", "金炜铮", "绩效体系首月跑通+复盘", "首月记分卡+看板产出+修订清单"),
+]
+
+def _task(wb):
+    ws = wb.create_sheet(SHEET_TASK)
+    ws["A1"] = "任务块（每人每月3-5条，验收物必须可判定；0/50/100=未启动/进行中/完成）"
+    ws["A1"].font = TITLE_FONT
+    _hdr(ws, 3, ["月份", "姓名", "任务内容", "验收物", "得分"])
+    for r, row in enumerate(SEED_TASKS, 4):
+        for c, v in enumerate(row, 1):
+            ws.cell(row=r, column=c, value=v)
+        ws.cell(row=r, column=5, value=None)   # 得分月末打
+    dv = DataValidation(type="list", formula1='"0,50,100"', allow_blank=True)
+    ws.add_data_validation(dv); dv.add("E4:E200")
+    ws.freeze_panes = "A4"
+    for col, w in zip("ABCDE", (12, 10, 40, 46, 8)):
+        ws.column_dimensions[col].width = w
+
 def build_workbook():
     wb = Workbook(); wb.remove(wb.active)
     _guide(wb); _weights(wb); _std(wb)
     _score(wb)
-    wb.create_sheet(SHEET_TASK)    # Task 4 填充
+    _task(wb)
     return wb
 
 def main():

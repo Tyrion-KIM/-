@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import pytest
 from scripts.build_kpi_template import (build_workbook, SHEET_GUIDE,
-    SHEET_WEIGHTS, SHEET_STD, SHEET_SCORE, SHEET_TASK)
+    SHEET_WEIGHTS, SHEET_STD, SHEET_SCORE, SHEET_TASK, SEED_TASKS)
 
 def test_workbook_has_five_sheets():
     wb = build_workbook()
@@ -70,3 +70,23 @@ def test_rate_row_col9_general_and_m_iferror():
     # M 列公式统一 IFERROR 包裹，避免半填时 #DIV/0!
     assert ws.cell(row=4, column=13).value.startswith("=IFERROR(")
     assert ws.cell(row=31, column=13).value.startswith("=IFERROR(")  # K28 引用类也包裹
+
+# 模块常量 SEED_TASKS 为唯一数据源；此处转为 {姓名: [任务内容...]} 断言
+_SEED_TASKS = {}
+for _month, _person, _task, _accept in SEED_TASKS:
+    _SEED_TASKS.setdefault(_person, []).append(_task)
+
+def test_task_sheet_seeded_2026_09():
+    ws = build_workbook()[SHEET_TASK]
+    assert ws["A3"].value == "月份" and ws["E3"].value == "得分"
+    seen = {}
+    for row in ws.iter_rows(min_row=4, values_only=True):
+        if row[0] == "2026-09":
+            seen.setdefault(row[1], []).append(row[2])
+    for p, tasks in _SEED_TASKS.items():
+        for t in tasks:
+            assert t in seen.get(p, []), f"{p} 缺任务: {t}"
+
+def test_task_score_validation():
+    ws = build_workbook()[SHEET_TASK]
+    assert any("0,50,100" in dv.formula1 for dv in ws.data_validations.dataValidation)
