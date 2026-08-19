@@ -6,6 +6,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # 直跑兼容
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment
+from openpyxl.worksheet.datavalidation import DataValidation
 from kpi_model import INDICATORS, PEOPLE, SPECIALISTS
 
 SHEET_GUIDE = "说明"; SHEET_WEIGHTS = "人员与权重"
@@ -85,10 +86,99 @@ def _std(wb):
     ws.column_dimensions["K"].width = 34
     ws.freeze_panes = "A4"
 
+SCORE_FIRST_ROW = 4
+# 行映射（与 kpi_model.INDICATORS 顺序一致）
+ROW_OF = {ind.id: SCORE_FIRST_ROW + n for n, ind in enumerate(INDICATORS)}
+PAY_ROWS = ["K06", "K10", "K16", "K17", "K22", "K25"]          # 请款指标
+PERSON_RANGE = {  # 每人指标行区间（含端点）
+    "吴佳钒": (4, 9), "郑舒漫": (10, 13), "黄婷": (14, 20),
+    "吴定佳": (21, 25), "张雨洁": (26, 28), "金炜铮": (29, 32),
+}
+TOTAL_FIRST_ROW = 39   # 总分区人员首行（39-44，顺序=PEOPLE）
+
+def _m_formula(ind, r):
+    t = ind.ftype
+    if t == "成本-计算":
+        return f'=IF($H{r}<>"是","",IF(OR($I{r}=0,$I{r}=""),"",MIN(100,100*$F{r}/($J{r}/$I{r}))))'
+    if t == "成本-直填":
+        return f'=IF($H{r}<>"是","",IF($I{r}="","",MIN(100,100*$F{r}/$I{r})))'
+    if t == "达标率":
+        return f'=IF($H{r}<>"是","",IF(OR($J{r}=0,$J{r}=""),"",MIN(100,$I{r}/$J{r}*100)))'
+    if t == "上限":
+        return f'=IF($H{r}<>"是","",IF($I{r}="","",IF($I{r}<=$F{r},100,100*$F{r}/$I{r})))'
+    if t == "下限":
+        return f'=IF($H{r}<>"是","",IF($I{r}="","",IF($I{r}>=$F{r},100,100*$I{r}/$F{r})))'
+    if t == "请款":
+        return f'=IF($H{r}<>"是","",0.5*MAX(0,100-20*$I{r})+0.5*MIN(100,$J{r}/0.9*100))'
+    if t == "库存综合":
+        return (f'=IF($H{r}<>"是","",IFERROR(AVERAGE(IF($I{r}<=0.03,100,100*0.03/$I{r}),'
+                f'IF($J{r}<=120,100,100*120/$J{r}),IF($K{r}<=5,100,100*5/$K{r})),""))')
+    if t == "三段综合":
+        return (f'=IF($H{r}<>"是","",IFERROR(AVERAGE(MIN(100,100*15/$I{r}),'
+                f'MIN(100,100*15/$J{r}),MIN(100,100*6/$K{r})),""))')
+    if t == "引用-请款均":
+        refs = ",".join(f"$M${ROW_OF[k]}" for k in PAY_ROWS)
+        return f'=IF($H{r}<>"是","",IFERROR(AVERAGE({refs}),""))'
+    if t == "引用-专员均分":
+        return f'=IF($H{r}<>"是","",IFERROR(AVERAGE($F$39:$F$42),""))'
+    raise ValueError(t)
+
+def _score(wb):
+    ws = wb.create_sheet(SHEET_SCORE)
+    ws["A1"] = "绩效月份："; ws["B1"] = "2026-09"
+    ws["C1"] = "复制本表命名为 打分-YYYY-MM；数据不可得选NA；原始数据见[指标标准]字段说明"
+    _hdr(ws, 3, ["指标ID", "人员", "业务线", "指标", "公式类型", "目标值", "单位", "数据可用",
+                 "原始1", "原始2", "原始3", "原始4", "指标得分", "全局权重", "有效权重", "加权分"])
+    for n, ind in enumerate(INDICATORS):
+        r = SCORE_FIRST_ROW + n
+        for col, v in [(1, ind.id), (2, ind.person), (3, ind.line), (4, ind.name),
+                       (5, ind.ftype), (6, ind.target), (7, ind.unit), (8, "是"),
+                       (13, _m_formula(ind, r)), (14, ind.weight)]:
+            ws.cell(row=r, column=col, value=v)
+        ws.cell(row=r, column=15, value=f'=IF(AND($H{r}="是",ISNUMBER($M{r})),$N{r},0)')
+        ws.cell(row=r, column=16, value=f'=IF(ISNUMBER($M{r}),$M{r}*$O{r},0)')
+        if ind.unit == "%":
+            ws.cell(row=r, column=6).number_format = "0.0%"
+            ws.cell(row=r, column=9).number_format = "0.0%"
+        if ind.ftype == "请款":
+            ws.cell(row=r, column=10).number_format = "0.0%"
+    # 数据校验：H 列 是/NA
+    dv = DataValidation(type="list", formula1='"是,NA"', allow_blank=True)
+    ws.add_data_validation(dv)
+    dv.add(f"H{SCORE_FIRST_ROW}:H{SCORE_FIRST_ROW + len(INDICATORS) - 1}")
+    # 监控区（不计分）
+    ws.cell(row=34, column=1, value="监控区（不计分，只显示）——不可控但重要").font = Font(bold=True)
+    ws.cell(row=35, column=1, value="M01"); ws.cell(row=35, column=2, value="郑舒漫")
+    ws.cell(row=35, column=3, value="FOB"); ws.cell(row=35, column=4, value="截关装船准时率")
+    ws.cell(row=35, column=5, value="达标率"); ws.cell(row=35, column=8, value="是")
+    ws.cell(row=35, column=9, value=None); ws.cell(row=35, column=10, value=None)
+    ws.cell(row=35, column=13,
+            value='=IF($H35<>"是","",IF(OR($J35=0,$J35=""),"",MIN(100,$I35/$J35*100)))')
+    ws.cell(row=35, column=14, value="—")
+    # 总分区
+    ws.cell(row=37, column=1, value="个人总分区（自动计算）").font = TITLE_FONT
+    _hdr(ws, 38, ["人员", "量化有效权重和", "量化加权分和", "任务块得分", "数据覆盖率", "总分"])
+    for n, p in enumerate(PEOPLE):
+        r = TOTAL_FIRST_ROW + n
+        lo, hi = PERSON_RANGE[p]
+        ws.cell(row=r, column=1, value=p)
+        ws.cell(row=r, column=2, value=f"=SUM($O${lo}:$O${hi})")
+        ws.cell(row=r, column=3, value=f"=SUM($P${lo}:$P${hi})")
+        ws.cell(row=r, column=4, value=(
+            f'=IFERROR(AVERAGEIFS(任务块!$E:$E,任务块!$B:$B,$A{r},'
+            f'任务块!$A:$A,$B$1),"")'))
+        ws.cell(row=r, column=5, value=f"=B{r}/70").number_format = "0%"
+        ws.cell(row=r, column=6, value=(
+            f'=IFERROR((C{r}+IF(ISNUMBER(D{r}),D{r}*30,0))'
+            f'/(B{r}+IF(ISNUMBER(D{r}),30,0)),"")'))
+    ws.freeze_panes = "A4"
+    for col, w in zip("ABCDEFGHIJKLMNOP", (8, 8, 10, 16, 10, 8, 8, 9, 9, 9, 9, 9, 9, 8, 8, 9)):
+        ws.column_dimensions[col].width = w
+
 def build_workbook():
     wb = Workbook(); wb.remove(wb.active)
     _guide(wb); _weights(wb); _std(wb)
-    wb.create_sheet(SHEET_SCORE)   # Task 3 填充
+    _score(wb)
     wb.create_sheet(SHEET_TASK)    # Task 4 填充
     return wb
 
