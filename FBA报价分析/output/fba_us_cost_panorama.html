@@ -569,7 +569,10 @@ function renderCalculator(){
 
   fh+=`<div class="form-group"><div class="form-label">出货季节</div><div class="radio-group"><input type="radio" name="calcSeas" id="calcNonPeak" value="non_peak" checked><label for="calcNonPeak">非旺季</label><input type="radio" name="calcSeas" id="calcPeak" value="peak"><label for="calcPeak">旺季</label></div><div class="form-hint">配送费旺季=10/15-1/14；仓储费旺季=10-12月（自然月），两者窗口不同</div></div>`;
 
-  fh+=`<div class="form-group"><div class="form-label">AGL 头程信息（区域在页头切换）</div><div class="radio-group"><input type="radio" name="calcFOB" id="calcFOBY" value="FOB" checked><label for="calcFOBY">FOB</label><input type="radio" name="calcFOB" id="calcFOBN" value="non-FOB"><label for="calcFOBN">non-FOB</label></div><div class="form-hint">FOB/non-FOB 影响固定费用，运价使用当前区域 LCL 路由均值</div></div>`;
+  fh+=`<div class="form-group"><div class="form-label">AGL 头程（区域在页头切换）</div><div class="radio-group"><input type="radio" name="calcFOB" id="calcFOBY" value="FOB" checked><label for="calcFOBY">FOB</label><input type="radio" name="calcFOB" id="calcFOBN" value="non-FOB"><label for="calcFOBN">non-FOB</label><input type="radio" name="aglMode" id="aglLCL" value="LCL" checked><label for="aglLCL">散货 LCL</label><input type="radio" name="aglMode" id="aglFCL" value="FCL"><label for="aglFCL">整柜 FCL</label></div>`;
+  fh+=`<div id="aglLCLBox" class="inline-inputs" style="margin-top:6px"><span>发货批量</span><input class="form-input form-input-sm" id="aglQty" type="number" step="1" min="1" value="100" style="width:80px"><span>台/票</span></div>`;
+  fh+=`<div id="aglFCLBox" class="inline-inputs" style="margin-top:6px;display:none"><span>柜型</span><select class="form-input form-input-sm" id="aglCont" style="width:90px"><option value="40HQ" selected>40HQ</option><option value="40GP">40GP</option><option value="20GP">20GP</option></select><span>装柜量</span><input class="form-input form-input-sm" id="aglContQty" type="number" step="1" min="1" value="100" style="width:80px"><span>台/柜</span></div>`;
+  fh+=`<div class="form-hint">LCL 按官方公式：票价=单价×计费单位+固定费；计费单位=max(体积CBM,重量吨)（1CBM:1000kg，不足1方按1方），按批量自动选 CBM 档位。FCL 按柜价+固定费÷装柜量</div></div>`;
 
   fh+=`<div class="form-group"><div class="form-label">预计仓储月数</div><input class="form-input form-input-sm" id="calcMos" type="number" step="0.5" min="0" value="1" placeholder="月"></div>`;
 
@@ -610,16 +613,40 @@ function renderCalculator(){
     const storRate=storR?(isPeak?storR.peak_oct_dec:storR.non_peak_jan_sep):0;
     const storCost=storRate*volFt*mos;
 
-    // AGL estimate — use LCL (散货) routes only for per-unit cost
-    const aglRoutes=curAGL().routes.filter(r=>r.shipment_mode==='LCL'&&r.fob===(isFOB?'FOB':'non-FOB'));
-    let aglCostUSD=0,aglRouteCnt=aglRoutes.length;
-    if(aglRouteCnt>0){
-      let sumUSD=0,n=0;
-      aglRoutes.forEach(r=>{
-        const unitCost=r.fixed_fee+r.rate_1_5_cbm;
-        sumUSD+=r.currency==='USD'?unitCost:unitCost/7.25;n++;
-      });
-      aglCostUSD=n>0?sumUSD/n:0;
+    // AGL 头程 — 官方公式 (EUK价卡计算器 J13 = H13*O9+I13)：票价 = 单价 × 计费单位 + 固定费
+    // 计费单位 = max(体积CBM, 重量吨)，1CBM:1000kg，不足1方/吨按1计
+    const unitCBM=volCBM, unitTon=wt*0.45359237/1000;
+    const buPer=Math.max(unitCBM,unitTon);
+    const aglMode=document.querySelector('input[name="aglMode"]:checked')?.value||'LCL';
+    const toUSD=(v,c)=>c==='USD'?v:v/7.25;
+    let aglCostUSD=0,aglDetail='',aglRouteCnt=0;
+    if(aglMode==='LCL'){
+      const qty=Math.max(1,Math.round(parseFloat($('#aglQty').value)||1));
+      const totalBU=qty*buPer;
+      const billBU=Math.max(totalBU,1);
+      const col=billBU<5?'rate_1_5_cbm':billBU<10?'rate_5_10_cbm':billBU<15?'rate_10_15_cbm':'rate_gt15_cbm';
+      const tierName=billBU<5?'1-5CBM':billBU<10?'5-10CBM':billBU<15?'10-15CBM':'>15CBM';
+      const rs=curAGL().routes.filter(r=>r.shipment_mode==='LCL'&&r.fob===(isFOB?'FOB':'non-FOB'));
+      aglRouteCnt=rs.length;
+      if(rs.length){
+        const rate=rs.reduce((s,r)=>s+toUSD(r[col]||0,r.currency),0)/rs.length;
+        const fixed=rs.reduce((s,r)=>s+toUSD(r.fixed_fee||0,r.currency),0)/rs.length;
+        const shipCost=billBU*rate+fixed;
+        aglCostUSD=shipCost/qty;
+        aglDetail=`${tierName}档 ${fmtUSD(rate)}/计费单位 × ${billBU.toFixed(2)} + 固定费 ${fmtUSD(fixed)} = 票价 ${fmtUSD(shipCost)} ÷ ${qty}台`;
+      }
+    }else{
+      const contSel=$('#aglCont')?$('#aglCont').value:'40HQ';
+      const cq=Math.max(1,parseFloat($('#aglContQty')?.value)||1);
+      const col=contSel==='20GP'?'rate_20gp':contSel==='40GP'?'rate_40gp':'rate_40hq';
+      const rs=curAGL().routes.filter(r=>r.shipment_mode==='FCL'&&r.fob===(isFOB?'FOB':'non-FOB'));
+      aglRouteCnt=rs.length;
+      if(rs.length){
+        const cont=rs.reduce((s,r)=>s+toUSD(r[col]||0,r.currency),0)/rs.length;
+        const fixed=rs.reduce((s,r)=>s+toUSD(r.fixed_fee||0,r.currency),0)/rs.length;
+        aglCostUSD=(cont+fixed)/cq;
+        aglDetail=`${contSel}柜价均值 ${fmtUSD(cont)} + 固定费 ${fmtUSD(fixed)} ÷ ${cq}台/柜`;
+      }
     }
 
     const ffFinal=ffRate!==null?ffRate:0;
@@ -632,20 +659,25 @@ function renderCalculator(){
     r+=`体积: <strong style="color:var(--text)">${volCi.toFixed(1)} cu in</strong> = ${volFt.toFixed(4)} cu ft = ${volCBM.toFixed(6)} CBM &nbsp;|&nbsp;`;
     r+=`尺寸分段: <strong style="color:var(--accent)">${tierName}</strong><br>`;
     r+=`重量: 商品 ${wt} lb / 体积重 ${dimW.toFixed(1)} lb → 发货重量 <strong style="color:var(--text)">${feeW.toFixed(1)} lb</strong>${dimW>wt?' <span style="color:var(--amber)">(按体积重计费)</span>':''}`;
+    r+=`<br>AGL 计费单位/台: <strong style="color:var(--text)">${buPer.toFixed(4)}</strong> (${unitCBM>=unitTon?'体积':'重量吨'}取大: ${unitCBM.toFixed(4)} CBM vs ${(unitTon*1000).toFixed(1)} kg)`;
     if(!classified)r+=` <span style="color:var(--red)">⚠ 未匹配到分段</span>`;
     r+=`</div>`;
     r+=`<div class="result-row"><span class="result-label">FBA 配送费</span><span class="result-val">${ffRate!==null?fmtUSD(ffFinal):'<span class="missing">暂无数据</span>'}</span></div>`;
     r+=`<div class="result-row"><span class="result-label">FBA 仓储费 (${mos}月)</span><span class="result-val">${fmtUSD(storCost)}</span></div>`;
-    r+=`<div class="result-row"><span class="result-label">AGL 头程分摊 (${aglRegion==='eu'?'欧洲':'美国'} · LCL 1-5CBM)</span><span class="result-val">${fmtUSD(aglCostUSD)} <span style="font-size:10px;color:var(--text-muted)">(固定费+运价均值, ${aglRouteCnt}条LCL路由)</span></span></div>`;
+    r+=`<div class="result-row"><span class="result-label">AGL 头程分摊 (${aglRegion==='eu'?'欧洲':'美国'} · ${aglMode==='LCL'?'散货LCL':'整柜FCL'})</span><span class="result-val">${fmtUSD(aglCostUSD)} <span style="font-size:10px;color:var(--text-muted)">(${aglDetail}${aglRouteCnt?`; ${aglRouteCnt}条路由均值`:''})</span></span></div>`;
     if(fuel)r+=`<div class="result-row"><span class="result-label">燃油附加费 (3.5%)</span><span class="result-val">${fmtUSD(fuelSurcharge)}</span></div>`;
     r+=`<div class="result-row result-total-row"><span class="result-label">全链路单台成本</span><span class="result-val result-total">${fmtUSD(total)}</span></div>`;
     r+=`</div>`;
     if(aglRegion==='eu')r+=`<div class="note-box" style="margin-top:8px">⚠ 当前为欧洲区：FBA 配送费/仓储费仍按美国站费率估算（欧洲 FBA 费数据暂缺），仅 AGL 头程已切换为欧洲价卡。</div>`;
-    r+=`<div class="note-box">⚠ 此为估算值。AGL 使用LCL散货路由1-5CBM均值(USD+RMB换算)。如需整柜(FCL)报价，请在AGL价卡表筛选查看。实际费用需根据具体起运港/目的FC精确计算。大件未参加SIPP需另加包装费。不含超龄附加费/移除费/退货处理费/特大号处理费(最长边>96in)/低库存费(供货<28天)——费率参考数据见 JSON fba_related_fees 段。</div>`;
+    r+=`<div class="note-box">⚠ 此为估算值。AGL 头程按官方公式「单价×计费单位+固定费」：LCL 计费单位=max(体积CBM,重量吨)（1CBM:1000kg，不足1方/吨按1计），按发货批量自动选 CBM 档位；FCL 按柜价+固定费除以装柜量。费率为当前区域同FOB路由均值(USD直接计价，RMB÷7.25)。实际费用需按具体起运港/目的FC精确计算。大件未参加SIPP需另加包装费。不含超龄附加费/移除费/退货处理费/特大号处理费(最长边>96in)/低库存费(供货<28天)——费率参考数据见 JSON fba_related_fees 段。</div>`;
     $('#calcResults').innerHTML=r;
   }
 
   $('#calcBtn').addEventListener('click',doCalc);
+  $$('input[name="aglMode"]').forEach(rb=>rb.addEventListener('change',function(){
+    $('#aglLCLBox').style.display=this.value==='LCL'?'flex':'none';
+    $('#aglFCLBox').style.display=this.value==='FCL'?'flex':'none';
+  }));
 }
 
 // ===== STARTUP =====

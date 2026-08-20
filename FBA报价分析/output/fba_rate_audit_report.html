@@ -211,12 +211,13 @@ footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);font-si
 <h2 id="s8">⑧ 三产品全链路成本重算（v2.1 → v2.2）</h2>
 <div class="card">
 <table>
-<tr><th>产品</th><th>分段</th><th class="num">配送费</th><th class="num">燃油 3.5%</th><th class="num">仓储 3个月</th><th class="num">AGL 头程</th><th class="num">合计</th><th class="num">vs v2.1</th></tr>
-<tr><td><b>P1</b> G系列</td><td><span class="was">超大件</span> → 超大件 50-70（62.4lb 计费）</td><td class="num">$45.87</td><td class="num">$1.60</td><td class="num">$8.43</td><td class="num">$212.17</td><td class="num"><b>$268.07</b></td><td class="num" style="color:var(--rose)">+$8.84</td></tr>
-<tr><td><b>P2</b> M系列</td><td><span class="was">小号大件</span> → <b>超大件 50-70</b>（50.2lb 计费）</td><td class="num">$37.32</td><td class="num">$1.31</td><td class="num">$6.78</td><td class="num">$212.17</td><td class="num"><b>$257.58</b></td><td class="num" style="color:var(--rose)">+$13.87</td></tr>
-<tr><td><b>P3</b> N系列</td><td><span class="was">超大件</span> → 超大件 70-150（89.3lb 计费）</td><td class="num">$65.05</td><td class="num">$2.28</td><td class="num">$12.06</td><td class="num">$212.17</td><td class="num"><b>$291.56</b></td><td class="num" style="color:var(--rose)">+$14.21</td></tr>
+<tr><th>产品</th><th>分段</th><th class="num">配送费</th><th class="num">燃油 3.5%</th><th class="num">仓储 3个月</th><th class="num">AGL 头程<br>(LCL 100台)</th><th class="num">合计</th><th class="num">vs v2.1</th></tr>
+<tr><td><b>P1</b> G系列</td><td><span class="was">超大件</span> → 超大件 50-70（62.4lb 计费）</td><td class="num">$45.87</td><td class="num">$1.60</td><td class="num">$8.43</td><td class="num">$22.05</td><td class="num"><b>$77.96</b></td><td class="num" style="color:var(--green)">−$181.27</td></tr>
+<tr><td><b>P2</b> M系列</td><td><span class="was">小号大件</span> → <b>超大件 50-70</b>（50.2lb 计费）</td><td class="num">$37.32</td><td class="num">$1.31</td><td class="num">$6.78</td><td class="num">$17.85</td><td class="num"><b>$63.26</b></td><td class="num" style="color:var(--green)">−$180.45</td></tr>
+<tr><td><b>P3</b> N系列</td><td><span class="was">超大件</span> → 超大件 70-150（89.3lb 计费）</td><td class="num">$65.05</td><td class="num">$2.28</td><td class="num">$12.06</td><td class="num">$31.28</td><td class="num"><b>$110.67</b></td><td class="num" style="color:var(--green)">−$166.68</td></tr>
 </table>
 <p class="note">条件：FOB / 非旺季 / 非服装 / $10-50 售价档 / 仓储 3 个月。v2.1 合计：P1 $259.23 / P2 $243.71 / P3 $277.35。配送费变化来源：① 分段边界修正（P2）② 体积重计费重量（P1/P2/P3）③ 超大件续重公式（$0.75/lb above 首档）。</p>
+<div class="info">📌 <b>AGL 头程列已按 2026-08-20 v2.3 修正</b>：旧值 $212.17/台 是 v1.0 起「固定费+每方单价」误当单台运费的计费单位错误（三产品同值即暴露此问题）。按 EUK 价卡计算器官方公式 <code>票价 = 单价 × 计费单位 + 固定费</code>（计费单位 = max(CBM, 重量吨)，1CBM:1000kg，不足 1 方按 1 方）重算后为 $17.85~31.28/台。因此合计差同时包含 FBA 费率修正与 AGL 修正两部分，其中 AGL 修正贡献约 −$180~194。M系列整柜口径：40HQ 均价 $9,229 + 固定费 ÷ 台数（480台/柜 → $19.45/台）。</div>
 <div class="ok">✅ <b>AGL 切换评估结论不受影响</b>：谷仓 vs AGL 两策略最终都进 FBA，配送费两侧同额抵消；仿真中的仓储/超龄/移除费参数未变，M整柜 / G散货LCL / N禁整柜 结论维持有效。</div>
 </div>
 
@@ -233,7 +234,7 @@ footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);font-si
 </div>
 
 <footer>
-  FBA 全链路成本模型 v2.2 · 官方核对报告 · 2026-08-19 · commit ed3aa9e<br>
+  FBA 全链路成本模型 v2.2 · 官方核对报告 · 2026-08-19 · commit ed3aa9e · ⑧ AGL 列 2026-08-20 按 v2.3 试算器修正同步<br>
   自包含单文件，零外部依赖 · 费率来源：Amazon Seller Central（12 页，2026-01-15 生效口径） · 详细数据：data/fba_us_cost_model.json
 </footer>
 
