@@ -567,6 +567,8 @@ function renderCalculator(){
 
   fh+=`<div class="form-group"><div class="form-label">商品类型</div><div class="radio-group"><input type="radio" name="calcApp" id="calcNoApp" value="false" checked><label for="calcNoApp">非服装</label><input type="radio" name="calcApp" id="calcYesApp" value="true"><label for="calcYesApp">服装</label></div></div>`;
 
+  fh+=`<div class="form-group"><div class="form-label">危险品 (Hazmat)</div><div class="radio-group"><input type="radio" name="calcHazmat" id="calcNoHaz" value="false" checked><label for="calcNoHaz">普货</label><input type="radio" name="calcHazmat" id="calcYesHaz" value="true"><label for="calcYesHaz">危险品</label></div><div class="form-hint">锂电池/带电整机等属 Class 9 危险品——仓储费率显著更高（大件旺季 $2.43 vs $1.40/cuft）</div></div>`;
+
   fh+=`<div class="form-group"><div class="form-label">出货季节</div><div class="radio-group"><input type="radio" name="calcSeas" id="calcNonPeak" value="non_peak" checked><label for="calcNonPeak">非旺季</label><input type="radio" name="calcSeas" id="calcPeak" value="peak"><label for="calcPeak">旺季</label></div><div class="form-hint">配送费旺季=10/15-1/14；仓储费旺季=10-12月（自然月），两者窗口不同</div></div>`;
 
   fh+=`<div class="form-group"><div class="form-label">AGL 头程（区域在页头切换）</div><div class="radio-group"><input type="radio" name="calcFOB" id="calcFOBY" value="FOB" checked><label for="calcFOBY">FOB</label><input type="radio" name="calcFOB" id="calcFOBN" value="non-FOB"><label for="calcFOBN">non-FOB</label><input type="radio" name="aglMode" id="aglLCL" value="LCL" checked><label for="aglLCL">散货 LCL</label><input type="radio" name="aglMode" id="aglFCL" value="FCL"><label for="aglFCL">整柜 FCL</label></div>`;
@@ -607,9 +609,11 @@ function renderCalculator(){
     const dimW=classified?classified.dimW:0;
     const ffRate=rateRaw!==null?parseFormula(rateRaw,feeW):null;
 
-    // Storage rate
+    // Storage rate — 4 类别: 标准件/大件/危险品标准件/危险品大件
+    const isHazmat=document.querySelector('input[name="calcHazmat"]:checked')?.value==='true';
     const isOversize=tierName.includes('大件')||tierName.includes('超大件');
-    const storR=DATA.fba_storage.rates.find(r=>isOversize?r.category_cn==='大件':r.category_cn==='标准件');
+    const storCat=(isHazmat?'危险品':'')+(isOversize?'大件':'标准件');
+    const storR=DATA.fba_storage.rates.find(r=>r.category_cn===storCat);
     const storRate=storR?(isPeak?storR.peak_oct_dec:storR.non_peak_jan_sep):0;
     const storCost=storRate*volFt*mos;
 
@@ -663,7 +667,7 @@ function renderCalculator(){
     if(!classified)r+=` <span style="color:var(--red)">⚠ 未匹配到分段</span>`;
     r+=`</div>`;
     r+=`<div class="result-row"><span class="result-label">FBA 配送费</span><span class="result-val">${ffRate!==null?fmtUSD(ffFinal):'<span class="missing">暂无数据</span>'}</span></div>`;
-    r+=`<div class="result-row"><span class="result-label">FBA 仓储费 (${mos}月)</span><span class="result-val">${fmtUSD(storCost)}</span></div>`;
+    r+=`<div class="result-row"><span class="result-label">FBA 仓储费 (${storCat} · ${mos}月 @ ${fmtUSD(storRate)}/cuft)</span><span class="result-val">${fmtUSD(storCost)}</span></div>`;
     r+=`<div class="result-row"><span class="result-label">AGL 头程分摊 (${aglRegion==='eu'?'欧洲':'美国'} · ${aglMode==='LCL'?'散货LCL':'整柜FCL'})</span><span class="result-val">${fmtUSD(aglCostUSD)} <span style="font-size:10px;color:var(--text-muted)">(${aglDetail}${aglRouteCnt?`; ${aglRouteCnt}条路由均值`:''})</span></span></div>`;
     if(fuel)r+=`<div class="result-row"><span class="result-label">燃油附加费 (3.5%)</span><span class="result-val">${fmtUSD(fuelSurcharge)}</span></div>`;
     r+=`<div class="result-row result-total-row"><span class="result-label">全链路单台成本</span><span class="result-val result-total">${fmtUSD(total)}</span></div>`;
