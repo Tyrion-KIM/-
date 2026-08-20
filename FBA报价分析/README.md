@@ -26,6 +26,7 @@
 配套规则：配货必须按销量比例（G尾部0.125/天SKU均分66件→每件超龄1,887元）；三柜同日到仓合并利用率22.4周刚好触发账户级附加费。原表AGL行K/N两列重复计海运价，修正后整柜再省3.3万/柜。
 
 - 报告: `output/agl_switch_report.html`（自包含双击即开）
+- **差异看板: `output/agl_diff_dashboard.html`（v1.0 定稿 · 一页瀑布图拆解 M/G/N 三系列 A→B 成本差异 + 决策速查表，自动亮/暗主题）**；生成: `scripts/build_agl_diff_dashboard.py`
 - 仿真: `scripts/agl_vs_forwarder_sim.py` → `data/agl_sim_results.json`；出报告: `scripts/build_agl_report.py`
 - 源数据: `data/logistics_center_costs_20260803_raw.json`（钉钉《物流中心费用20260803V1》原始API响应存档）
 
@@ -42,10 +43,12 @@ FBA报价分析/
 │   └── fba_us_cost_model.json             ← ★ 结构化费率数据 (JSON)
 │
 ├── scripts/
-│   └── build_fba_cost_model.py            ← ★ 生成 JSON 的脚本
+│   ├── build_fba_cost_model.py            ← ★ 生成 JSON 的脚本
+│   └── build_agl_diff_dashboard.py        ← ★ 生成 AGL 差异看板
 │
 ├── output/
-│   └── fba_us_cost_panorama.html          ← ★ 最终交付物 (双击即开)
+│   ├── fba_us_cost_panorama.html          ← ★ FBA 全景 (双击即开)
+│   └── agl_diff_dashboard.html            ← ★ AGL 差异看板 (v1.0, 双击即开)
 │
 ├── docs/
 │   └── validation_report.md               ← 数据校验报告
@@ -218,6 +221,7 @@ with open('output/fba_us_cost_panorama.html', 'w', encoding='utf-8') as f:
 
 | 日期 | 版本 | 变更 |
 |---|---|---|
+| 2026-08-20 | v1.0 | **AGL 差异看板定稿** — 新增 `output/agl_diff_dashboard.html`（一页瀑布图拆解 M/G/N 三系列 A→B 成本差异 + 决策速查表，自动亮/暗主题）；生成脚本 `scripts/build_agl_diff_dashboard.py` |
 | 2026-08-20 | v2.3.1 封装 | **定稿封装** — 交付包 `FBA全链路成本模型_v2.3.1_20260820.zip`（panorama + 核对报告 + JSON + README）；页面头部加版本徽章 |
 | 2026-08-20 | v2.3.1 | **仓储费危险品选项** — 计算器新增 普货/危险品 切换，仓储按 4 类别取费率（标准件/大件/危险品标准件/危险品大件）。锂电池整机(Class 9)此前被按普货低估：大件 +39%(非旺 $0.78 vs $0.56)、旺季 +74%($2.43 vs $1.40) |
 | 2026-08-20 | v2.3 | **运费试算器修正** — 修掉 v1.0 起「固定费+每方单价当单台运费」的错误：改按 EUK 价卡计算器官方公式 `票价=单价×计费单位+固定费`（计费单位=max(CBM,重量吨)，1CBM:1000kg，不足1方按1方，按批量选档）；新增整柜 FCL 模式（柜型×装柜量）。三产品 AGL 单台 $212.17 → $17.9~31.3（旧值高估 7~10 倍） |
