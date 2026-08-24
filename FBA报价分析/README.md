@@ -1,7 +1,7 @@
 # FBA 全链路成本分析（美国 / 欧洲）
 
-> **状态: ✅ 定稿 (FINAL)** — 费率已按 Seller Central 官方 12 页核对（缺口清零）；2026-08-20 定稿并修正运费试算器(v2.3)+危险品仓储(v2.3.1)；2026-08-24 新增「亚马逊官方收费明细」页 + 钉钉在线文档定稿。
-> 最后更新: 2026-08-24 | 版本: v2.3.1 (数据 2.2) + 收费明细 v1.0
+> **状态: ✅ 定稿 (FINAL)** — 费率已按 Seller Central 官方 12 页核对（缺口清零）；2026-08-20 定稿并修正运费试算器(v2.3)+危险品仓储(v2.3.1)；2026-08-24 新增「亚马逊官方收费明细」页 + 钉钉在线文档定稿；AGL差异看板新增单台成本对比模块(v1.1)。
+> 最后更新: 2026-08-24 | 版本: v2.3.1 (数据 2.2) + 收费明细 v1.0 + AGL差异看板 v1.1
 
 ## 项目概述
 
@@ -26,7 +26,7 @@
 配套规则：配货必须按销量比例（G尾部0.125/天SKU均分66件→每件超龄1,887元）；三柜同日到仓合并利用率22.4周刚好触发账户级附加费。原表AGL行K/N两列重复计海运价，修正后整柜再省3.3万/柜。
 
 - 报告: `output/agl_switch_report.html`（自包含双击即开）
-- **差异看板: `output/agl_diff_dashboard.html`（v1.0 定稿 · 一页瀑布图拆解 M/G/N 三系列 A→B 成本差异 + 决策速查表，自动亮/暗主题）**；生成: `scripts/build_agl_diff_dashboard.py`
+- **差异看板: `output/agl_diff_dashboard.html`（v1.1 定稿 · 一页瀑布图拆解 M/G/N 三系列 A→B 成本差异 + 单台成本六项横向对比(独立刻度堆叠条+明细表) + 决策速查表，自动亮/暗主题）**；生成: `scripts/build_agl_diff_dashboard.py`
 - 仿真: `scripts/agl_vs_forwarder_sim.py` → `data/agl_sim_results.json`；出报告: `scripts/build_agl_report.py`
 - 源数据: `data/logistics_center_costs_20260803_raw.json`（钉钉《物流中心费用20260803V1》原始API响应存档）
 
@@ -59,7 +59,7 @@ FBA报价分析/
 │
 ├── output/
 │   ├── fba_us_cost_panorama.html          ← ★ FBA 全景 (双击即开)
-│   ├── agl_diff_dashboard.html            ← ★ AGL 差异看板 (v1.0, 双击即开)
+│   ├── agl_diff_dashboard.html            ← ★ AGL 差异看板 (v1.1, 双击即开)
 │   └── fba_fee_detail.html                ← ★ 收费明细页 (v1.0, 双击即开)
 │
 ├── docs/
