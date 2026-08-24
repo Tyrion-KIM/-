@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>亚马逊官方收费明细</title>
+<style>
+  :root{
+    color-scheme:light;
+    --page:#f4f5f7; --surface:#ffffff; --surface-2:#f7f8fa;
+    --ink:#16181d; --ink-2:#4b4f57; --ink-3:#7a7e87;
+    --line:#e3e5ea; --line-strong:#d0d3da; --grid:#e9eaee;
+    --accent:#2a78d6; --accent-soft:#eaf1fb;
+    --save:#0ca30c; --save-bg:#e7f6e9;
+    --loss:#d03b3b; --loss-bg:#fbe9e9;
+    --warn:#8a5b00; --warn-bg:#fdf3dc;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      color-scheme:dark;
+      --page:#0d0d0d; --surface:#1a1a19; --surface-2:#212120;
+      --ink:#ffffff; --ink-2:#c3c2b7; --ink-3:#898781;
+      --line:#2c2c2a; --line-strong:#3a3a37; --grid:#2c2c2a;
+      --accent:#3987e5; --accent-soft:#16283f;
+      --save:#0ca30c; --save-bg:#12321a;
+      --loss:#e66767; --loss-bg:#3a1a1a;
+      --warn:#e6b33c; --warn-bg:#3a2d12;
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme:dark;
+    --page:#0d0d0d; --surface:#1a1a19; --surface-2:#212120;
+    --ink:#ffffff; --ink-2:#c3c2b7; --ink-3:#898781;
+    --line:#2c2c2a; --line-strong:#3a3a37; --grid:#2c2c2a;
+    --accent:#3987e5; --accent-soft:#16283f;
+    --save:#0ca30c; --save-bg:#12321a;
+    --loss:#e66767; --loss-bg:#3a1a1a;
+    --warn:#e6b33c; --warn-bg:#3a2d12;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei","PingFang SC",sans-serif;
+       background:var(--page);color:var(--ink);line-height:1.6;
+       -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1180px;margin:0 auto;padding:40px 28px 64px;}
+  header{margin-bottom:26px;}
+  .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);
+           font-weight:600;margin-bottom:8px;}
+  .badge{display:inline-block;margin-left:10px;font-size:11px;font-weight:700;letter-spacing:.02em;
+         color:var(--accent);border:1px solid var(--accent);padding:2px 9px;
+         border-radius:999px;vertical-align:1px;}
+  h1{font-size:28px;font-weight:750;letter-spacing:-.01em;line-height:1.2;}
+  .thesis{margin-top:10px;font-size:15px;color:var(--ink-2);max-width:76ch;}
+  .thesis b{color:var(--accent);font-weight:650;}
+  .meta{margin-top:10px;font-size:12px;color:var(--ink-3);}
+  /* 全景三卡 */
+  .families{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin:6px 0 8px;}
+  .fam{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;
+       border-top:3px solid var(--accent);}
+  .fam .fam-name{font-size:15px;font-weight:750;display:flex;align-items:center;gap:8px;}
+  .fam .fam-key{font-size:12px;color:var(--ink-3);margin:6px 0;}
+  .fam .fam-key b{color:var(--ink-2);font-weight:650;}
+  .fam .fam-tag{display:inline-block;font-size:11px;font-weight:650;padding:2px 8px;border-radius:999px;
+                background:var(--accent-soft);color:var(--accent);}
+  h2{font-size:19px;font-weight:750;margin:38px 0 4px;padding-top:6px;border-top:1px solid var(--line);}
+  h2 .sec{font-size:12px;font-weight:600;color:var(--accent);letter-spacing:.05em;text-transform:uppercase;
+          display:block;margin-bottom:2px;}
+  .lede{font-size:13.5px;color:var(--ink-2);margin:4px 0 14px;max-width:82ch;}
+  /* 总览 + 矩阵表 */
+  .fee-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;
+            padding:14px 16px 12px;margin:0 0 14px;}
+  .fee-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;
+            margin-bottom:10px;}
+  .fee-name{font-size:15px;font-weight:750;}
+  .fee-limits{font-size:12.5px;color:var(--ink-3);}
+  .fee-note{font-size:12px;color:var(--ink-3);margin-top:8px;}
+  table{width:100%;border-collapse:collapse;background:var(--surface);}
+  .tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface);}
+  .fmatrix{font-size:13px;}
+  .fmatrix th{background:var(--surface-2);padding:8px 10px;text-align:right;font-weight:650;
+              color:var(--ink-2);border-bottom:1px solid var(--line);white-space:nowrap;font-size:12px;}
+  .fmatrix th .thsub{font-weight:400;color:var(--ink-3);font-size:10.5px;}
+  .fmatrix td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--line);
+              font-variant-numeric:tabular-nums;white-space:nowrap;}
+  .fmatrix tbody tr:last-child td{border-bottom:none;}
+  .fmatrix td.l,.fmatrix th.l{text-align:left;}
+  .fmatrix td.wl{color:var(--ink-2);font-weight:600;}
+  .fmatrix td.formula{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.5px;
+                      color:var(--ink-2);white-space:normal;text-align:left;min-width:150px;}
+  .fmatrix td.num{color:var(--ink);}
+  .fmatrix tbody tr:hover{background:var(--surface-2);}
+  /* 通用数据表 */
+  .datatable{font-size:13.5px;}
+  .datatable th{background:var(--surface-2);padding:9px 12px;text-align:left;font-weight:650;
+                color:var(--ink-2);border-bottom:1px solid var(--line);white-space:nowrap;}
+  .datatable td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);
+                font-variant-numeric:tabular-nums;}
+  .datatable tbody tr:last-child td{border-bottom:none;}
+  .datatable td.num{text-align:right;white-space:nowrap;}
+  .datatable .sname{font-weight:700;}
+  .datatable td.l{color:var(--ink-2);}
+  .datatable td.note{color:var(--ink-3);font-size:12px;}
+  .datatable .mult{color:var(--loss);font-weight:700;}
+  .datatable tbody tr:hover{background:var(--surface-2);}
+  ul.elig{margin:10px 0 0 20px;font-size:13px;color:var(--ink-2);}
+  ul.elig li{margin:3px 0;}
+  .gap-banner{background:var(--warn-bg);border:1px solid var(--warn);border-radius:10px;
+              padding:14px 16px;margin:0 0 12px;}
+  .gap-banner .g-title{font-size:14px;font-weight:750;color:var(--warn);}
+  .gap-banner p{font-size:13px;color:var(--ink-2);margin-top:4px;}
+  .gap-banner .g-src{font-size:11.5px;color:var(--ink-3);margin-top:4px;}
+  .foot{margin-top:28px;font-size:12px;color:var(--ink-3);line-height:1.7;}
+  .foot b{color:var(--ink-2);}
+  .foot a{color:var(--accent);text-decoration:none;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">FBA 官方收费 · 全明细<span class="badge">v1.0 定稿</span></div>
+  <h1>亚马逊官方仓收费 + 尾程派送 明细</h1>
+  <p class="thesis">一件货进了亚马逊 FBA，卖家要付的钱分三块：<b>尾程派送费</b>（每卖一件从仓库送到买家）、
+  <b>月度仓储费</b>（货在仓里按月按立方英尺算）、<b>附加费</b>（库存周转慢或放太久才触发）。
+  核心变量只有一个：<b>货在仓里待多久、周转多快</b>——卖得慢，仓储费、利用率附加、超龄附加会层层叠加。</p>
+  <div class="meta">口径：美国站 · 2026 生效（配送费 1/15 起、仓储费 1/15 起、超龄 1/16 起）· 燃油附加 3.5%（2026-04-17 起，美国 FBA 配送费）
+  · 数据源 Seller Central 官方 12 页核对（v2.2 定稿）· 生成 2026-08-24</div>
+</header>
+
+<section class="families">
+  <div class="fam">
+    <div class="fam-name">尾程派送费 <span class="fam-tag">每件必收</span></div>
+    <div class="fam-key">按 <b>尺寸分段 × 售价档 × 季节</b> 三段计价；<b>+3.5% 燃油附加</b>。7 个尺寸分段（含服装），超大件再分 4 个重量子段。</div>
+  </div>
+  <div class="fam">
+    <div class="fam-name">月度仓储费 <span class="fam-tag">按月按体积</span></div>
+    <div class="fam-key">按 <b>日均立方英尺 × 费率/月</b>；标准/大件/危险品 × 非旺季(1-9月)/旺季(10-12月)。旺季是平时 <b>2.5~3.7 倍</b>。</div>
+  </div>
+  <div class="fam">
+    <div class="fam-name">附加费 <span class="fam-tag">触发才收</span></div>
+    <div class="fam-key"><b>利用率附加</b>(周转&gt;22周)、<b>超龄附加</b>(库龄&gt;181天，271天跳10倍)、<b>移除费</b>；另有特大号/低库存费(价目待采集)。</div>
+  </div>
+</section>
+
+<h2><span class="sec">Part 1 · 尾程派送费（FBA 配送费）</span>计费规则</h2>
+<p class="lede">每件商品出仓配送收一次。先定 <b>尺寸分段</b>（按体积重/商品重与三边上限），再按 <b>售价档</b>（&lt;$10 享低价折扣 / $10-50 / &gt;$50）与 <b>季节</b>（非旺季 1/15-10/14、旺季 10/15-1/14）取价，最后乘 <b>3.5% 燃油附加</b>。
+体积重 = 长×宽×高÷139（大号标准及以上最小宽高按 2" 计）；小号标准与超大件 150+lb 按商品重计，其余取 max(商品重, 体积重)。</p>
+
+<div class="tblwrap"><table class="datatable">
+  <thead><tr><th>尺寸分段</th><th>尺寸限制（2026 新分段）</th><th>计费方式</th></tr></thead>
+  <tbody><tr><td class="sname">小号标准</td><td class="l">≤15×12×0.75 in, ≤16 oz</td><td class="l">分档固定价</td></tr><tr><td class="sname">小号标准(服装) · 服装</td><td class="l">≤15×12×0.75 in, ≤16 oz</td><td class="l">分档固定价</td></tr><tr><td class="sname">大号标准</td><td class="l">≤18×14×8 in, ≤20 lb</td><td class="l">首磅价 + 递增</td></tr><tr><td class="sname">大号标准(服装) · 服装</td><td class="l">≤18×14×8 in, ≤20 lb</td><td class="l">首磅价 + 递增</td></tr><tr><td class="sname">小号大件</td><td class="l">≤37×28×20 in, L+girth≤130 in, ≤50 lb (2026新分段)</td><td class="l">首磅价 + 递增</td></tr><tr><td class="sname">大号大件</td><td class="l">≤59×33×33 in, L+girth≤130 in, ≤50 lb (2026新分段)</td><td class="l">首磅价 + 递增</td></tr><tr><td class="sname">超大件</td><td class="l">超出大件限制，按重量分段</td><td class="l">4 重量子分段</td></tr></tbody>
+</table></div>
+
+<h2>尾程派送费 · 分段明细</h2>
+<p class="lede">7 个分段的完整费率矩阵。绿色表头下「非旺季/旺季」各含 3 个售价档；分档固定价直接查表，公式档（大件/超大件）按「首磅价 + 递增」计算。</p>
+<div class="fee-card"><div class="fee-head"><span class="fee-name">小号标准</span><span class="fee-limits">≤15×12×0.75 in, ≤16 oz</span></div><div class="tblwrap"><table class="fmatrix"><thead><tr><th class="l" rowspan="2">重量</th><th colspan="3">非旺季<br><span class="thsub">1/15–10/14</span></th><th colspan="3">旺季<br><span class="thsub">10/15–1/14</span></th></tr><tr><th>&lt;$10</th><th>$10–50</th><th>&gt;$50</th><th>&lt;$10</th><th>$10–50</th><th>&gt;$50</th></tr></thead><tbody><tr><td class="l wl">≤ 2 oz</td><td class="num">$2.43</td><td class="num">$3.32</td><td class="num">$3.58</td><td class="num">$2.62</td><td class="num">$3.51</td><td class="num">$3.77</td></tr><tr><td class="l wl">≤ 4 oz</td><td class="num">$2.49</td><td class="num">$3.42</td><td class="num">$3.68</td><td class="num">$2.68</td><td class="num">$3.61</td><td class="num">$3.87</td></tr><tr><td class="l wl">≤ 6 oz</td><td class="num">$2.56</td><td class="num">$3.45</td><td class="num">$3.71</td><td class="num">$2.76</td><td class="num">$3.65</td><td class="num">$3.91</td></tr><tr><td class="l wl">≤ 8 oz</td><td class="num">$2.66</td><td class="num">$3.54</td><td class="num">$3.80</td><td class="num">$2.86</td><td class="num">$3.74</td><td class="num">$4.00</td></tr><tr><td class="l wl">≤ 10 oz</td><td class="num">$2.77</td><td class="num">$3.68</td><td class="num">$3.94</td><td class="num">$2.98</td><td class="num">$3.89</td><td class="num">$4.15</td></tr><tr><td class="l wl">≤ 12 oz</td><td class="num">$2.82</td><td class="num">$3.78</td><td class="num">$4.04</td><td class="num">$3.03</td><td class="num">$3.99</td><td class="num">$4.25</td></tr><tr><td class="l wl">≤ 14 oz</td><td class="num">$2.92</td><td class="num">$3.91</td><td class="num">$4.17</td><td class="num">$3.14</td><td class="num">$4.13</td><td class="num">$4.39</td></tr><tr><td class="l wl">≤ 16 oz</td><td class="num">$2.95</td><td class="num">$3.96</td><td class="num">$4.22</td><td class="num">$3.17</td><td class="num">$4.18</td><td class="num">$4.44</td></tr></tbody></table></div><div class="fee-note"></div></div><div class="fee-card"><div class="fee-head"><span class="fee-name">小号标准(服装) · 服装</span><span class="fee-limits">≤15×12×0.75 in, ≤16 oz</span></div><div class="tblwrap"><table class="fmatrix"><thead><tr><th class="l" rowspan="2">重量</th><th colspan="3">非旺季<br><span class="thsub">1/15–10/14</span></th><th colspan="3">旺季<br><span class="thsub">10/15–1/14</span></th></tr><tr><th>&lt;$10</th><th>$10–50</th><th>&gt;$50</th><th>&lt;$10</th><th>$10–50</th><th>&gt;$50</th></tr></thead><tbody><tr><td class="l wl">≤ 2 oz</td><td class="num">$2.62</td><td class="num">$3.51</td><td class="num">$3.77</td><td class="num">$2.85</td><td class="num">$3.74</td><td class="num">$4.00</td></tr><tr><td class="l wl">≤ 4 oz</td><td class="num">$2.64</td><td class="num">$3.54</td><td class="num">$3.80</td><td class="num">$2.87</td><td class="num">$3.77</td><td class="num">$4.03</td></tr><tr><td class="l wl">≤ 6 oz</td><td class="num">$2.68</td><td class="num">$3.59</td><td class="num">$3.85</td><td class="num">$2.93</td><td class="num">$3.84</td><td class="num">$4.10</td></tr><tr><td class="l wl">≤ 8 oz</td><td class="num">$2.81</td><td class="num">$3.69</td><td class="num">$3.95</td><td class="num">$3.06</td><td class="num">$3.94</td><td class="num">$4.20</td></tr><tr><td class="l wl">≤ 10 oz</td><td class="num">$3.00</td><td class="num">$3.91</td><td class="num">$4.17</td><td class="num">$3.27</td><td class="num">$4.18</td><td class="num">$4.44</td></tr><tr><td class="l wl">≤ 12 oz</td><td class="num">$3.10</td><td class="num">$4.09</td><td class="num">$4.35</td><td class="num">$3.37</td><td class="num">$4.36</td><td class="num">$4.62</td></tr><tr><td class="l wl">≤ 14 oz</td><td class="num">$3.20</td><td class="num">$4.20</td><td class="num">$4.46</td><td class="num">$3.49</td><td class="num">$4.49</td><td class="num">$4.75</td></tr><tr><td class="l wl">≤ 16 oz</td><td class="num">$3.30</td><td class="num">$4.25</td><td class="num">$4.51</td><td class="num">$3.59</td><td class="num">$4.54</td><td class="num">$4.80</td></tr></tbody></table></div><div class="fee-note"></div></div><div class="fee-card"><div class="fee-head"><span class="fee-name">大号标准</span><span class="fee-limits">≤18×14×8 in, ≤20 lb</span></div><div class="tblwrap"><table class="fmatrix"><thead><tr><th class="l" rowspan="2">重量</th><th colspan="3">非旺季<br><span class="thsub">1/15–10/14</span></th><th colspan="3">旺季<br><span class="thsub">10/15–1/14</span></th></tr><tr><th>&lt;$10</th><th>$10–50</th><th>&gt;$50</th><th>&lt;$10</th><th>$10–50</th><th>&gt;$50</th></tr></thead><tbody><tr><td class="l wl">≤ 4 oz</td><td class="num">$2.91</td><td class="num">$3.73</td><td class="num">$3.99</td><td class="num">$3.15</td><td class="num">$3.97</td><td class="num">$4.23</td></tr><tr><td class="l wl">≤ 8 oz</td><td class="num">$3.13</td><td class="num">$3.95</td><td class="num">$4.21</td><td class="num">$3.39</td><td class="num">$4.21</td><td class="num">$4.47</td></tr><tr><td class="l wl">≤ 12 oz</td><td class="num">$3.38</td><td class="num">$4.20</td><td class="num">$4.46</td><td class="num">$3.66</td><td class="num">$4.48</td><td class="num">$4.74</td></tr><tr><td class="l wl">≤ 16 oz</td><td class="num">$3.78</td><td class="num">$4.60</td><td class="num">$4.86</td><td class="num">$4.07</td><td class="num">$4.89</td><td class="num">$5.15</td></tr><tr><td class="l wl">≤ 1.25 lb</td><td class="num">$4.22</td><td class="num">$5.04</td><td class="num">$5.30</td><td class="num">$4.52</td><td class="num">$5.34</td><td class="num">$5.60</td></tr><tr><td class="l wl">≤ 1.5 lb</td><td class="num">$4.60</td><td class="num">$5.42</td><td class="num">$5.68</td><td class="num">$4.91</td><td class="num">$5.73</td><td class="num">$5.99</td></tr><tr><td class="l wl">≤ 1.75 lb</td><td class="num">$4.75</td><td class="num">$5.57</td><td class="num">$5.83</td><td class="num">$5.07</td><td class="num">$5.89</td><td class="num">$6.15</td></tr><tr><td class="l wl">≤ 2 lb</td><td class="num">$5.00</td><td class="num">$5.82</td><td class="num">$6.08</td><td class="num">$5.33</td><td class="num">$6.15</td><td class="num">$6.41</td></tr><tr><td class="l wl">≤ 2.25 lb</td><td class="num">$5.10</td><td class="num">$5.92</td><td class="num">$6.18</td><td class="num">$5.47</td><td class="num">$6.29</td><td class="num">$6.55</td></tr><tr><td class="l wl">≤ 2.5 lb</td><td class="num">$5.28</td><td class="num">$6.10</td><td class="num">$6.36</td><td class="num">$5.67</td><td class="num">$6.49</td><td class="num">$6.75</td></tr><tr><td class="l wl">≤ 2.75 lb</td><td class="num">$5.44</td><td class="num">$6.26</td><td class="num">$6.52</td><td class="num">$5.84</td><td class="num">$6.66</td><td class="num">$6.92</td></tr><tr><td class="l wl">≤ 3 lb</td><td class="num">$5.85</td><td class="num">$6.67</td><td class="num">$6.93</td><td class="num">$6.26</td><td class="num">$7.08</td><td class="num">$7.34</td></tr><tr><td class="l wl">≤ 20 lb</td><td class="formula">6.15 + 0.08/4oz above 3lb</td><td class="formula">6.97 + 0.08/4oz above 3lb</td><td class="formula">7.23 + 0.08/4oz above 3lb</td><td class="formula">6.69 + 0.08/4oz above 3lb</td><td class="formula">7.51 + 0.08/4oz above 3lb</td><td class="formula">7.77 + 0.08/4oz above 3lb</td></tr></tbody></table></div><div class="fee-note"></div></div><div class="fee-card"><div class="fee-head"><span class="fee-name">大号标准(服装) · 服装</span><span class="fee-limits">≤18×14×8 in, ≤20 lb</span></div><div class="tblwrap"><table class="fmatrix"><thead><tr><th class="l" rowspan="2">重量</th><th colspan="3">非旺季<br><span class="thsub">1/15–10/14</span></th><th colspan="3">旺季<br><span class="thsub">10/15–1/14</span></th></tr><tr><th>&lt;$10</th><th>$10–50</th><th>&gt;$50</th><th>&lt;$10</th><th>$10–50</th><th>&gt;$50</th></tr></thead><tbody><tr><td class="l wl">≤ 4 oz</td><td class="num">$3.48</td><td class="num">$4.30</td><td class="num">$4.56</td><td class="num">$3.79</td><td class="num">$4.61</td><td class="num">$4.87</td></tr><tr><td class="l wl">≤ 8 oz</td><td class="num">$3.68</td><td class="num">$4.50</td><td class="num">$4.76</td><td class="num">$4.00</td><td class="num">$4.82</td><td class="num">$5.08</td></tr><tr><td class="l wl">≤ 12 oz</td><td class="num">$3.90</td><td class="num">$4.72</td><td class="num">$4.98</td><td class="num">$4.23</td><td class="num">$5.05</td><td class="num">$5.31</td></tr><tr><td class="l wl">≤ 16 oz</td><td class="num">$4.35</td><td class="num">$5.17</td><td class="num">$5.43</td><td class="num">$4.69</td><td class="num">$5.51</td><td class="num">$5.77</td></tr><tr><td class="l wl">≤ 1.25 lb</td><td class="num">$5.05</td><td class="num">$5.87</td><td class="num">$6.13</td><td class="num">$5.42</td><td class="num">$6.24</td><td class="num">$6.50</td></tr><tr><td class="l wl">≤ 1.5 lb</td><td class="num">$5.22</td><td class="num">$6.04</td><td class="num">$6.30</td><td class="num">$5.59</td><td class="num">$6.41</td><td class="num">$6.67</td></tr><tr><td class="l wl">≤ 1.75 lb</td><td class="num">$5.32</td><td class="num">$6.14</td><td class="num">$6.40</td><td class="num">$5.71</td><td class="num">$6.53</td><td class="num">$6.79</td></tr><tr><td class="l wl">≤ 2 lb</td><td class="num">$5.43</td><td class="num">$6.25</td><td class="num">$6.51</td><td class="num">$5.82</td><td class="num">$6.64</td><td class="num">$6.90</td></tr><tr><td class="l wl">≤ 2.25 lb</td><td class="num">$5.78</td><td class="num">$6.60</td><td class="num">$6.86</td><td class="num">$6.22</td><td class="num">$7.04</td><td class="num">$7.30</td></tr><tr><td class="l wl">≤ 2.5 lb</td><td class="num">$5.90</td><td class="num">$6.72</td><td class="num">$6.98</td><td class="num">$6.34</td><td class="num">$7.16</td><td class="num">$7.42</td></tr><tr><td class="l wl">≤ 2.75 lb</td><td class="num">$5.95</td><td class="num">$6.77</td><td class="num">$7.03</td><td class="num">$6.41</td><td class="num">$7.23</td><td class="num">$7.49</td></tr><tr><td class="l wl">≤ 3 lb</td><td class="num">$6.08</td><td class="num">$6.90</td><td class="num">$7.16</td><td class="num">$6.54</td><td class="num">$7.36</td><td class="num">$7.62</td></tr><tr><td class="l wl">≤ 20 lb</td><td class="formula">6.15 + 0.16/0.5lb above 3lb</td><td class="formula">6.97 + 0.16/0.5lb above 3lb</td><td class="formula">7.23 + 0.16/0.5lb above 3lb</td><td class="formula">6.82 + 0.16/0.5lb above 3lb</td><td class="formula">7.64 + 0.16/0.5lb above 3lb</td><td class="formula">7.90 + 0.16/0.5lb above 3lb</td></tr></tbody></table></div><div class="fee-note"></div></div><div class="fee-card"><div class="fee-head"><span class="fee-name">小号大件</span><span class="fee-limits">≤37×28×20 in, L+girth≤130 in, ≤50 lb (2026新分段)</span></div><div class="tblwrap"><table class="fmatrix"><thead><tr><th class="l">重量</th><th>非旺季<br><span class="thsub">1/15–10/14</span><br>&lt;$10</th><th>非旺季<br><span class="thsub">1/15–10/14</span><br>≥$10</th><th>旺季<br><span class="thsub">10/15–1/14</span><br>&lt;$10</th><th>旺季<br><span class="thsub">10/15–1/14</span><br>≥$10</th></tr></thead><tbody><tr><td class="l wl">≤ 50 lb</td><td class="formula">6.78 + 0.38/lb above 1st lb</td><td class="formula">7.55 + 0.38/lb above 1st lb</td><td class="formula">7.82 + 0.38/lb above 1st lb</td><td class="formula">8.59 + 0.38/lb above 1st lb</td></tr></tbody></table></div><div class="fee-note">售价 $10–50 与 &gt;$50 同价。</div></div><div class="fee-card"><div class="fee-head"><span class="fee-name">大号大件</span><span class="fee-limits">≤59×33×33 in, L+girth≤130 in, ≤50 lb (2026新分段)</span></div><div class="tblwrap"><table class="fmatrix"><thead><tr><th class="l">重量</th><th>非旺季<br><span class="thsub">1/15–10/14</span><br>&lt;$10</th><th>非旺季<br><span class="thsub">1/15–10/14</span><br>≥$10</th><th>旺季<br><span class="thsub">10/15–1/14</span><br>&lt;$10</th><th>旺季<br><span class="thsub">10/15–1/14</span><br>≥$10</th></tr></thead><tbody><tr><td class="l wl">≤ 50 lb</td><td class="formula">8.58 + 0.38/lb above 1st lb</td><td class="formula">9.35 + 0.38/lb above 1st lb</td><td class="formula">9.62 + 0.38/lb above 1st lb</td><td class="formula">10.39 + 0.38/lb above 1st lb</td></tr></tbody></table></div><div class="fee-note">售价 $10–50 与 &gt;$50 同价。</div></div><div class="fee-card"><div class="fee-head"><span class="fee-name">超大件</span><span class="fee-limits">超出大件限制，按重量分段</span></div><div class="tblwrap"><table class="fmatrix"><thead><tr><th class="l">重量</th><th>非旺季<br><span class="thsub">1/15–10/14</span><br>&lt;$10</th><th>非旺季<br><span class="thsub">1/15–10/14</span><br>≥$10</th><th>旺季<br><span class="thsub">10/15–1/14</span><br>&lt;$10</th><th>旺季<br><span class="thsub">10/15–1/14</span><br>≥$10</th></tr></thead><tbody><tr><td class="l wl">0-50 lb</td><td class="formula">25.56 + 0.38/lb above 1st lb</td><td class="formula">26.33 + 0.38/lb above 1st lb</td><td class="formula">28.29 + 0.38/lb above 1st lb</td><td class="formula">29.06 + 0.38/lb above 1st lb</td></tr><tr><td class="l wl">50-70 lb</td><td class="formula">36.55 + 0.75/lb above 51 lb</td><td class="formula">37.32 + 0.75/lb above 51 lb</td><td class="formula">39.36 + 0.75/lb above 51 lb</td><td class="formula">40.13 + 0.75/lb above 51 lb</td></tr><tr><td class="l wl">70-150 lb</td><td class="formula">50.55 + 0.75/lb above 71 lb</td><td class="formula">51.32 + 0.75/lb above 71 lb</td><td class="formula">54.97 + 0.75/lb above 71 lb</td><td class="formula">55.74 + 0.75/lb above 71 lb</td></tr><tr><td class="l wl">150+ lb</td><td class="formula">194.18 + 0.19/lb above 151 lb</td><td class="formula">194.95 + 0.19/lb above 151 lb</td><td class="formula">202.69 + 0.19/lb above 151 lb</td><td class="formula">203.46 + 0.19/lb above 151 lb</td></tr></tbody></table></div><div class="fee-note">售价 $10–50 与 &gt;$50 同价。</div></div>
+
+<h2><span class="sec">Part 2 · 官方仓仓储费</span>月度仓储费</h2>
+<p class="lede">按月按立方英尺收（体积 = 长×宽×高 in ÷ 1728）。旺季（10-12 整月）费率是平时的 2.5~3.7 倍；危险品再上一档。每月 7-15 日扣上月费用，按日均立方英尺计。</p>
+<div class="tblwrap"><table class="datatable">
+  <thead><tr><th>类别</th><th>非旺季 1-9月 /cuft/月</th><th>旺季 10-12月 /cuft/月</th><th>旺季倍数</th></tr></thead>
+  <tbody><tr><td class="sname">标准件</td><td class="num">$0.78</td><td class="num">$2.40</td><td class="num mult">3.1×</td></tr><tr><td class="sname">大件</td><td class="num">$0.56</td><td class="num">$1.40</td><td class="num mult">2.5×</td></tr><tr><td class="sname">危险品标准件</td><td class="num">$0.99</td><td class="num">$3.63</td><td class="num mult">3.7×</td></tr><tr><td class="sname">危险品大件</td><td class="num">$0.78</td><td class="num">$2.43</td><td class="num mult">3.1×</td></tr></tbody>
+</table></div>
+
+<h2>仓储利用率附加费</h2>
+<p class="lede">库存周转太慢（供货周数 &gt;22 周）时，在基础仓储费之上按档加收。利用率 = 过去13周日均占用体积 ÷ 日均发货体积 ÷ 7（按尺寸分段分别算）。月末快照的利用率定当月费率。</p>
+<div class="tblwrap"><table class="datatable">
+  <thead><tr><th>仓储利用率（供货周数）</th><th>标准件 /cuft/月</th><th>大件 /cuft/月</th></tr></thead>
+  <tbody><tr><td class="sname">22-28周</td><td class="num">$0.44</td><td class="num">$0.23</td></tr><tr><td class="sname">28-36周</td><td class="num">$0.76</td><td class="num">$0.46</td></tr><tr><td class="sname">36-44周</td><td class="num">$1.16</td><td class="num">$0.63</td></tr><tr><td class="sname">44-52周</td><td class="num">$1.58</td><td class="num">$0.76</td></tr><tr><td class="sname">>52周</td><td class="num">$1.88</td><td class="num">$1.26</td></tr></tbody>
+</table></div>
+<div class="tblwrap"><table class="datatable">
+  <thead><tr><th>触发条件（须同时满足）</th></tr></thead>
+  <tbody><tr><td class="l"><ul class="elig"><li>专业销售账户</li><li>距首批发往美国FC已超365天</li><li>该尺寸分段日均占用体积 ≥ 25 立方英尺</li><li>该尺寸分段仓储利用率 > 22 周</li></ul></td></tr></tbody>
+</table></div>
+<p class="lede" style="margin-top:10px;">AWD 豁免：近 13 周 ≥70% 由 AWD 自动补货的商品，豁免附加费且不计入利用率计算。</p>
+
+<h2><span class="sec">Part 3 · 附加费</span>超龄库存附加费</h2>
+<p class="lede">库龄超过 181 天的库存，按月按立方英尺（或按件取大）加收。每月 15 日快照库龄，全网络 FIFO；<b>271 天费率跳 10 倍</b>。移除订单须当月 14 日 23:59(PT) 前提交才豁免当月。</p>
+<div class="tblwrap"><table class="datatable">
+  <thead><tr><th>库龄</th><th>费率 /cuft/月</th><th>按件</th><th>备注</th></tr></thead>
+  <tbody><tr><td class="sname">181-210 天</td><td class="num">$0.50</td><td class="num">—</td><td class="l note">不含服装/鞋靴/箱包/珠宝/钟表</td></tr><tr><td class="sname">211-240 天</td><td class="num">$1.00</td><td class="num">—</td><td class="l note"></td></tr><tr><td class="sname">241-270 天</td><td class="num">$1.50</td><td class="num">—</td><td class="l note"></td></tr><tr><td class="sname">271-300 天</td><td class="num">$5.45</td><td class="num">—</td><td class="l note">费率跳10倍档</td></tr><tr><td class="sname">301-330 天</td><td class="num">$5.70</td><td class="num">—</td><td class="l note"></td></tr><tr><td class="sname">331-365 天</td><td class="num">$5.90</td><td class="num">—</td><td class="l note"></td></tr><tr><td class="sname">366-455 天</td><td class="num">$6.90</td><td class="num">$0.30/件</td><td class="l note">2026新增：取 cuft 价与按件价较大值</td></tr><tr><td class="sname">456+ 天</td><td class="num">$7.90</td><td class="num">$0.35/件</td><td class="l note">2026新增：旧规366+统一$6.90或$0.15/件</td></tr></tbody>
+</table></div>
+
+<h2>移除订单费</h2>
+<p class="lede">把库存移除/弃置出仓时按件收。标准件 &lt;1lb 按 0.1lb 向上取整，其余按整数磅。2026-03-01 起移除单件商品也收费。处理约 14 个工作日（高峰 30+）。</p>
+<div class="tblwrap"><table class="datatable">
+  <thead><tr><th>尺寸</th><th>重量</th><th>费用</th><th>备注</th></tr></thead>
+  <tbody><tr><td class="sname">标准尺寸</td><td class="l">0-0.5 lb</td><td class="num">$1.04</td><td class="l note">2026-01-15起降为$0.84</td></tr><tr><td class="sname">标准尺寸</td><td class="l">0.5-1 lb</td><td class="num">$1.53</td><td class="l note"></td></tr><tr><td class="sname">标准尺寸</td><td class="l">1-2 lb</td><td class="num">$2.27</td><td class="l note"></td></tr><tr><td class="sname">标准尺寸</td><td class="l">>2 lb</td><td class="num">2.89 + 1.06/lb above 2 lb</td><td class="l note"></td></tr><tr><td class="sname">大件/超大件/特殊处理</td><td class="l">0-1 lb</td><td class="num">$3.12</td><td class="l note"></td></tr><tr><td class="sname">大件/超大件/特殊处理</td><td class="l">1-2 lb</td><td class="num">$4.30</td><td class="l note"></td></tr><tr><td class="sname">大件/超大件/特殊处理</td><td class="l">2-4 lb</td><td class="num">$6.36</td><td class="l note"></td></tr><tr><td class="sname">大件/超大件/特殊处理</td><td class="l">4-10 lb</td><td class="num">$10.04</td><td class="l note"></td></tr><tr><td class="sname">大件/超大件/特殊处理</td><td class="l">>10 lb</td><td class="num">14.32 + 1.06/lb above 10 lb</td><td class="l note"></td></tr></tbody>
+</table></div>
+
+<h2>未纳入计算器的费用（价目待采集）</h2>
+<p class="lede">以下费用已在官方页面确认存在、且已录入触发条件，但精确价目表尚未采集（计算器当前未计）。</p>
+
+<div class="gap-banner">
+  <div class="g-title">特大号处理费（Overmax Handling Fee）</div>
+  <p>触发：超大件（≤150 lb）且 最长边 &gt;96 in 或 长+围 &gt;130 in，2026-01-15 起在配送费之外另收。
+  公共二手资料参考区间约 <b>$17–25/件</b>，<b>非官方核对口径</b>，待 Seller Central 官方价目表采集确认。</p>
+  <div class="g-src">官方源：官方「特大号处理费」页面</div>
+</div>
+
+<div class="gap-banner">
+  <div class="g-title">低库存水平费（Low-Inventory-Level Fee）</div>
+  <p>触发：标准件+大件，买家需求的供货天数 &lt;28 天时对已发货商品加收（2026 改按 FNSKU 层级考核）。
+  公共二手资料参考区间约 <b>$0.32–1.11/件</b>（按库存深度与尺寸分档），<b>非官方核对口径</b>，待官方价目表采集确认。</p>
+  <div class="g-src">官方源：官方「低库存水平费用」页面</div>
+</div>
+
+<div class="gap-banner">
+  <div class="g-title">退货处理费 + 入库配置费</div>
+  <p>退货处理费（买家退货回仓的处置）与入库配置费（2024 起新增，货发往多个 FC 的分仓费）尚未录入。若要纳入，需另行采集官方价目表。</p>
+</div>
+
+<p class="foot">
+  <b>口径与来源：</b>本页尾程派送费、月度仓储费、利用率附加费、超龄附加费、移除费均来自 Seller Central 官方 12 页核对（v2.2 定稿，2026 生效）。
+  官方源页：
+  <a href="https://sellercentral.amazon.com/help/hub/reference/external/ABBX6GZPA8MSZGW">配送费</a> ·
+  <a href="https://sellercentral.amazon.com/help/hub/reference/external/GMUTB89XM7AATPR3">低价商品(&lt;$10)</a> ·
+  <a href="https://sellercentral.amazon.com/help/hub/reference/external/G3EDYEF6KUCFQTNM">月度仓储费</a> ·
+  <a href="https://sellercentral.amazon.com/help/hub/reference/external/GJQNPA23YWVA4SBD">超龄附加费</a> ·
+  <a href="https://sellercentral.amazon.com/help/hub/reference/external/G9W7FVTLY343ZBKN">移除费</a> ·
+  <a href="https://sellercentral.amazon.com/help/hub/reference/external/GG5KW835AHDJCH8W">尺寸分段</a>。<br>
+  <b>注意：</b>① 欧洲站 FBA 配送费/仓储费数据暂缺，本页仅美国站。② 「特大号处理费」「低库存水平费」标 ★ 的参考区间来自公共二手资料（未官方核对），
+  正式决策请以 Seller Central 后台实时费率表为准。③ 尾程派送费旺季窗口 10/15-1/14 与仓储费旺季 10-12 整月不同（1/1-1/14 仓储已回落非旺季）。
+</p>
+
+</div>
+</body>
+</html>

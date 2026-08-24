@@ -1,7 +1,7 @@
 # FBA 全链路成本分析（美国 / 欧洲）
 
-> **状态: ✅ 定稿 (FINAL)** — 费率已按 Seller Central 官方 12 页核对（缺口清零）；2026-08-20 定稿并修正运费试算器(v2.3)+危险品仓储(v2.3.1)，同日封装交付。
-> 最后更新: 2026-08-20 | 版本: v2.3.1 (数据 2.2)
+> **状态: ✅ 定稿 (FINAL)** — 费率已按 Seller Central 官方 12 页核对（缺口清零）；2026-08-20 定稿并修正运费试算器(v2.3)+危险品仓储(v2.3.1)；2026-08-24 新增「亚马逊官方收费明细」页 + 钉钉在线文档定稿。
+> 最后更新: 2026-08-24 | 版本: v2.3.1 (数据 2.2) + 收费明细 v1.0
 
 ## 项目概述
 
@@ -30,6 +30,15 @@
 - 仿真: `scripts/agl_vs_forwarder_sim.py` → `data/agl_sim_results.json`；出报告: `scripts/build_agl_report.py`
 - 源数据: `data/logistics_center_costs_20260803_raw.json`（钉钉《物流中心费用20260803V1》原始API响应存档）
 
+---
+
+## 亚马逊官方收费明细（2026-08-24 定稿）
+
+把「货进亚马逊仓后，卖家到底要付哪些钱」一次透析全：**尾程派送费**（7 尺寸分段 × 售价档 × 非旺季/旺季 全矩阵 + 3.5% 燃油附加）、**月度仓储费**（标准/大件/危险品 × 非旺季/旺季）、**仓储利用率附加费**（>22 周 5 档）、**超龄库存附加费**（181-365 天 8 档，271 天跳 10 倍）、**移除订单费**（9 档）。
+
+- **明细页: `output/fba_fee_detail.html`（v1.0 定稿 · 自包含双击即开，自动亮/暗主题）**；生成: `scripts/build_fba_fee_detail.py`
+- **钉钉在线文档（全明细）**: https://alidocs.dingtalk.com/i/nodes/gwva2dxOW4KQjqKwtYg5L7j48bkz3BRL ；生成/更新: `scripts/build_fba_fee_dingtalk_doc.py`（新建直接跑；`--update <nodeId>` 覆盖内容、保留原链接）
+- 未纳入计算器的费用：特大号处理费（超大件 长>96in 或 长+围>130in，二手资料 $17–25/件）、低库存水平费（供货天数<28，$0.32–1.11/件）、退货处理费 + 入库配置费 —— ⚠️ 非官方核对口径，待采集 Seller Central 官方价目表
 
 ---
 
@@ -44,11 +53,14 @@ FBA报价分析/
 │
 ├── scripts/
 │   ├── build_fba_cost_model.py            ← ★ 生成 JSON 的脚本
-│   └── build_agl_diff_dashboard.py        ← ★ 生成 AGL 差异看板
+│   ├── build_agl_diff_dashboard.py        ← ★ 生成 AGL 差异看板
+│   ├── build_fba_fee_detail.py            ← ★ 生成收费明细页
+│   └── build_fba_fee_dingtalk_doc.py      ← ★ 生成钉钉在线文档
 │
 ├── output/
 │   ├── fba_us_cost_panorama.html          ← ★ FBA 全景 (双击即开)
-│   └── agl_diff_dashboard.html            ← ★ AGL 差异看板 (v1.0, 双击即开)
+│   ├── agl_diff_dashboard.html            ← ★ AGL 差异看板 (v1.0, 双击即开)
+│   └── fba_fee_detail.html                ← ★ 收费明细页 (v1.0, 双击即开)
 │
 ├── docs/
 │   └── validation_report.md               ← 数据校验报告
@@ -221,7 +233,7 @@ with open('output/fba_us_cost_panorama.html', 'w', encoding='utf-8') as f:
 
 | 日期 | 版本 | 变更 |
 |---|---|---|
-| 2026-08-20 | v1.0 | **AGL 差异看板定稿** — 新增 `output/agl_diff_dashboard.html`（一页瀑布图拆解 M/G/N 三系列 A→B 成本差异 + 决策速查表，自动亮/暗主题）；生成脚本 `scripts/build_agl_diff_dashboard.py` |
+| 2026-08-24 | v1.0 | **亚马逊官方收费明细定稿** — 新增 `output/fba_fee_detail.html`（尾程派送费 7 尺寸分段全矩阵 ×3 售价档 ×2 季节 + 3.5% 燃油附加、月度仓储费 4 类别、利用率附加费 5 档、超龄附加费 8 档、移除费 9 档；未纳入费用单独标注非官方口径）；生成脚本 `scripts/build_fba_fee_detail.py` + `scripts/build_fba_fee_dingtalk_doc.py`（钉钉在线文档 https://alidocs.dingtalk.com/i/nodes/gwva2dxOW4KQjqKwtYg5L7j48bkz3BRL ，`--update` 保留原链接） |
 | 2026-08-20 | v2.3.1 封装 | **定稿封装** — 交付包 `FBA全链路成本模型_v2.3.1_20260820.zip`（panorama + 核对报告 + JSON + README）；页面头部加版本徽章 |
 | 2026-08-20 | v2.3.1 | **仓储费危险品选项** — 计算器新增 普货/危险品 切换，仓储按 4 类别取费率（标准件/大件/危险品标准件/危险品大件）。锂电池整机(Class 9)此前被按普货低估：大件 +39%(非旺 $0.78 vs $0.56)、旺季 +74%($2.43 vs $1.40) |
 | 2026-08-20 | v2.3 | **运费试算器修正** — 修掉 v1.0 起「固定费+每方单价当单台运费」的错误：改按 EUK 价卡计算器官方公式 `票价=单价×计费单位+固定费`（计费单位=max(CBM,重量吨)，1CBM:1000kg，不足1方按1方，按批量选档）；新增整柜 FCL 模式（柜型×装柜量）。三产品 AGL 单台 $212.17 → $17.9~31.3（旧值高估 7~10 倍） |
