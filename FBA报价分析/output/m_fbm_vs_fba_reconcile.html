@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M系列履约对账</title>
+<style>
+  :root{
+    color-scheme:light;
+    --page:#f4f5f7; --surface:#ffffff; --surface-2:#f7f8fa;
+    --ink:#16181d; --ink-2:#4b4f57; --ink-3:#7a7e87;
+    --line:#e3e5ea; --line-strong:#d0d3da; --grid:#e9eaee;
+    --accent:#2a78d6; --accent-soft:#eaf1fb;
+    --guc:#b45309; --guc-soft:#f7eddc;
+    --save:#0ca30c; --save-bg:#e7f6e9;
+    --loss:#d03b3b; --loss-bg:#fbe9e9;
+    --warn:#8a5b00; --warn-bg:#fdf3dc;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      color-scheme:dark;
+      --page:#0d0d0d; --surface:#1a1a19; --surface-2:#212120;
+      --ink:#ffffff; --ink-2:#c3c2b7; --ink-3:#898781;
+      --line:#2c2c2a; --line-strong:#3a3a37; --grid:#2c2c2a;
+      --accent:#3987e5; --accent-soft:#16283f;
+      --guc:#e6a23c; --guc-soft:#33260f;
+      --save:#0ca30c; --save-bg:#12321a;
+      --loss:#e66767; --loss-bg:#3a1a1a;
+      --warn:#e6b33c; --warn-bg:#3a2d12;
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme:dark;
+    --page:#0d0d0d; --surface:#1a1a19; --surface-2:#212120;
+    --ink:#ffffff; --ink-2:#c3c2b7; --ink-3:#898781;
+    --line:#2c2c2a; --line-strong:#3a3a37; --grid:#2c2c2a;
+    --accent:#3987e5; --accent-soft:#16283f;
+    --guc:#e6a23c; --guc-soft:#33260f;
+    --save:#0ca30c; --save-bg:#12321a;
+    --loss:#e66767; --loss-bg:#3a1a1a;
+    --warn:#e6b33c; --warn-bg:#3a2d12;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei","PingFang SC",sans-serif;
+       background:var(--page);color:var(--ink);line-height:1.6;
+       -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1180px;margin:0 auto;padding:40px 28px 64px;}
+  header{margin-bottom:22px;}
+  .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);
+           font-weight:600;margin-bottom:8px;}
+  .badge{display:inline-block;margin-left:10px;font-size:11px;font-weight:700;letter-spacing:.02em;
+         color:var(--accent);border:1px solid var(--accent);padding:2px 9px;
+         border-radius:999px;vertical-align:2px;}
+  h1{font-size:27px;font-weight:750;letter-spacing:-.01em;line-height:1.2;}
+  .thesis{margin-top:10px;font-size:14.5px;color:var(--ink-2);max-width:82ch;}
+  .thesis b{font-weight:650;}
+  .meta{margin-top:10px;font-size:12px;color:var(--ink-3);}
+
+  /* 判定横幅 */
+  .verdict{display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+           border-radius:14px;padding:18px 20px;margin:20px 0 26px;
+           border:1px solid var(--line);background:var(--surface);
+           border-left:5px solid var(--ink-3);}
+  .verdict .v-icon{font-size:26px;line-height:1;}
+  .verdict .v-main{flex:1;min-width:280px;}
+  .verdict .v-title{font-size:16px;font-weight:750;}
+  .verdict .v-sub{font-size:12.5px;color:var(--ink-2);margin-top:3px;}
+  .verdict .v-num{text-align:right;font-variant-numeric:tabular-nums;}
+  .verdict .v-num b{font-size:20px;font-weight:750;display:block;}
+  .verdict .v-num span{font-size:11.5px;color:var(--ink-3);}
+  .verdict.v-guc{border-left-color:var(--guc);}
+  .verdict.v-fba{border-left-color:var(--accent);}
+  .verdict.v-flip{border-left-color:var(--loss);background:var(--loss-bg);}
+  .verdict.v-guc .v-num b{color:var(--guc);}
+  .verdict.v-fba .v-num b{color:var(--accent);}
+  .verdict.v-flip .v-num b{color:var(--loss);}
+
+  h2{font-size:18px;font-weight:750;margin:34px 0 4px;padding-top:8px;border-top:1px solid var(--line);}
+  h2 .sec{font-size:11.5px;font-weight:600;color:var(--accent);letter-spacing:.05em;
+          text-transform:uppercase;display:block;margin-bottom:2px;}
+  .lede{font-size:13px;color:var(--ink-2);margin:4px 0 16px;max-width:84ch;}
+
+  /* 对账表 */
+  .rc{width:100%;border-collapse:collapse;font-size:13px;background:var(--surface);
+      border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+  .rc th{background:var(--surface-2);text-align:left;padding:10px 14px;font-size:11.5px;
+         font-weight:650;color:var(--ink-3);letter-spacing:.03em;border-bottom:1px solid var(--line-strong);
+         white-space:nowrap;}
+  .rc td{padding:10px 14px;border-bottom:1px solid var(--grid);vertical-align:middle;}
+  .rc tr:last-child td{border-bottom:none;}
+  .rc .item{font-weight:650;white-space:nowrap;}
+  .rc .model{font-variant-numeric:tabular-nums;color:var(--ink-2);white-space:nowrap;}
+  .rc .src{font-size:11.5px;color:var(--ink-3);max-width:300px;}
+  .rc input[type=number],.rc select{padding:6px 9px;border:1px solid var(--line-strong);border-radius:7px;
+         background:var(--surface);color:var(--ink);font-size:13px;font-variant-numeric:tabular-nums;
+         min-width:110px;}
+  .rc input[type=number]:focus,.rc select:focus{outline:none;border-color:var(--accent);
+         box-shadow:0 0 0 2px var(--accent-soft);}
+  .rc .tag{display:inline-block;font-size:11px;font-weight:650;padding:2px 8px;border-radius:999px;}
+  .tag-ok{background:var(--save-bg);color:var(--save);}
+  .tag-diff{background:var(--warn-bg);color:var(--warn);}
+  .tag-crit{background:var(--loss-bg);color:var(--loss);}
+  .rc .delta{font-variant-numeric:tabular-nums;white-space:nowrap;}
+  .row-crit td{background:var(--loss-bg);}
+  .row-warn td{background:var(--warn-bg);}
+  .note{font-size:11.5px;color:var(--ink-3);margin-top:8px;}
+
+  /* 验证点卡片 */
+  .vp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px;}
+  .vp{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:15px 17px;
+      border-top:3px solid var(--line-strong);}
+  .vp.hi{border-top-color:var(--loss);}
+  .vp .vp-k{font-size:12px;font-weight:700;color:var(--ink-3);display:flex;align-items:center;gap:7px;}
+  .vp .vp-k .dot{width:8px;height:8px;border-radius:50%;background:var(--line-strong);}
+  .vp.hi .vp-k .dot{background:var(--loss);}
+  .vp.hi .vp-k{color:var(--loss);}
+  .vp h3{font-size:14.5px;font-weight:750;margin:6px 0 6px;}
+  .vp p{font-size:12.5px;color:var(--ink-2);}
+  .vp .where{margin-top:8px;font-size:11.5px;color:var(--ink-3);background:var(--surface-2);
+             border:1px solid var(--line);border-radius:8px;padding:7px 10px;}
+  .vp .flip{margin-top:8px;font-size:12px;font-weight:650;color:var(--warn);}
+
+  footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);
+         font-size:11.5px;color:var(--ink-3);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+  .pill{display:inline-block;font-size:11px;font-weight:650;padding:2px 9px;border-radius:999px;
+        background:var(--surface-2);border:1px solid var(--line);color:var(--ink-2);cursor:pointer;}
+  .pill.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .rowbtn{display:flex;gap:6px;flex-wrap:wrap;}
+  @media (max-width:760px){
+    .wrap{padding:26px 16px 48px;}
+    .rc th,.rc td{padding:8px 10px;}
+    .verdict{flex-direction:column;align-items:flex-start;}
+    .verdict .v-num{text-align:left;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">M系列 · FBM谷仓 vs FBA · 履约层对账</div>
+    <h1>M系列履约对账<span class="badge">v1.0</span></h1>
+    <p class="thesis">用<b>真实账单</b>核对模型假设：FBA(蓝) vs 谷仓(琥珀) 谁便宜、差多少、结论会不会翻。已核谷仓尾程+出库实测 <b>$36.53/件（¥264.84）</b>比价卡贵 ¥12.5——但谷仓固定成本仍<b>贴脸</b>低于 FBA 配送费，现状超大件<b>恒谷仓依旧成立</b>，只是安全边际从 ¥18 缩到 ¥5.6。当前<b>最大开关</b>仍是亚马逊把 M 按哪个尺寸分段收。所有输入存本地，关掉重开不丢。</p>
+    <p class="meta">对账对象：M系列 = P2（68×48×35cm · 44.1lb · 4.04cuft · 574/柜）｜模型数据：FBA 官方费率 + 谷仓实测账单 2026-08（尾程 $36.53）｜版本 2026-08-25</p>
+  </header>
+
+  <div class="verdict v-guc" id="verdict">
+    <div class="v-icon" id="vIcon">🟢</div>
+    <div class="v-main">
+      <div class="v-title" id="vTitle">谷仓履约更便宜（模型基线）</div>
+      <div class="v-sub" id="vSub">按「现状超大件50-70 · 普货大件 · 非旺季入仓」基线，FBA 每件贵 X。填入真实账单数即实时重判。</div>
+    </div>
+    <div class="v-num">
+      <b id="vNum">—</b>
+      <span id="vNumLabel">FBA − 谷仓（RMB/件）</span>
+    </div>
+  </div>
+
+  <h2><span class="sec">Step 1</span>填真实账单数</h2>
+  <p class="lede">下拉/输入框都是实际值，改动即时重算判定横幅。每一行的「模型值 / 取数位置」对照见 Step 2 明细表。</p>
+
+  <table class="rc">
+    <thead>
+      <tr><th>费用项</th><th>实际值</th><th>当前模型假设</th><th>影响</th></tr>
+    </thead>
+    <tbody>
+      <tr id="row-tier">
+        <td class="item">① FBA 配送费档位 <span class="tag tag-crit">决定性</span></td>
+        <td>
+          <select id="inTier">
+            <option value="xl">超大件50-70 · $37.32（现状包装·体积重50.3lb跳档）</option>
+            <option value="sb_light">小号大件 · $26.13（刚压过50lb线）</option>
+            <option value="sb_deep">小号大件 · $23.92（深压缩，体积重&lt;44.1lb）</option>
+          </select>
+        </td>
+        <td class="model">$37.32 → 270.6¥/件</td>
+        <td class="src">去后台「库存 → 该ASIN → 费用预览」看<b>尺寸分段</b>。亚马逊自己量箱，我们的 50.3lb 体积重计算可能跟它不一致——这是唯一能翻转结论的数。</td>
+      </tr>
+      <tr>
+        <td class="item">①b 实际 FBA 配送费（USD/件）</td>
+        <td><input type="number" id="inFee" step="0.01" min="0" value="37.32"></td>
+        <td class="model">随档位自动</td>
+        <td class="src">以「结算报告 → 交易明细」里该 ASIN 实际扣的 Fulfillment Fee 为准（含旺季、售价档）。</td>
+      </tr>
+      <tr id="row-tail">
+        <td class="item">② 谷仓尾程单价（RMB/件）<span class="tag tag-crit">占谷仓95%</span></td>
+        <td><input type="number" id="inTail" step="0.1" min="0" value="253.97"></td>
+        <td class="model">253.97（实测 $35.03×7.25）</td>
+        <td class="src">实测账单 2026-08 尾程配送六项：基础运输14 + 燃油3 + 杂费燃油3 + 住宅派送3.48 + 签收7.60 + 住宅偏远3.95 = $35.03。出库操作费 $1.50 单列在③。住宅/偏远费按地址收——商业地址可低 $7.43（≈¥53.9）。</td>
+      </tr>
+      <tr>
+        <td class="item">③ 谷仓出库 + 上架（RMB/件）</td>
+        <td><input type="number" id="inOut" step="0.1" min="0" value="10.88">
+            <span style="color:var(--ink-3)">+</span>
+            <input type="number" id="inShelf" step="0.1" min="0" value="4.7" style="min-width:80px"></td>
+        <td class="model">10.88 + 4.7（出库实测 $1.50×7.25）</td>
+        <td class="src">谷仓账单「出库」「上架」行（x_out / p_shelf）。</td>
+      </tr>
+      <tr>
+        <td class="item">④ FBA 仓储类别</td>
+        <td>
+          <select id="inCat">
+            <option value="normal">普货大件 · $0.56/cuft/月</option>
+            <option value="hazmat">危险品大件 · $0.78/cuft/月（锂电池整机）</option>
+          </select>
+        </td>
+        <td class="model">普货 $0.56</td>
+        <td class="src">后台「月度仓储费」账单。锂电池整机若被按危险品收，仓储 +39%（旺季 +74%）。</td>
+      </tr>
+      <tr>
+        <td class="item">⑤ 周转天数 D（清完一柜要几天）</td>
+        <td><input type="number" id="inDays" step="5" min="20" max="545" value="120"></td>
+        <td class="model">120 天（日销 ~4.8/天）</td>
+        <td class="src">= 574 ÷ 实际美国日销。也可看谷仓/FBA 库存报告里「该SKU平均库龄」。</td>
+      </tr>
+      <tr>
+        <td class="item">⑥ 入仓季节</td>
+        <td>
+          <select id="inSeason">
+            <option value="np">非旺季（1-9月入仓）</option>
+            <option value="pk">旺季（10月入仓，撞 10-12 仓储旺季）</option>
+          </select>
+        </td>
+        <td class="model">非旺季</td>
+        <td class="src">仓储旺季 10-12 月（$1.40/cuft），配送旺季 10/15-1/14。按实际到仓月选。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2><span class="sec">Step 2</span>模型假设 vs 账单取数位置（明细对账）</h2>
+  <p class="lede">逐行核对：左列是模型假设，右列告诉你账单里哪个字段对应。差异会标色，红色 = 可能翻盘。</p>
+  <table class="rc">
+    <thead>
+      <tr><th>#</th><th>费用项</th><th>模型假设值</th><th>来源</th><th>真实账单取数位置</th><th>状态</th></tr>
+    </thead>
+    <tbody id="reconRows"></tbody>
+  </table>
+  <p class="note">状态逻辑：实际值与模型假设一致 → 绿「通过」；偏差 &lt;20% → 琥珀「注意」；偏差 ≥20% 或触及翻转阈值 → 红「核对」。判定横幅以 Step 1 实填值为准。</p>
+
+  <h2><span class="sec">Step 3</span>验证点优先级</h2>
+  <div class="vp-grid">
+    <div class="vp hi">
+      <div class="vp-k"><span class="dot"></span>决定性 · 先验这个</div>
+      <h3>V1 · M 在亚马逊眼中的尺寸分段</h3>
+      <p>模型按体积重 50.2lb 判定「超大件50-70」→ $37.32。但亚马逊自己量箱，包装毫米级差异就能让它落回「小号大件」→ $23.92-26.13。这是<b>决定性</b>开关：压档后 FBA 配送费从 ¥270.6 直落 ¥173-189，非旺快销 FBA 赢面到 D≤380 天。</p>
+      <div class="where">取数：后台 → 库存 → 该 ASIN → 费用预览（显示尺寸分段 + Fulfillment Fee）｜或「结算报告 → 交易明细」</div>
+      <div class="flip">翻转条件：后台显示小号大件（配送费 ≤$26.13）→ FBA 快销期反超</div>
+    </div>
+    <div class="vp hi">
+      <div class="vp-k"><span class="dot"></span>高影响 · 必验</div>
+      <h3>V2 · 谷仓尾程实际单价</h3>
+      <p>尾程六项实测 <b>$35.03 + 出库 $1.50 = $36.53/件（¥264.84）</b>，比价卡 252.3 贵 ¥12.5。但谷仓固定（尾程+出库+上架）¥269.55 仍贴脸低于 FBA 配送费 ¥270.57 → <b>恒谷仓仍成立</b>，D=30 差距仅 ¥5.6。</p>
+      <div class="where">已核：账单 2026-08 → 尾程派送行（六项合计）+ 出库操作费 ÷ 件数</div>
+      <div class="flip">翻盘条件收窄：谷仓尾程+出库+上架若再涨 ≥¥5.6（或走商业地址降 $7.43），D=30 快销期 FBA 即反超</div>
+    </div>
+    <div class="vp">
+      <div class="vp-k"><span class="dot"></span>中影响</div>
+      <h3>V3 · FBA 仓储类别与费率</h3>
+      <p>普货大件 $0.56 还是危险品大件 $0.78？锂电池整机大概率危险品。旺季 $1.40/2.43。影响盈亏平衡天数 ±30~60 天。</p>
+      <div class="where">取数：后台 → 数据报告 → 付款 → 月度仓储费账单</div>
+    </div>
+    <div class="vp">
+      <div class="vp-k"><span class="dot"></span>中影响</div>
+      <h3>V4 · 实际周转天数</h3>
+      <p>模型用 120 天（日销 4.8）。真实库龄决定仓储段和超龄附加费是否启动。M 快销一般 75~150 天清完。</p>
+      <div class="where">取数：FBA「管理库存 → 库存寿命 / 库龄报告」或谷仓库存报表</div>
+    </div>
+    <div class="vp">
+      <div class="vp-k"><span class="dot"></span>低影响</div>
+      <h3>V5 · 入仓季节与售价档</h3>
+      <p>仓储旺季 10-12 月、配送旺季 10/15-1/14。M 在 $10-50 档对结果几乎无影响（超大件三档价差&lt;$1）。</p>
+      <div class="where">取数：发货计划到仓时间表 + 前台售价</div>
+    </div>
+    <div class="vp">
+      <div class="vp-k"><span class="dot"></span>未纳入</div>
+      <h3>模型不含的项</h3>
+      <p>利用率附加费（三系列合并入 FBA 时大件段 22.4 周 &gt;22 周触发，约 +6.7¥/件/月）、Prime 转化/退货的收益侧、移除费（清不完才触发）。对账时如账单出现这些，单独记。</p>
+      <div class="where">取数：后台「月度仓储费 + 库存绩效」报告</div>
+    </div>
+  </div>
+
+  <footer>
+    <div>口径：只比「货进仓之后」——配送/尾程 + 仓储 + 附加费。头程（AGL vs 谷仓头程）是独立杠杆，不计入。</div>
+    <div>输入自动保存于本机浏览器；清除需清站点数据。</div>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var FX=7.25, DPM=30.4;
+  var BASELINE={
+    fee:37.32, tail:253.97, out:10.88, shelf:4.7,
+    cat:'normal', days:120, season:'np'
+  };
+  // 各配送档位 USD 值
+  var TIER_FEE={xl:37.32, sb_light:26.13, sb_deep:23.92};
+
+  // ── 模型函数（与 Python 同口径）──
+  function fbaFulfill(days, feeUSD, cat, peakArrival){
+    var cuft=4.04;
+    var base = (cat==='hazmat') ? {np:0.78,pk:2.43} : {np:0.56,pk:1.40};
+    var AGED=[[181,0.50],[211,1.00],[241,1.50],[271,5.45],[301,5.70],[331,5.90],[366,6.90],[456,7.90]];
+    var D0 = peakArrival ? new Date(2026,9,1) : new Date(2026,0,10); // Oct1 / Jan10
+    var peakPkStart=new Date(2026,9,1), peakPkEnd=new Date(2026,11,31); // 10-12
+    var peakDlStart=new Date(2026,9,15), peakDlEnd=new Date(2027,0,14); // 配送旺季
+    var qty=574, stock=qty, ds=qty/days;
+    var tail=0, storage=0, aged=0, removal=0;
+    for(var t=0;t<600;t++){
+      if(stock<=0) break;
+      var d=new Date(D0); d.setDate(d.getDate()+t);
+      var isPkStor = (d>=peakPkStart && d<=peakPkEnd);
+      var isPkDl = (d>=peakDlStart && d<=peakDlEnd);
+      var sold=Math.min(stock,ds);
+      tail += (feeUSD*(isPkDl?1.08:1.0))*sold*FX; // 配送旺季约+8%档差，近似
+      var r = isPkStor ? base.pk : base.np;
+      storage += stock*cuft*r/DPM*FX;
+      for(var i=0;i<AGED.length;i++){
+        if(t>=AGED[i][0]){ aged += stock*cuft*AGED[i][1]/DPM*FX; break; }
+      }
+      stock-=sold;
+    }
+    if(stock>0){ var rem=14.32+1.06*Math.max(0,44.1-10); removal=stock*rem*FX; }
+    return (tail+storage+aged+removal)/qty;
+  }
+  function gucFulfill(days, tail, out, shelf){
+    var storagePer = (22.90/90.0)*days/2.0; // 0.1272×D
+    return tail+out+shelf+storagePer;
+  }
+
+  // ── 状态 ──
+  var $=function(id){return document.getElementById(id);};
+  function readAll(){
+    return {
+      tier: $('inTier').value,
+      fee: parseFloat($('inFee').value)||0,
+      tail: parseFloat($('inTail').value)||0,
+      out: parseFloat($('inOut').value)||0,
+      shelf: parseFloat($('inShelf').value)||0,
+      cat: $('inCat').value,
+      days: parseFloat($('inDays').value)||120,
+      season: $('inSeason').value
+    };
+  }
+  function fmt(n){ return n>=0 ? '+'+n.toFixed(1) : n.toFixed(1); }
+
+  // ── 重算 ──
+  function recompute(){
+    var v=readAll();
+    var feeUSD = TIER_FEE[v.tier]!==undefined ? TIER_FEE[v.tier] : v.fee;
+    var f = fbaFulfill(v.days, feeUSD, v.cat, v.season==='pk');
+    var g = gucFulfill(v.days, v.tail, v.out, v.shelf);
+    var delta = f-g; // + => FBA贵 => 谷仓便宜
+    var ver=$('verdict');
+    ver.className='verdict';
+    var title, sub, numLabel='FBA − 谷仓（RMB/件）', icon='⚖️';
+    if(delta>5){
+      ver.className+=' v-guc';
+      icon='🟢';
+      title='谷仓履约更便宜';
+      sub='FBA 每件贵 '+fmt(delta)+' RMB。'+((v.tier==='xl')?'现状超大件恒谷仓：谷仓固定(尾程+出库+上架 ¥269.55)贴脸低于 FBA 配送费 ¥270.57。':'小号大件慢销期谷仓赢（快销时 FBA 反超）。');
+    }else if(delta<-5){
+      ver.className+=' v-fba';
+      icon='🔵';
+      title='FBA 履约更便宜';
+      sub='FBA 每件省 '+fmt(delta)+' RMB。'+(v.tier==='xl'?'⚠ 现状超大件 FBA 不该反超——检查 ② 尾程是否填得比实测 253.97 更高，或 ⑤ 周转 <20 天极端。':'符合「包装优化 + 快销」的 FBA 赢面。');
+    }else{
+      ver.className+=' v-flip';
+      icon='⚖️';
+      title='打平（±5 RMB 内）';
+      sub='两者几乎同价，需叠加头程杠杆 / Prime 收益侧再做决定。';
+    }
+    // 翻转警示：现状超大件 FBA 反超 = 异常（模型结论恒谷仓）
+    if(delta<-5 && v.tier==='xl'){
+      ver.className+=' v-flip';
+      icon='🔴';
+      title='结论翻转：FBA 反超（异常）';
+      sub='⚠ 现状超大件谷仓恒赢是模型结论。FBA 反超说明 ② 谷仓尾程 / ③ 出库填得比实测(253.97/10.88)高，或 ⑤ 周转天数填到 <20 天极端。';
+    }
+    $('vIcon').textContent=icon;
+    $('vTitle').textContent=title;
+    $('vSub').textContent=sub;
+    $('vNum').textContent=fmt(delta)+' ¥';
+    $('vNumLabel').textContent=numLabel;
+    // 行状态 + 明细表刷新
+    markRows(v);
+    buildRecon(v);
+    save(v);
+  }
+
+  function markRows(v){
+    var feeUSD = TIER_FEE[v.tier]!==undefined ? TIER_FEE[v.tier] : v.fee;
+    var sets=[
+      ['row-tier', feeUSD, BASELINE.fee, 0.03],
+      ['row-tail', v.tail, BASELINE.tail, 0.20]
+    ];
+    for(var i=0;i<sets.length;i++){
+      var r=$(sets[i][0]), act=sets[i][1], base=sets[i][2], tol=sets[i][3];
+      if(!r) continue;
+      r.className='';
+      var ratio=Math.abs(act-base)/(Math.abs(base)||1);
+      if(ratio<tol) r.classList.add('row-ok');
+      else if(ratio<0.35) r.classList.add('row-warn');
+      else r.classList.add('row-crit');
+    }
+  }
+
+  // ── 明细对账表 ──
+  function buildRecon(v){
+    var tbody=$('reconRows');
+    var feeUSD = TIER_FEE[v.tier]!==undefined ? TIER_FEE[v.tier] : v.fee;
+    // [序号, 费用项, 模型假设展示, 模型来源, 取数位置, 实际展示, 实际值num, 基线值num, 容差]
+    var rows=[
+      ['A','FBA 配送费（现状档）', '270.6 ¥/件（$37.32×7.25）', '官方费率 GG5KW/ABBX6GZ',
+       '结算报告 → 交易明细 → 该ASIN Fulfillment Fee', (feeUSD*FX).toFixed(1)+' ¥', feeUSD*FX, BASELINE.fee*FX, 0.05],
+      ['B','谷仓尾程快递', '253.97 ¥/件（实测 $35.03）', '账单2026-08 六项合计', '谷仓账单 → 尾程派送行 ÷ 件数', v.tail+' ¥', v.tail, BASELINE.tail, 0.05],
+      ['C','谷仓出库', '10.88 ¥/件（$1.50×7.25）', '账单2026-08', '谷仓账单 → 出库操作费 ÷ 件数', v.out+' ¥', v.out, BASELINE.out, 0.05],
+      ['D','谷仓上架', '4.7 ¥/件', '钉钉表 p_shelf', '谷仓账单 → 上架行', v.shelf+' ¥', v.shelf, BASELINE.shelf, 0.30],
+      ['E','FBA 仓储（非旺）', (v.cat==='hazmat'?'$0.78':'$0.56')+' /cuft/月', '官方 G3EDYEF6KUCFQTNM', '后台 → 月度仓储费账单', v.cat==='hazmat'?'$0.78':'$0.56', v.cat==='hazmat'?0.78:0.56, v.cat==='hazmat'?0.78:0.56, 0.0],
+      ['F','谷仓仓储', '22.9 ¥/件·90天', '钉钉表 t_storage90', '谷仓账单 → 仓储行', '22.9', 22.9, 22.9, 0.0],
+      ['G','周转天数', '120 天', 'M ds=30.5×25%', '库龄报告 / 574÷日销', v.days+' 天', v.days, BASELINE.days, 0.35]
+    ];
+    tbody.innerHTML='';
+    rows.forEach(function(r){
+      var tr=document.createElement('tr');
+      var ratio=Math.abs(r[6]-r[7])/(Math.abs(r[7])||1);
+      var tag,cls;
+      if(r[8]===0.0){ tag='按实选'; cls='tag-ok'; }
+      else if(ratio<r[8]){ tag='通过'; cls='tag-ok'; }
+      else if(ratio<0.35){ tag='注意'; cls='tag-diff'; tr.className='row-warn'; }
+      else { tag='核对'; cls='tag-crit'; tr.className='row-crit'; }
+      tr.innerHTML=
+        '<td class="item">'+r[0]+'</td>'+
+        '<td class="item">'+r[1]+'</td>'+
+        '<td class="model">'+r[2]+'</td>'+
+        '<td class="src">'+r[3]+'</td>'+
+        '<td class="src">'+r[4]+'</td>'+
+        '<td class="model">'+r[5]+'</td>'+
+        '<td><span class="tag '+cls+'">'+tag+'</span></td>';
+      tbody.appendChild(tr);
+    });
+  }
+
+  // ── localStorage ──
+  function load(){
+    try{
+      var s=localStorage.getItem('mRecon');
+      if(!s) return;
+      var o=JSON.parse(s);
+      if(o.tier) $('inTier').value=o.tier;
+      if(o.fee) $('inFee').value=o.fee;
+      if(o.tail) $('inTail').value=o.tail;
+      if(o.out) $('inOut').value=o.out;
+      if(o.shelf) $('inShelf').value=o.shelf;
+      if(o.cat) $('inCat').value=o.cat;
+      if(o.days) $('inDays').value=o.days;
+      if(o.season) $('inSeason').value=o.season;
+    }catch(e){}
+  }
+  function save(v){
+    try{ localStorage.setItem('mRecon', JSON.stringify(v)); }catch(e){}
+  }
+
+  // 绑定
+  var inputs=['inTier','inFee','inTail','inOut','inShelf','inCat','inDays','inSeason'];
+  inputs.forEach(function(id){ $(id).addEventListener('input', recompute); $(id).addEventListener('change', recompute); });
+
+  load();
+  recompute();
+  buildRecon(readAll());
+})();
+</script>
+</body>
+</html>

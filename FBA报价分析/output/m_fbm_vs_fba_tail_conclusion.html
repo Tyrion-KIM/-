@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M系列尾端履约结论</title>
+<style>
+  :root{
+    color-scheme:light;
+    --page:#f4f5f7; --surface:#ffffff; --surface-2:#f7f8fa;
+    --ink:#16181d; --ink-2:#4b4f57; --ink-3:#7a7e87;
+    --line:#e3e5ea; --line-strong:#d0d3da; --grid:#e9eaee;
+    --accent:#2a78d6; --accent-soft:#eaf1fb;
+    --guc:#b45309; --guc-soft:#f7eddc;
+    --save:#0ca30c; --save-bg:#e7f6e9;
+    --loss:#d03b3b; --loss-bg:#fbe9e9;
+    --warn:#8a5b00; --warn-bg:#fdf3dc;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      color-scheme:dark;
+      --page:#0d0d0d; --surface:#1a1a19; --surface-2:#212120;
+      --ink:#ffffff; --ink-2:#c3c2b7; --ink-3:#898781;
+      --line:#2c2c2a; --line-strong:#3a3a37; --grid:#2c2c2a;
+      --accent:#3987e5; --accent-soft:#16283f;
+      --guc:#e6a23c; --guc-soft:#33260f;
+      --save:#0ca30c; --save-bg:#12321a;
+      --loss:#e66767; --loss-bg:#3a1a1a;
+      --warn:#e6b33c; --warn-bg:#3a2d12;
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme:dark;
+    --page:#0d0d0d; --surface:#1a1a19; --surface-2:#212120;
+    --ink:#ffffff; --ink-2:#c3c2b7; --ink-3:#898781;
+    --line:#2c2c2a; --line-strong:#3a3a37; --grid:#2c2c2a;
+    --accent:#3987e5; --accent-soft:#16283f;
+    --guc:#e6a23c; --guc-soft:#33260f;
+    --save:#0ca30c; --save-bg:#12321a;
+    --loss:#e66767; --loss-bg:#3a1a1a;
+    --warn:#e6b33c; --warn-bg:#3a2d12;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei","PingFang SC",sans-serif;
+       background:var(--page);color:var(--ink);line-height:1.6;
+       -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1100px;margin:0 auto;padding:44px 28px 56px;}
+  header{margin-bottom:20px;}
+  .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);
+           font-weight:600;margin-bottom:8px;}
+  .badge{display:inline-block;margin-left:10px;font-size:11px;font-weight:700;letter-spacing:.02em;
+         color:var(--accent);border:1px solid var(--accent);padding:2px 9px;
+         border-radius:999px;vertical-align:3px;}
+  h1{font-size:26px;font-weight:750;letter-spacing:-.01em;line-height:1.2;}
+  .thesis{margin-top:10px;font-size:14.5px;color:var(--ink-2);max-width:88ch;}
+  .thesis b{color:var(--ink);font-weight:650;}
+  .meta{margin-top:10px;font-size:12px;color:var(--ink-3);}
+
+  /* 判定横幅 */
+  .verdict{display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+           border-radius:14px;padding:18px 20px;margin:22px 0 8px;
+           border:1px solid var(--line);background:var(--surface);
+           border-left:5px solid var(--ink-3);}
+  .verdict .v-icon{font-size:26px;line-height:1;}
+  .verdict .v-main{flex:1;min-width:280px;}
+  .verdict .v-title{font-size:16px;font-weight:750;}
+  .verdict .v-sub{font-size:12.5px;color:var(--ink-2);margin-top:3px;}
+  .verdict .v-num{text-align:right;font-variant-numeric:tabular-nums;}
+  .verdict .v-num b{font-size:20px;font-weight:750;display:block;}
+  .verdict .v-num span{font-size:11.5px;color:var(--ink-3);}
+  .verdict.v-guc{border-left-color:var(--guc);}
+  .verdict.v-fba{border-left-color:var(--accent);}
+  .verdict.v-flip{border-left-color:var(--loss);background:var(--loss-bg);}
+  .verdict.v-guc .v-num b{color:var(--guc);}
+  .verdict.v-fba .v-num b{color:var(--accent);}
+  .verdict.v-flip .v-num b{color:var(--loss);}
+
+  h2{font-size:17px;font-weight:750;margin:36px 0 4px;padding-top:10px;border-top:1px solid var(--line);}
+  h2 .sec{font-size:11px;font-weight:600;color:var(--accent);letter-spacing:.06em;
+          text-transform:uppercase;display:block;margin-bottom:2px;}
+  .lede{font-size:13px;color:var(--ink-2);margin:4px 0 16px;max-width:86ch;}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--surface);
+        border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+  th{background:var(--surface-2);text-align:left;padding:9px 13px;font-size:11.5px;
+     font-weight:650;color:var(--ink-3);letter-spacing:.03em;border-bottom:1px solid var(--line-strong);
+     white-space:nowrap;}
+  td{padding:9px 13px;border-bottom:1px solid var(--grid);vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
+  td .u{color:var(--ink-3);font-size:11px;}
+  .tot td{font-weight:700;background:var(--surface-2);border-top:1px solid var(--line-strong);}
+  .sum-row td{font-weight:700;background:var(--guc-soft);color:var(--guc);}
+  .win{display:inline-block;font-size:11px;font-weight:650;padding:2px 8px;border-radius:999px;}
+  .win-fba{background:var(--accent-soft);color:var(--accent);}
+  .win-guc{background:var(--guc-soft);color:var(--guc);}
+  .win-tie{background:var(--warn-bg);color:var(--warn);}
+  .note{font-size:11.5px;color:var(--ink-3);margin-top:8px;}
+  .callout{display:flex;gap:12px;align-items:flex-start;background:var(--surface);
+           border:1px solid var(--line);border-left:4px solid var(--warn);
+           border-radius:12px;padding:14px 16px;margin:16px 0;font-size:13px;}
+  .callout b{font-weight:650;}
+  .callout .ico{font-size:18px;line-height:1.4;}
+  .callout.blue{border-left-color:var(--accent);}
+
+  /* 三开关卡片 */
+  .sw-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin:16px 0;}
+  .sw{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 17px;}
+  .sw .sw-k{font-size:11px;font-weight:650;color:var(--accent);letter-spacing:.04em;
+            text-transform:uppercase;margin-bottom:6px;}
+  .sw .sw-k .dot{display:inline-block;width:7px;height:7px;border-radius:50%;
+                 background:var(--accent);margin-right:6px;vertical-align:1px;}
+  .sw h3{font-size:14.5px;font-weight:700;margin-bottom:6px;}
+  .sw p{font-size:12.5px;color:var(--ink-2);}
+  .sw .sw-num{font-size:22px;font-weight:750;font-variant-numeric:tabular-nums;margin:8px 0 2px;}
+  .sw .sw-num small{font-size:12px;color:var(--ink-3);font-weight:600;}
+  .sw.guc .sw-k,.sw.guc .dot{color:var(--guc);}
+  .sw.guc .dot{background:var(--guc);}
+  .sw.guc .sw-num{color:var(--guc);}
+  .sw.fba .sw-num{color:var(--accent);}
+
+  /* 分水岭条形 */
+  .ws{margin:8px 0 4px;}
+  .ws-row{display:flex;align-items:center;gap:12px;margin:7px 0;}
+  .ws-label{width:190px;flex:none;font-size:12px;color:var(--ink-2);text-align:right;
+            font-variant-numeric:tabular-nums;}
+  .ws-label b{color:var(--ink);}
+  .ws-track{flex:1;height:26px;position:relative;border-radius:7px;overflow:hidden;
+            background:var(--guc-soft);border:1px solid var(--line);}
+  .ws-fba{position:absolute;top:0;left:0;bottom:0;background:var(--accent-soft);
+          display:flex;align-items:center;justify-content:flex-end;padding-right:8px;
+          border-right:2px solid var(--accent);}
+  .ws-fba span{font-size:10.5px;font-weight:650;color:var(--accent);white-space:nowrap;}
+  .ws-guc{position:absolute;top:0;right:0;bottom:0;display:flex;align-items:center;padding-left:8px;}
+  .ws-guc span{font-size:10.5px;font-weight:650;color:var(--guc);white-space:nowrap;}
+  .ws-scale{display:flex;justify-content:space-between;font-size:10px;color:var(--ink-3);
+            margin:2px 0 0 202px;font-variant-numeric:tabular-nums;}
+  .ws-legend{font-size:11.5px;color:var(--ink-3);margin:10px 0 2px;}
+  .ws-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;vertical-align:-1px;margin:0 4px 0 14px;}
+  .ws-legend i:first-child{margin-left:0;}
+  .ws-legend .f{background:var(--accent-soft);border:1px solid var(--accent);}
+  .ws-legend .g{background:var(--guc-soft);border:1px solid var(--guc);}
+
+  /* 验证点 */
+  .vp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px;}
+  .vp{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:15px 17px;}
+  .vp .vp-k{font-size:11px;font-weight:650;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px;}
+  .vp .vp-k .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:1px;}
+  .vp.k-decisive .vp-k{color:var(--loss);}
+  .vp.k-decisive .dot{background:var(--loss);}
+  .vp.k-high .vp-k{color:var(--warn);}
+  .vp.k-high .dot{background:var(--warn);}
+  .vp.k-mid .vp-k{color:var(--ink-3);}
+  .vp.k-mid .dot{background:var(--ink-3);}
+  .vp h3{font-size:14px;font-weight:700;margin-bottom:5px;}
+  .vp p{font-size:12.5px;color:var(--ink-2);}
+  .vp .where{font-size:11.5px;color:var(--ink-3);margin-top:7px;}
+
+  footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);
+         font-size:11.5px;color:var(--ink-3);}
+  footer b{color:var(--ink-2);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">M系列 · FBM谷仓 vs FBA · 尾端履约结论</div>
+    <h1>尾端履约成本分水岭<span class="badge">v1.0 定稿</span></h1>
+    <p class="thesis">只比「货进仓之后」的三段——尾程/配送 + 仓储 + 附加费（头程 AGL 是独立杠杆，不计入）。用实测账单核对后：<b>现状超大件包装 → 谷仓恒便宜</b>，谷仓全部固定成本 ¥269.55/件只比 FBA 配送费 ¥270.57 低 <b>¥1.02</b>，安全边际薄；<b>包装优化压到小号大件后，FBA 在快销期反超</b>——分水岭 = 周转天数 D。</p>
+    <p class="meta">对账对象：M系列 = P2（68×48×35cm · 44.1lb · 4.04cuft · 574/柜）｜数据源：FBA 官方费率（Seller Central 12 页核对）+ 谷仓实测账单 2026-08｜汇率 7.25｜2026-08-25 定稿</p>
+  </header>
+
+  <!-- 结论速览 -->
+  <div class="verdict v-guc">
+    <div class="v-icon">🟢</div>
+    <div class="v-main">
+      <div class="v-title">现状包装 → 谷仓履约恒便宜</div>
+      <div class="v-sub">超大件 $37.32（体积重 50.2lb 卡 50lb 线）。FBA 每件贵 ¥5.6（D=30 快销）~ ¥92（D=365 慢销），随周转天数放大。唯一翻盘杠杆是压档到小号大件。</div>
+    </div>
+    <div class="v-num"><b>¥1.02</b><span>谷仓固定 vs FBA 配送费 之差（RMB/件）</span></div>
+  </div>
+
+  <!-- 01 账单核对 -->
+  <h2><span class="sec">01 · 账单核对</span>谷仓尾端实测</h2>
+  <p class="lede">从谷仓月结账单「尾程派送」行取数，七项全口径合计 <b>$36.53/件（¥264.84）</b>。其中出库操作费 $1.50 单列——尾程配送六项 $35.03 对应模型 y_express，出库对应 x_out。比价卡（239.7 + 12.6 = 252.3）贵 <b>¥12.5/件</b>。</p>
+  <table>
+    <tr><th>费用项（USD/件）</th><th class="num">USD</th><th class="num">RMB（×7.25）</th><th>模型映射</th></tr>
+    <tr><td>基础运输费</td><td class="num">14.00</td><td class="num">101.50</td><td rowspan="6" style="color:var(--ink-3);font-size:12px">尾程配送六项 → y_express<br>¥253.97</td></tr>
+    <tr><td>燃油附加费</td><td class="num">3.00</td><td class="num">21.75</td></tr>
+    <tr><td>杂费燃油附加费</td><td class="num">3.00</td><td class="num">21.75</td></tr>
+    <tr><td>住宅派送费</td><td class="num">3.48</td><td class="num">25.23</td></tr>
+    <tr><td>签收费</td><td class="num">7.60</td><td class="num">55.10</td></tr>
+    <tr><td>住宅偏远费</td><td class="num">3.95</td><td class="num">28.64</td></tr>
+    <tr class="tot"><td>尾程配送六项合计</td><td class="num">35.03</td><td class="num">253.97</td><td style="font-weight:400;color:var(--ink-3);font-size:12px">—</td></tr>
+    <tr><td>出库操作费</td><td class="num">1.50</td><td class="num">10.88</td><td style="color:var(--ink-3);font-size:12px">x_out</td></tr>
+    <tr class="sum-row"><td>全口径合计（尾程 + 出库）</td><td class="num">36.53</td><td class="num">264.84</td><td style="font-weight:400;color:var(--guc);font-size:12px">+ 上架 4.7 = 谷仓固定 ¥269.55</td></tr>
+  </table>
+  <p class="note">住宅派送 $3.48 + 住宅偏远 $3.95 按地址收：走商业/非偏远地址可省 $7.43（≈¥53.9），谷仓一侧更便宜、结论更稳。</p>
+
+  <!-- 02 分水岭 -->
+  <h2><span class="sec">02 · 分水岭</span>谁便宜，看三个开关</h2>
+  <p class="lede">胜负由三个开关决定，优先级从上到下：<b>包装档位</b>（亚马逊按哪个尺寸分段收）→ <b>周转天数 D</b>（FBA 仓储更贵，每多转 1 天相对谷仓多亏约 ¥0.14）→ <b>季节 × 品类</b>（仓储旺季 2.4×、危险品再放大）。</p>
+
+  <div class="sw-grid">
+    <div class="sw fba">
+      <div class="sw-k"><span class="dot"></span>FBA 配送费（超大件）</div>
+      <h3>现状包装：体积重 50.2lb 跳档</h3>
+      <div class="sw-num">¥270.57<small> /件</small></div>
+      <p>68×48×35cm → 6,971 in³ ÷139 = 50.2lb，刚过 50lb 线 → 超大件50-70 $37.32。商品重 44.1lb 本属小号大件 $23.92——包装毫米级压缩即回落。</p>
+    </div>
+    <div class="sw guc">
+      <div class="sw-k"><span class="dot"></span>谷仓固定成本</div>
+      <h3>尾程六项 + 出库 + 上架</h3>
+      <div class="sw-num">¥269.55<small> /件</small></div>
+      <p>253.97 + 10.88 + 4.7。只比 FBA 配送费便宜 ¥1.02——谷仓的仓储（¥3.9/月）比 FBA（¥16.4/月）便宜，但被尾程贴脸顶住。</p>
+    </div>
+    <div class="sw">
+      <div class="sw-k"><span class="dot"></span>分水岭</div>
+      <h3>周转天数 D 决定谁赢</h3>
+      <div class="sw-num">D* <small>盈亏平衡天数</small></div>
+      <p>FBA 配送费便宜 ¥96（压档后）在快销期赢；随 D 拉长被仓储吃掉。D &lt; D* → FBA，D &gt; D* → 谷仓。</p>
+    </div>
+  </div>
+
+  <div class="ws">
+    <div class="ws-legend"><i class="f"></i>FBA 赢（周转快）<i class="g"></i>谷仓赢（周转慢）<span style="margin-left:6px">← 条形 = D*（盈亏平衡天数），>D* 谷仓赢</span></div>
+    <div class="ws-row"><div class="ws-label"><b>深优化 $23.92</b> · 非旺普货</div><div class="ws-track"><div class="ws-fba" style="width:76%"><span>FBA 赢 · D≤380 天</span></div><div class="ws-guc"><span>谷仓赢 · 慢销</span></div></div></div>
+    <div class="ws-row"><div class="ws-label"><b>深优化 $23.92</b> · 旺季普货</div><div class="ws-track"><div class="ws-fba" style="width:44%"><span>FBA 赢 · D≤220 天</span></div><div class="ws-guc"><span>谷仓赢</span></div></div></div>
+    <div class="ws-row"><div class="ws-label"><b>轻度 $26.13</b> · 非旺普货</div><div class="ws-track"><div class="ws-fba" style="width:69%"><span>FBA 赢 · D≤345 天</span></div><div class="ws-guc"><span>谷仓赢</span></div></div></div>
+    <div class="ws-row"><div class="ws-label"><b>轻度 $26.13</b> · 旺季普货</div><div class="ws-track"><div class="ws-fba" style="width:31%"><span>FBA 赢 · D≤155 天</span></div><div class="ws-guc"><span>谷仓赢</span></div></div></div>
+    <div class="ws-row"><div class="ws-label"><b>深优化 $23.92</b> · 非旺危品</div><div class="ws-track"><div class="ws-fba" style="width:61%"><span>FBA 赢 · D≤305 天</span></div><div class="ws-guc"><span>谷仓赢</span></div></div></div>
+    <div class="ws-row"><div class="ws-label"><b>深优化 $23.92</b> · 旺季危品</div><div class="ws-track"><div class="ws-fba" style="width:16%"><span>FBA 赢 · D≤80 天</span></div><div class="ws-guc"><span>谷仓赢</span></div></div></div>
+    <div class="ws-row"><div class="ws-label"><b>轻度 $26.13</b> · 非旺危品</div><div class="ws-track"><div class="ws-fba" style="width:56%"><span>FBA 赢 · D≤280 天</span></div><div class="ws-guc"><span>谷仓赢</span></div></div></div>
+    <div class="ws-row"><div class="ws-label"><b>轻度 $26.13</b> · 旺季危品</div><div class="ws-track"><div class="ws-fba" style="width:13%"><span>FBA 赢 · D≤65 天</span></div><div class="ws-guc"><span>谷仓赢</span></div></div></div>
+    <div class="ws-scale"><span>0</span><span>100</span><span>200</span><span>300</span><span>400 天（周转 D）</span></div>
+  </div>
+
+  <div class="callout">
+    <div class="ico">⚖️</div>
+    <div><b>现状超大件（$37.32）在全部 12 组情景下恒谷仓。</b>谷仓固定 ¥269.55 贴脸低于 FBA 配送费 ¥270.57，FBA 仓储又贵——周转越快越接近谷仓，但 D→0 也只差 ¥1。压档（毫米级）是唯一能打开 FBA 赢面的开关。</div>
+  </div>
+
+  <table style="margin-top:18px">
+    <tr><th>配送档位</th><th>仓储类别</th><th class="num">非旺季 FBA 赢到</th><th class="num">旺季 FBA 赢到</th></tr>
+    <tr><td><b>现状超大件50-70 $37.32</b></td><td>普货大件</td><td class="num"><span class="win win-guc">恒谷仓</span></td><td class="num"><span class="win win-guc">恒谷仓</span></td></tr>
+    <tr><td><b>现状超大件50-70 $37.32</b></td><td>危险品大件</td><td class="num"><span class="win win-guc">恒谷仓</span></td><td class="num"><span class="win win-guc">恒谷仓</span></td></tr>
+    <tr><td><b>轻度优化小号大件 $26.13</b></td><td>普货大件</td><td class="num">D≤345 天 <span class="win win-fba">FBA</span></td><td class="num">D≤155 天 <span class="win win-fba">FBA</span></td></tr>
+    <tr><td><b>轻度优化小号大件 $26.13</b></td><td>危险品大件</td><td class="num">D≤280 天 <span class="win win-fba">FBA</span></td><td class="num">D≤65 天 <span class="win win-fba">FBA</span></td></tr>
+    <tr><td><b>深优化小号大件 $23.92</b></td><td>普货大件</td><td class="num">D≤380 天 <span class="win win-fba">FBA</span></td><td class="num">D≤220 天 <span class="win win-fba">FBA</span></td></tr>
+    <tr><td><b>深优化小号大件 $23.92</b></td><td>危险品大件</td><td class="num">D≤305 天 <span class="win win-fba">FBA</span></td><td class="num">D≤80 天 <span class="win win-fba">FBA</span></td></tr>
+  </table>
+  <p class="note">D = 周转天数（574 ÷ 美国日销）；非旺 = 1-9 月入仓，旺季 = 10 月入仓（仓储旺 10-12 月 $1.40/$2.43，配送旺 10/15-1/14）。</p>
+
+  <!-- 03 明细 -->
+  <h2><span class="sec">03 · 明细</span>各周转天数下 FBA − 谷仓（RMB/件）</h2>
+  <div class="sw-grid" style="grid-template-columns:1fr 1fr">
+    <div>
+      <p class="lede" style="margin-bottom:10px">现状超大件 · 普货 · 非旺入仓 —— 恒谷仓，差距随 D 放大。</p>
+      <table>
+        <tr><th class="num">D(天)</th><th class="num">FBA</th><th class="num">谷仓</th><th class="num">Δ</th><th>谁便宜</th></tr>
+        <tr><td class="num">30</td><td class="num">278.9</td><td class="num">273.4</td><td class="num" style="color:var(--guc)">+5.6</td><td><span class="win win-guc">谷仓</span></td></tr>
+        <tr><td class="num">60</td><td class="num">287.0</td><td class="num">277.2</td><td class="num" style="color:var(--guc)">+9.8</td><td><span class="win win-guc">谷仓</span></td></tr>
+        <tr><td class="num">120</td><td class="num">303.2</td><td class="num">284.8</td><td class="num" style="color:var(--guc)">+18.4</td><td><span class="win win-guc">谷仓</span></td></tr>
+        <tr><td class="num">270</td><td class="num">350.9</td><td class="num">303.9</td><td class="num" style="color:var(--guc)">+47.0</td><td><span class="win win-guc">谷仓</span></td></tr>
+        <tr><td class="num">365</td><td class="num">407.9</td><td class="num">316.0</td><td class="num" style="color:var(--guc)">+92.0</td><td><span class="win win-guc">谷仓</span></td></tr>
+      </table>
+    </div>
+    <div>
+      <p class="lede" style="margin-bottom:10px">深优化小号大件 · 普货 · 非旺入仓 —— FBA 赢到 D≤380 天。</p>
+      <table>
+        <tr><th class="num">D(天)</th><th class="num">FBA</th><th class="num">谷仓</th><th class="num">Δ</th><th>谁便宜</th></tr>
+        <tr><td class="num">30</td><td class="num">181.8</td><td class="num">273.4</td><td class="num" style="color:var(--accent)">−91.6</td><td><span class="win win-fba">FBA</span></td></tr>
+        <tr><td class="num">60</td><td class="num">189.9</td><td class="num">277.2</td><td class="num" style="color:var(--accent)">−87.3</td><td><span class="win win-fba">FBA</span></td></tr>
+        <tr><td class="num">120</td><td class="num">206.1</td><td class="num">284.8</td><td class="num" style="color:var(--accent)">−78.7</td><td><span class="win win-fba">FBA</span></td></tr>
+        <tr><td class="num">180</td><td class="num">222.2</td><td class="num">292.4</td><td class="num" style="color:var(--accent)">−70.2</td><td><span class="win win-fba">FBA</span></td></tr>
+        <tr><td class="num">270</td><td class="num">253.7</td><td class="num">303.9</td><td class="num" style="color:var(--accent)">−50.2</td><td><span class="win win-fba">FBA</span></td></tr>
+      </table>
+    </div>
+  </div>
+  <p class="note">Δ = FBA − 谷仓；负 = FBA 便宜。深优化 D=180/270 数据来自模型（`scripts/m_fbm_vs_fba_breakeven.py`），完整 12 情景可复现。</p>
+
+  <!-- 04 风险 -->
+  <h2><span class="sec">04 · 风险</span>两个翻盘点</h2>
+  <div class="callout blue">
+    <div class="ico">🔴</div>
+    <div><b>谷仓安全边际只剩 ¥5.6/件（D=30 快销期）。</b>实测尾程比价卡贵 ¥12.5 后，谷仓固定 ¥269.55 与 FBA 配送费 ¥270.57 几乎贴脸。谷仓尾程/出库/上架任一再加价 ≥¥5.6，或旺季提价，快销期即翻 FBA。价卡时代这个边际是 ¥18.1。</div>
+  </div>
+  <div class="callout">
+    <div class="ico">🏠</div>
+    <div><b>住宅派送 + 住宅偏远 $7.43/件（≈¥53.9）按地址收。</b>M 若投商业/非偏远地址，谷仓尾程降 $7.43 → 谷仓明显更便宜、恒谷仓更稳；偏远住宅占比高则谷仓优势再薄一层。对账时按实际地址结构看。</div>
+  </div>
+
+  <!-- 05 验证 -->
+  <h2><span class="sec">05 · 验证</span>去后台核什么</h2>
+  <div class="vp-grid">
+    <div class="vp k-decisive">
+      <div class="vp-k"><span class="dot"></span>决定性 · 先核</div>
+      <h3>V1 · M 在亚马逊眼中的尺寸分段</h3>
+      <p>模型按体积重 50.2lb 判「超大件50-70」$37.32。亚马逊自己量箱，毫米级差异即落回「小号大件」$23.92——压档 ¥97/件，是唯一能打开 FBA 赢面的开关。</p>
+      <div class="where">取数：后台 → 库存 → 该 ASIN → 费用预览（显示尺寸分段 + Fulfillment Fee）｜结算报告 → 交易明细</div>
+    </div>
+    <div class="vp k-high">
+      <div class="vp-k"><span class="dot"></span>高影响 · 必验</div>
+      <h3>V2 · 谷仓尾程实际单价</h3>
+      <p>实测 $35.03 + 出库 $1.50 = $36.53（¥264.84），已核。住宅/偏远费按地址收——商业地址尾程约 $29.1（¥211），谷仓更便宜。</p>
+      <div class="where">取数：谷仓月结账单 → 尾程派送行 ÷ 件数</div>
+    </div>
+    <div class="vp k-mid">
+      <div class="vp-k"><span class="dot"></span>中影响</div>
+      <h3>V3 · FBA 仓储类别</h3>
+      <p>普货 $0.56 vs 危险品 $0.78/cuft/月（锂电池整机大概率危险品）。影响盈亏平衡天数 ±30~60 天，不改变恒谷仓/压档结构。</p>
+      <div class="where">取数：后台 → 月度仓储费账单</div>
+    </div>
+    <div class="vp k-mid">
+      <div class="vp-k"><span class="dot"></span>中影响</div>
+      <h3>V4 · 实际周转天数 D</h3>
+      <p>压档后 D 决定 FBA 能否赢：非旺普货 D≤380 天赢。M 快销一般 75~150 天清完，在 FBA 赢区内。</p>
+      <div class="where">取数：FBA 库龄报告 / 谷仓库存报表（574 ÷ 日销）</div>
+    </div>
+    <div class="vp k-mid">
+      <div class="vp-k"><span class="dot"></span>低影响</div>
+      <h3>V5 · 入仓季节与售价档</h3>
+      <p>仓储旺季 10-12 月、配送旺季 10/15-1/14；M 在 $10-50 档三档价差 &lt;$1，几乎不影响。</p>
+      <div class="where">取数：发货计划到仓时间表 + 前台售价</div>
+    </div>
+  </div>
+
+  <footer>
+    <div><b>口径</b>：只比「货进仓之后」——尾程/配送 + 仓储 + 附加费。头程（AGL vs 谷仓头程）是独立杠杆，见 AGL 切换评估。模型不含：利用率附加费（三系列合并入 FBA 大件段 22.4 周 &gt;22 周触发，约 +6.7¥/件/月）、Prime 转化/退货的收益侧、移除费（清不完才触发）。</div>
+    <div style="margin-top:6px"><b>可复现</b>：`scripts/m_fbm_vs_fba_breakeven.py`（模型）｜交互对账：`output/m_fbm_vs_fba_reconcile.html`（输入实测数实时判翻转）｜数据源：FBA 官方费率 `data/fba_us_cost_model.json` + 谷仓实测账单 2026-08</div>
+    <div style="margin-top:6px">M系列尾端履约结论 v1.0 · 2026-08-25 定稿</div>
+  </footer>
+</div>
+</body>
+</html>
