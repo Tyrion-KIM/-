@@ -18,8 +18,10 @@ def test_weights_sheet_lists_all_people():
     wb = build_workbook()
     ws = wb[SHEET_WEIGHTS]
     text = "\n".join(str(c.value) for row in ws.iter_rows() for c in row if c.value)
-    for p in ["吴佳钒", "郑舒漫", "黄婷", "吴定佳", "张雨洁", "金炜铮", "任务块", "30"]:
+    for p in ["吴佳钒", "郑舒漫", "黄婷", "吴定佳", "金炜铮", "任务块", "30"]:
         assert p in text
+    assert "张雨洁" not in text            # 卡结构 6→5，无实习生行
+    assert "特殊发运" in text              # 郑舒漫分工含承接雨洁的线
 
 def test_std_sheet_has_29_indicators():
     wb = build_workbook()
@@ -39,7 +41,7 @@ def test_score_sheet_layout():
 def test_score_formulas_present():
     ws = _score_ws()
     assert 'MIN(100,100*$F4/($J4/$I4))' in ws["M4"].value          # K01 成本-计算
-    assert 'AVERAGE($M$9,$M$13,$M$19,$M$20,$M$25,$M$28)' in ws["M31"].value  # K28
+    assert 'AVERAGE($M$9,$M$13,$M$22,$M$23,$M$28,$M$16)' in ws["M31"].value  # K28
     assert 'AVERAGE($F$39:$F$42)' in ws["M32"].value               # K29 专员均分
     assert ws["O4"].value == '=IF(AND($H4="是",ISNUMBER($M4)),$N4,0)'
     assert ws["P4"].value == '=IF(ISNUMBER($M4),$M4*$O4,0)'
@@ -47,7 +49,7 @@ def test_score_formulas_present():
 def test_total_block_formulas():
     ws = _score_ws()
     assert ws["B39"].value == "=SUM($O$4:$O$9)"        # 吴佳钒
-    assert ws["C40"].value == "=SUM($P$10:$P$13)"      # 郑舒漫
+    assert ws["C40"].value == "=SUM($P$10:$P$16)"      # 郑舒漫（含 K23-25）
     assert ws["D39"].value.startswith("=IFERROR(AVERAGEIFS(任务块!")
     assert "任务块!$A:$A,$B$1" in ws["D39"].value
     assert ws["F39"].value == ('=IFERROR((C39+IF(ISNUMBER(D39),D39*30,0))'
