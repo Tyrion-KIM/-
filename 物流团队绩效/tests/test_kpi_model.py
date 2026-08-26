@@ -48,3 +48,10 @@ def test_intern_work_merged_into_zheng():
 
 def test_zheng_weights_sum_70():
     assert sum(i.weight for i in INDICATORS if i.person == "郑舒漫") == 70
+
+def test_zheng_merged_weights_halved_exact():
+    # 逐项钉死 ×0.5 配权（仅断言合计=70 防不住"忘乘0.5"，15/10/25/20+40/20/10 合计仍是70）
+    expected = {"K07": 7.5, "K08": 5.0, "K09": 12.5, "K10": 10.0,
+                "K23": 20.0, "K24": 10.0, "K25": 5.0}
+    got = {i.id: i.weight for i in INDICATORS if i.person == "郑舒漫"}
+    assert got == expected
