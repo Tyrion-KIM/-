@@ -627,7 +627,7 @@ git commit -m "feat: 管控节奏打卡工具 — 控制点JSON→HTML看板（�
 - [ ] **Step 2: 验证交付物齐全**
 
 Run: `python -X utf8 -m pytest tests/ -q`
-Expected: 全绿（24 + 2 = 26 passed：test_framework_doc 4 + test_kpi_model 7 + test_kpi_template 13 + test_kpi_dashboard 3 + test_rhythm_checklist 2）
+Expected: 全绿（test_framework_doc 4 + test_kpi_model 8 + test_kpi_template 13 + test_kpi_dashboard 3 + test_rhythm_checklist 2 = **30 passed**；test_kpi_model 8 = 原4 + 简报3 + T2 审后补1 `test_zheng_merged_weights_halved_exact`）
 核对存在：`物流团队管理体系-基准框架.md`、`物流团队绩效V1.xlsx`、`output/管理节奏控制图-常态期.html`。
 
 - [ ] **Step 3: 打包 zip**
