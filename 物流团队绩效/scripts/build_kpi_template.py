@@ -93,7 +93,7 @@ PERSON_RANGE = {  # 每人指标行区间（含端点）
     "吴佳钒": (4, 9), "郑舒漫": (10, 16), "黄婷": (17, 23),
     "吴定佳": (24, 28), "金炜铮": (29, 32),
 }
-TOTAL_FIRST_ROW = 39   # 总分区人员首行（39-44，顺序=PEOPLE）
+TOTAL_FIRST_ROW = 39   # 总分区人员首行（39-43，5 人，顺序=PEOPLE）
 
 def _m_formula(ind, r):
     t = ind.ftype
