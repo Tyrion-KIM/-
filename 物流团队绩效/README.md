@@ -1,5 +1,9 @@
 # 物流团队绩效 V1
 
+> 本目录已并入《物流团队管理体系-基准框架 v1.0》：基准框架 + 战役插件，四合一承接组织/目标/绩效/激励。
+> 主文档：`物流团队管理体系-基准框架.md`；管控节奏打卡工具：`python -X utf8 scripts/build_rhythm_checklist.py`。
+> 绩效卡结构 2026-08-26 调整为 5 稳定岗（雨洁卡撤销，K23/K24/K25 并入郑舒漫并重新配权）。
+
 月度绩效记分卡（量化70% + 任务块30%）+ HTML 看板。设计文档见
 docs/superpowers/specs/2026-08-19-logistics-team-kpi-design.md。
 
