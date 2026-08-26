@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>H2 物流 AGL 可行性结论</title>
+<style>
+  :root{
+    color-scheme:light;
+    --page:#f4f5f7; --surface:#ffffff; --surface-2:#f7f8fa;
+    --ink:#16181d; --ink-2:#4b4f57; --ink-3:#7a7e87;
+    --line:#e3e5ea; --line-strong:#d0d3da; --grid:#e9eaee;
+    --accent:#2a78d6;
+    --save:#0ca30c; --save-fill:#0ca30c; --save-bg:#e7f6e9;
+    --loss:#d03b3b; --loss-fill:#d03b3b; --loss-bg:#fbe9e9;
+    --warn:#8a5b00; --warn-fill:#fab219; --warn-bg:#fdf3dc;
+    --base-fill:#c3c2b7;
+    --fee-head:#2a78d6; --fee-tail:#eb6834; --fee-storage:#1baf7a;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      color-scheme:dark;
+      --page:#0d0d0d; --surface:#1a1a19; --surface-2:#212120;
+      --ink:#ffffff; --ink-2:#c3c2b7; --ink-3:#898781;
+      --line:#2c2c2a; --line-strong:#3a3a37; --grid:#2c2c2a;
+      --accent:#3987e5;
+      --save:#0ca30c; --save-fill:#0ca30c; --save-bg:#12321a;
+      --loss:#e66767; --loss-fill:#d03b3b; --loss-bg:#3a1a1a;
+      --warn:#e6b33c; --warn-fill:#c98500; --warn-bg:#3a2d12;
+      --base-fill:#383835;
+      --fee-head:#3987e5; --fee-tail:#d95926; --fee-storage:#199e70;
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme:dark;
+    --page:#0d0d0d; --surface:#1a1a19; --surface-2:#212120;
+    --ink:#ffffff; --ink-2:#c3c2b7; --ink-3:#898781;
+    --line:#2c2c2a; --line-strong:#3a3a37; --grid:#2c2c2a;
+    --accent:#3987e5;
+    --save:#0ca30c; --save-fill:#0ca30c; --save-bg:#12321a;
+    --loss:#e66767; --loss-fill:#d03b3b; --loss-bg:#3a1a1a;
+    --warn:#e6b33c; --warn-fill:#c98500; --warn-bg:#3a2d12;
+    --base-fill:#383835;
+    --fee-head:#3987e5; --fee-tail:#d95926; --fee-storage:#199e70;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei","PingFang SC",sans-serif;
+       background:var(--page);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1120px;margin:0 auto;padding:40px 28px 56px;}
+  header{margin-bottom:26px;}
+  .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);
+           font-weight:600;margin-bottom:8px;}
+  .badge{display:inline-block;margin-left:10px;font-size:11px;font-weight:700;letter-spacing:.02em;
+         color:var(--accent);border:1px solid var(--accent);padding:2px 9px;border-radius:999px;vertical-align:1px;}
+  h1{font-size:28px;font-weight:750;letter-spacing:-.01em;line-height:1.2;}
+  .thesis{margin-top:10px;font-size:15px;color:var(--ink-2);max-width:76ch;}
+  .thesis b{color:var(--accent);font-weight:650;}
+  .thesis .hl-bad{color:var(--loss);font-weight:700;}
+  .thesis .hl-ok{color:var(--save);font-weight:700;}
+  .meta{margin-top:10px;font-size:12px;color:var(--ink-3);}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin:6px 0 34px;}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px;border-top:3px solid var(--line);}
+  .card-ok{border-top-color:var(--save);}
+  .card-warn{border-top-color:var(--warn-fill);}
+  .card-bad{border-top-color:var(--loss);}
+  .card-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+  .chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;white-space:nowrap;}
+  .chip-ok{background:var(--save-bg);color:var(--save);}
+  .chip-warn{background:var(--warn-bg);color:var(--warn);}
+  .chip-bad{background:var(--loss-bg);color:var(--loss);}
+  .dot{width:8px;height:8px;border-radius:50%;flex:none;}
+  .dot-save{background:var(--save);}
+  .dot-warn{background:var(--warn-fill);}
+  .dot-loss{background:var(--loss);}
+  .hero{display:flex;align-items:baseline;gap:6px;font-variant-numeric:tabular-nums;}
+  .hero .num{font-size:40px;font-weight:760;letter-spacing:-.02em;line-height:1;}
+  .hero .unit{font-size:13px;color:var(--ink-3);}
+  .card-ok .num{color:var(--save);}
+  .card-warn .num{color:var(--warn);}
+  .card-bad .num{color:var(--loss);}
+  .sub{font-size:13px;color:var(--ink-2);margin-top:8px;}
+  h2{font-size:17px;font-weight:700;margin:0 0 4px;}
+  .lede{font-size:13px;color:var(--ink-3);margin-bottom:16px;}
+  .wf{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 20px 14px;margin:0 0 14px;}
+  .wf figcaption{display:flex;align-items:baseline;gap:12px;margin-bottom:6px;flex-wrap:wrap;}
+  .wf-name{font-size:16px;font-weight:750;}
+  .wf-sub{font-size:12.5px;color:var(--ink-3);}
+  .net{margin-left:auto;font-size:16px;font-weight:760;font-variant-numeric:tabular-nums;}
+  .net-loss{color:var(--loss);}
+  .wf svg,.be svg{width:100%;height:auto;display:block;}
+  .be{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 20px 14px;margin:0 0 14px;}
+  table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--line);
+        border-radius:12px;overflow:hidden;font-size:13px;margin-top:8px;}
+  th{background:var(--surface-2);padding:10px 12px;text-align:right;font-weight:650;color:var(--ink-2);
+      border-bottom:1px solid var(--line);white-space:nowrap;}
+  th:first-child,th:nth-child(2),td.sname{text-align:left;}
+  td{padding:11px 12px;text-align:right;border-bottom:1px solid var(--line);
+      font-variant-numeric:tabular-nums;white-space:nowrap;}
+  tbody tr:last-child td{border-bottom:none;}
+  .sname{font-weight:700;}
+  .pos{color:var(--loss);font-weight:650;}
+  .neg{color:var(--save);font-weight:650;}
+  .be{color:var(--ink);}
+  .foot{margin-top:20px;font-size:12px;color:var(--ink-3);}
+  .foot b{color:var(--ink-2);}
+  .tblwrap{overflow-x:auto;}
+  .risk-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin:6px 0 14px;}
+  .risk{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--warn-fill);
+        border-radius:10px;padding:14px 16px;}
+  .risk h3{font-size:13.5px;font-weight:700;margin-bottom:6px;color:var(--warn);}
+  .risk p{font-size:12.5px;color:var(--ink-2);}
+  .risk p b{color:var(--ink);}
+  .levers{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin:0 0 14px;}
+  .levers ol{margin:6px 0 0 20px;font-size:13px;color:var(--ink-2);}
+  .levers li{margin-bottom:8px;}
+  .levers b{color:var(--ink);}
+  .note{font-size:12px;color:var(--ink-3);margin-top:10px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">H2 物流 · AGL 可行性方案结论<span class="badge">v1.0 定稿</span></div>
+  <h1>H2 全盘切 AGL，可行吗？</h1>
+  <p class="thesis">按最新对比文件（M5 为例 · 68×48×35cm · 危险品锂电 · 超大件 50–70 · 500 台/40HQ · 汇率 6.8）：
+  90 天库存、危险品旺季仓储口径下，AGL 整柜每台<span class="hl-bad">贵 $5.18</span>，<b>全盘切不可行</b>；
+  但 AGL 头程红利每台 <span class="hl-ok">$17.65</span> 真实存在（头程半价 + 免入库操作费），
+  被 FBA 尾程（+$3）与旺季危险品仓储（+$20.54）吃掉。</p>
+  <div class="meta">口径：对比文件《美国海外仓VS美国AGL（FBA仓）物流费用对比.xlsx》公式复现 · 汇率 6.8 · 尾程 FBA=超大件50-70 非旺$37.32/旺$40.13 的 H2 混算≈$39（对比文件取 39）·
+  AGL 仓储-$90天=$2.43/cuft/月（危险品·大件·旺季 10–12 月）×4.03cuft×3 · 谷仓仓储-90天=¥0.86/方/天×0.11424×90 ·
+  到仓即撞 FBA 仓储旺季 10–12 月 · 生成 2026-08-26</div>
+</header>
+
+<section class="cards">
+  <article class="card card-bad">
+    <div class="card-top"><span class="chip chip-bad"><span class="dot dot-loss"></span>90天 · 危险品旺季</span></div>
+    <div class="hero"><span class="num">$5.18</span><span class="unit">/台 · AGL 贵</span></div>
+    <p class="sub">全盘切 AGL 整柜：每台多花 $5.18（合 ¥35.25），<b>一票否决式切换不可行</b>。</p>
+  </article>
+  <article class="card card-warn">
+    <div class="card-top"><span class="chip chip-warn"><span class="dot dot-warn"></span>分水岭 = 周转天数 D</span></div>
+    <div class="hero"><span class="num">67.3</span><span class="unit">天</span></div>
+    <p class="sub">D &lt; 67.3 天 AGL 赢、D &gt; 67.3 天海外仓赢。快销品 AGL 可行，慢销/备货留海外仓。</p>
+  </article>
+  <article class="card card-ok">
+    <div class="card-top"><span class="chip chip-ok"><span class="dot dot-save"></span>AGL 除仓储外净省</span></div>
+    <div class="hero"><span class="num">$15.35</span><span class="unit">/台</span></div>
+    <p class="sub">头程半价 −$17.65 + 免入库操作费 −$0.71，再被 FBA 尾程 +$3 抵消 = 除仓储外每台省 $15.35。胜负全押在仓储上。</p>
+  </article>
+</section>
+
+<section>
+  <h2>省在哪、亏在哪 —— 一柜货的单台瀑布</h2>
+  <p class="lede">从「海外仓 现状」出发，逐步拆到「AGL 整柜 → FBA」：绿＝AGL 省，红＝AGL 多花。最后一段是净差。</p>
+  <figure class="wf">
+    <figcaption><span class="wf-name">M5 · 单台全链路成本</span><span class="wf-sub">US$/台 · 90 天滞留 · 危险品旺季仓储</span><span class="net net-loss">AGL 贵 $5.18</span></figcaption>
+    <svg viewBox="0 0 712 284" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="单台成本瀑布图"><line x1="158.0" y1="30" x2="158.0" y2="258" stroke="var(--grid)" stroke-width="1"/><text x="158.0" y="272" text-anchor="middle" font-size="10" fill="var(--ink-3)">$0</text><line x1="250.0" y1="30" x2="250.0" y2="258" stroke="var(--grid)" stroke-width="1"/><text x="250.0" y="272" text-anchor="middle" font-size="10" fill="var(--ink-3)">$20</text><line x1="342.0" y1="30" x2="342.0" y2="258" stroke="var(--grid)" stroke-width="1"/><text x="342.0" y="272" text-anchor="middle" font-size="10" fill="var(--ink-3)">$40</text><line x1="434.0" y1="30" x2="434.0" y2="258" stroke="var(--grid)" stroke-width="1"/><text x="434.0" y="272" text-anchor="middle" font-size="10" fill="var(--ink-3)">$60</text><line x1="526.0" y1="30" x2="526.0" y2="258" stroke="var(--grid)" stroke-width="1"/><text x="526.0" y="272" text-anchor="middle" font-size="10" fill="var(--ink-3)">$80</text><text x="146.0" y="43.5" text-anchor="end" font-size="11.5" fill="var(--ink-2)">海外仓 合计（现状 FBM 谷仓）</text><rect x="158.0" y="30.0" width="385.4" height="20" rx="2" fill="var(--base-fill)"><title>海外仓 合计（现状 FBM 谷仓） +$83.78</title></rect><text x="549.4" y="43.5" text-anchor="start" font-size="11" font-weight="650" fill="var(--ink-2)">83.78</text><line x1="543.4" y1="50" x2="462.2" y2="68" stroke="var(--line-strong)" stroke-width="1"/><text x="146.0" y="81.5" text-anchor="end" font-size="11.5" fill="var(--ink-2)">头程海运差 · AGL 半价</text><rect x="462.2" y="68.0" width="81.2" height="20" rx="2" fill="var(--save-fill)"><title>头程海运差 · AGL 半价 −$17.65</title></rect><text x="549.4" y="81.5" text-anchor="start" font-size="11" font-weight="650" fill="var(--save)">−17.65</text><line x1="543.4" y1="88" x2="459.0" y2="106" stroke="var(--line-strong)" stroke-width="1"/><text x="146.0" y="119.5" text-anchor="end" font-size="11.5" fill="var(--ink-2)">入库操作差 · AGL 免操作费</text><rect x="459.0" y="106.0" width="3.2" height="20" rx="2" fill="var(--save-fill)"><title>入库操作差 · AGL 免操作费 −$0.71</title></rect><text x="468.2" y="119.5" text-anchor="start" font-size="11" font-weight="650" fill="var(--save)">−0.71</text><line x1="462.2" y1="126" x2="472.8" y2="144" stroke="var(--line-strong)" stroke-width="1"/><text x="146.0" y="157.5" text-anchor="end" font-size="11.5" fill="var(--ink-2)">尾程配送差 · FBA 贵 $3</text><rect x="459.0" y="144.0" width="13.8" height="20" rx="2" fill="var(--loss-fill)"><title>尾程配送差 · FBA 贵 $3 +$3.00</title></rect><text x="478.8" y="157.5" text-anchor="start" font-size="11" font-weight="650" fill="var(--loss)">+3.00</text><line x1="472.8" y1="164" x2="567.2" y2="182" stroke="var(--line-strong)" stroke-width="1"/><text x="146.0" y="195.5" text-anchor="end" font-size="11.5" fill="var(--ink-2)">FBA 仓储差 · 危险品旺季×90天</text><rect x="472.8" y="182.0" width="94.5" height="20" rx="2" fill="var(--loss-fill)"><title>FBA 仓储差 · 危险品旺季×90天 +$20.54</title></rect><text x="573.2" y="195.5" text-anchor="start" font-size="11" font-weight="650" fill="var(--loss)">+20.54</text><line x1="567.2" y1="202" x2="567.2" y2="220" stroke="var(--line-strong)" stroke-width="1"/><text x="146.0" y="233.5" text-anchor="end" font-size="11.5" fill="var(--ink-2)">AGL 整柜 合计（直发 FBA）</text><rect x="158.0" y="220.0" width="409.2" height="20" rx="2" fill="var(--loss-fill)"><title>AGL 整柜 合计（直发 FBA） +$88.97</title></rect><text x="573.2" y="233.5" text-anchor="start" font-size="11" font-weight="650" fill="var(--loss)">88.97</text></svg>
+  </figure>
+</section>
+
+<section>
+  <h2>分水岭 = 周转天数 D —— 四情景盈亏平衡</h2>
+  <p class="lede">横轴 = 一柜货在 FBA 的滞留天数 D；纵轴 = AGL − 海外仓 单台差（&lt;0 绿=AGL 省，&gt;0 红=海外仓省）。危险品×旺季是唯一能击穿 AGL 红利的组合。</p>
+  <figure class="be">
+    <figcaption><span class="wf-name">D → 单台差 曲线</span><span class="wf-sub">危险品/普货 × 旺季/非旺 四情景</span></figcaption>
+    <svg viewBox="0 0 712 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="盈亏平衡曲线"><line x1="118.0" y1="24" x2="118.0" y2="296" stroke="var(--grid)" stroke-width="1"/><text x="118.0" y="312" text-anchor="middle" font-size="10.5" fill="var(--ink-3)">0天</text><line x1="260.5" y1="24" x2="260.5" y2="296" stroke="var(--grid)" stroke-width="1"/><text x="260.5" y="312" text-anchor="middle" font-size="10.5" fill="var(--ink-3)">50天</text><line x1="403.0" y1="24" x2="403.0" y2="296" stroke="var(--grid)" stroke-width="1"/><text x="403.0" y="312" text-anchor="middle" font-size="10.5" fill="var(--ink-3)">100天</text><line x1="545.5" y1="24" x2="545.5" y2="296" stroke="var(--grid)" stroke-width="1"/><text x="545.5" y="312" text-anchor="middle" font-size="10.5" fill="var(--ink-3)">150天</text><line x1="688.0" y1="24" x2="688.0" y2="296" stroke="var(--grid)" stroke-width="1"/><text x="688.0" y="312" text-anchor="middle" font-size="10.5" fill="var(--ink-3)">200天</text><line x1="118" y1="273.3" x2="688" y2="273.3" stroke="var(--grid)" stroke-width="1"/><text x="112.0" y="276.8" text-anchor="end" font-size="10" fill="var(--ink-3)">−$30</text><line x1="118" y1="235.6" x2="688" y2="235.6" stroke="var(--grid)" stroke-width="1"/><text x="112.0" y="239.1" text-anchor="end" font-size="10" fill="var(--ink-3)">−$20</text><line x1="118" y1="197.8" x2="688" y2="197.8" stroke="var(--grid)" stroke-width="1"/><text x="112.0" y="201.3" text-anchor="end" font-size="10" fill="var(--ink-3)">−$10</text><line x1="118" y1="160.0" x2="688" y2="160.0" stroke="var(--grid)" stroke-width="1"/><text x="112.0" y="163.5" text-anchor="end" font-size="10" fill="var(--ink-3)">$0</text><line x1="118" y1="122.2" x2="688" y2="122.2" stroke="var(--grid)" stroke-width="1"/><text x="112.0" y="125.7" text-anchor="end" font-size="10" fill="var(--ink-3)">$10</text><line x1="118" y1="84.4" x2="688" y2="84.4" stroke="var(--grid)" stroke-width="1"/><text x="112.0" y="87.9" text-anchor="end" font-size="10" fill="var(--ink-3)">$20</text><line x1="118" y1="46.7" x2="688" y2="46.7" stroke="var(--grid)" stroke-width="1"/><text x="112.0" y="50.2" text-anchor="end" font-size="10" fill="var(--ink-3)">$30</text><line x1="118" y1="160.0" x2="688" y2="160.0" stroke="var(--line-strong)" stroke-width="1.5" stroke-dasharray="5 4"/><text x="684.0" y="155.0" text-anchor="end" font-size="10.5" font-weight="700" fill="var(--ink-3)">AGL 与海外仓打平</text><path d="M118.0 218.0L132.2 213.7L146.5 209.4L160.8 205.1L175.0 200.8L189.2 196.4L203.5 192.1L217.8 187.8L232.0 183.5L246.2 179.2L260.5 174.9L274.8 170.6L289.0 166.3L303.2 162.0L317.5 157.7L331.8 153.3L346.0 149.0L360.2 144.7L374.5 140.4L388.8 136.1L403.0 131.8L417.2 127.5L431.5 123.2L445.8 118.9L460.0 114.6L474.2 110.2L488.5 105.9L502.8 101.6L517.0 97.3L531.2 93.0L545.5 88.7L559.8 84.4L574.0 80.1L588.2 75.8L602.5 71.5L616.8 67.1L631.0 62.8L645.2 58.5L659.5 54.2L673.8 49.9L688.0 45.6" fill="none" stroke="var(--loss)" stroke-width="2.2"/><text x="684.0" y="40.6" text-anchor="end" font-size="10.5" font-weight="650" fill="var(--loss)">危险品·旺季</text><path d="M118.0 218.0L132.2 217.9L146.5 217.8L160.8 217.6L175.0 217.5L189.2 217.4L203.5 217.3L217.8 217.1L232.0 217.0L246.2 216.9L260.5 216.8L274.8 216.6L289.0 216.5L303.2 216.4L317.5 216.3L331.8 216.1L346.0 216.0L360.2 215.9L374.5 215.8L388.8 215.7L403.0 215.5L417.2 215.4L431.5 215.3L445.8 215.2L460.0 215.0L474.2 214.9L488.5 214.8L502.8 214.7L517.0 214.5L531.2 214.4L545.5 214.3L559.8 214.2L574.0 214.1L588.2 213.9L602.5 213.8L616.8 213.7L631.0 213.6L645.2 213.4L659.5 213.3L673.8 213.2L688.0 213.1" fill="none" stroke="var(--save)" stroke-width="1.6"/><text x="684.0" y="208.1" text-anchor="end" font-size="10.5" font-weight="650" fill="var(--save)">危险品·非旺</text><path d="M118.0 218.0L132.2 216.3L146.5 214.6L160.8 212.9L175.0 211.2L189.2 209.5L203.5 207.8L217.8 206.1L232.0 204.4L246.2 202.7L260.5 201.0L274.8 199.3L289.0 197.6L303.2 195.9L317.5 194.2L331.8 192.6L346.0 190.9L360.2 189.2L374.5 187.5L388.8 185.8L403.0 184.1L417.2 182.4L431.5 180.7L445.8 179.0L460.0 177.3L474.2 175.6L488.5 173.9L502.8 172.2L517.0 170.5L531.2 168.8L545.5 167.1L559.8 165.4L574.0 163.7L588.2 162.0L602.5 160.3L616.8 158.6L631.0 156.9L645.2 155.2L659.5 153.5L673.8 151.8L688.0 150.1" fill="none" stroke="var(--warn-fill)" stroke-width="1.6"/><text x="684.0" y="145.1" text-anchor="end" font-size="10.5" font-weight="650" fill="var(--warn-fill)">普货·旺季</text><path d="M118.0 218.0L132.2 218.4L146.5 218.9L160.8 219.3L175.0 219.7L189.2 220.2L203.5 220.6L217.8 221.0L232.0 221.5L246.2 221.9L260.5 222.3L274.8 222.8L289.0 223.2L303.2 223.7L317.5 224.1L331.8 224.5L346.0 225.0L360.2 225.4L374.5 225.8L388.8 226.3L403.0 226.7L417.2 227.1L431.5 227.6L445.8 228.0L460.0 228.4L474.2 228.9L488.5 229.3L502.8 229.7L517.0 230.2L531.2 230.6L545.5 231.0L559.8 231.5L574.0 231.9L588.2 232.3L602.5 232.8L616.8 233.2L631.0 233.7L645.2 234.1L659.5 234.5L673.8 235.0L688.0 235.4" fill="none" stroke="var(--fee-tail)" stroke-width="1.6"/><text x="684.0" y="230.4" text-anchor="end" font-size="10.5" font-weight="650" fill="var(--fee-tail)">普货·非旺</text><line x1="309.8" y1="160.0" x2="309.8" y2="165.0" stroke="var(--loss)" stroke-width="2"/><text x="309.8" y="177.0" text-anchor="middle" font-size="9.5" font-weight="700" fill="var(--loss)">67天</text><line x1="605.1" y1="160.0" x2="605.1" y2="165.0" stroke="var(--warn-fill)" stroke-width="2"/><text x="605.1" y="177.0" text-anchor="middle" font-size="9.5" font-weight="700" fill="var(--warn-fill)">171天</text><text x="118" y="40" font-size="11" font-weight="700" fill="var(--save)">← AGL 更省</text><text x="688" y="40" text-anchor="end" font-size="11" font-weight="700" fill="var(--loss)">海外仓 更省 →</text><text x="688" y="332" text-anchor="end" font-size="10" fill="var(--ink-3)">横轴：一柜货在仓滞留天数 D（FBA 月度仓储 × 危险品/普货 × 旺季/非旺）· 纵轴：AGL−海外仓 单台差 US$</text></svg>
+  </figure>
+  <article class="card card-bad"><div class="card-top"><span class="chip chip-bad"><span class="dot dot-loss"></span>危险品·旺季</span></div><div class="hero"><span class="num">67</span><span class="unit">天分水岭</span></div><p class="sub">90 天口径 AGL 每台贵 $5.18 · 滞留少于 67 天可翻转</p></article><article class="card card-ok"><div class="card-top"><span class="chip chip-ok"><span class="dot dot-save"></span>危险品·非旺</span></div><div class="hero"><span class="num">14.76</span><span class="unit">$/台 @90天</span></div><p class="sub">90 天口径 AGL 每台省 $14.76 · 滞留天数不构成威胁（分水岭不存在）</p></article><article class="card card-ok"><div class="card-top"><span class="chip chip-ok"><span class="dot dot-save"></span>普货·旺季</span></div><div class="hero"><span class="num">171</span><span class="unit">天分水岭</span></div><p class="sub">90 天口径 AGL 每台省 $7.27 · 滞留超过 171 天才会翻盘</p></article><article class="card card-ok"><div class="card-top"><span class="chip chip-ok"><span class="dot dot-save"></span>普货·非旺</span></div><div class="hero"><span class="num">17.42</span><span class="unit">$/台 @90天</span></div><p class="sub">90 天口径 AGL 每台省 $17.42 · 滞留天数不构成威胁（分水岭不存在）</p></article>
+</section>
+
+<section>
+  <h2>敏感度矩阵 —— 每台差 US$（负＝AGL 省）</h2>
+  <p class="lede">行 = 滞留天数 D，列 = 仓储费率情景。底色逻辑：绿＝AGL 省，红＝AGL 贵。原海外仓仓储口径（¥0.86/方/天 直算 $8.84/90天）。</p>
+  <div class="tblwrap"><table><thead><tr><th>滞留 D</th><th>危险品·旺季</th><th>危险品·非旺</th><th>普货·旺季</th><th>普货·非旺</th></tr></thead><tbody><tr><td class="sname">30 天</td><td class="neg">-8.51</td><td class="neg">-15.16</td><td class="neg">-12.66</td><td class="neg">-16.04</td></tr><tr><td class="sname">60 天</td><td class="neg">-1.66</td><td class="neg">-14.96</td><td class="neg">-9.96</td><td class="neg">-16.73</td></tr><tr><td class="sname">90 天</td><td class="pos">5.18</td><td class="neg">-14.76</td><td class="neg">-7.27</td><td class="neg">-17.42</td></tr><tr><td class="sname">120 天</td><td class="pos">12.03</td><td class="neg">-14.57</td><td class="neg">-4.57</td><td class="neg">-18.12</td></tr><tr><td class="sname">180 天</td><td class="pos">25.72</td><td class="neg">-14.18</td><td class="pos">0.81</td><td class="neg">-19.50</td></tr></tbody></table></div>
+  <p class="foot">若谷仓仓储 ¥0.86/方/天 按 RMB÷6.8 折算（$1.30/90 天），则海外仓合计降为 $76.24，
+  危险品·旺季下 AGL 每台贵 <b>$12.73</b>、分水岭 D≈49.2 天 —— 结论方向不变且更保守。</p>
+</section>
+
+<section>
+  <h2>为什么 90 天只是开始 —— 风险放大量</h2>
+  <p class="lede">H2 走 AGL 的隐性成本不止月度仓储：任何「卖得慢」都会触发以下放大器，把 AGL 的头程红利彻底吞掉。</p>
+  <div class="risk-cards">
+    <div class="risk"><h3>① 超龄库存附加费</h3><p>滞留 <b>&gt;180 天</b> 起收 $0.50/cuft/月，271 天跳 10 倍档 $5.45。M5 = 4.03 cuft，180 天后每月约 <b>$2.02/台</b>；若拖到 271 天+ 每月 <b>$22/台</b>。备 2027 年货几乎必触发。</p></div>
+    <div class="risk"><h3>② 仓储利用率附加费</h3><p>大件分段仓储利用率 <b>&gt;22 周</b> 触发：22–28 周 +$0.23/cuft/月，&gt;52 周 +$1.26/cuft/月。整柜集中到货、三柜同月，账户级 22.4 周即过线（AGL 评估 N 系列先例：利用率附加单柜 26 万）。</p></div>
+    <div class="risk"><h3>③ 危险品费率放大 1.74×</h3><p>M5 是锂电池整机（Class 9）。旺季大件仓储 <b>危险品 $2.43</b> vs 普货 $1.40；非旺 $0.78 vs $0.56。此前 AGL 切换评估用普货价，低估了 M 系列仓储。</p></div>
+    <div class="risk"><h3>④ 旺季窗口不可躲</h3><p>FBA 仓储旺季 = <b>10/11/12 整月</b>（$2.43），配送费旺季 10/15–1/14。H2 到仓几乎必然撞上；1/1–1/14 仓储已回落但配送仍旺季。</p></div>
+    <div class="risk"><h3>⑤ 移除/弃置费</h3><p>卖不掉清仓也要钱（超大件移除按件收），N 系列先例移除费 $8.17 万/柜。FBA 模式无「缓一缓」，只有继续付仓储或花钱移除。</p></div>
+    <div class="risk"><h3>⑥ 与既往结论的偏差</h3><p>AGL 差异看板 v1.1 的「M 整柜稳赚 ¥209/台」用了 <b>钉钉低尾程 ¥161.4（$22.26）</b> + 普货仓储 $1.40。按官方费率（尾程 $39 + 危险品 $2.43）重算即翻盘。</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>与既往结论调和 —— 为什么「M 整柜稳赚」这次变亏</h2>
+  <p class="lede">不是数据打架，是口径升级：三次结论看的是同一条 M 线，费率基础一次比一次接近官方。</p>
+  <div class="tblwrap">
+  <table>
+    <thead><tr><th>版本</th><th>尾程口径</th><th>仓储口径</th><th>仓储天数</th><th>M 结论</th></tr></thead>
+    <tbody>
+    <tr><td class="sname">AGL 切换评估 (08-19)</td><td>钉钉 ¥161.4/台 = $22.26</td><td>普货大件 $1.40(旺)</td><td>545 天逐日仿真·动态</td><td class="neg">整柜稳赚 −10.2~12.8万/柜</td></tr>
+    <tr><td class="sname">M 尾端履约结论 (08-25)</td><td>官方 $37.32(非旺)/超大件</td><td>—（只比尾端）</td><td>—</td><td class="pos">现状超大件 恒谷仓（安全边际 ¥1.02）</td></tr>
+    <tr><td class="sname">本次 H2 对比 (08-26)</td><td>官方 $39(H2 混算)/超大件</td><td>危险品大件 $2.43(旺)</td><td>静态 90 天</td><td class="pos">AGL 整柜每台贵 $5.18（分水岭 67 天）</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="foot">差异看板那版用了官方校准前口径（钉钉报价低尾程 + 普货仓储），夸大了 M 的 AGL 红利。若按官方费率对 545 天仿真重算，M 的「稳赚」区间显著收窄到快销品。</p>
+</section>
+
+<section>
+  <h2>决策框架 —— 不搞一刀切，按周转分流</h2>
+  <div class="levers">
+    <ol>
+      <li><b>快销品（预期 D ≤ 60 天）→ AGL 整柜可行</b>：30 天口径 AGL 每台省 $8.5（危险品旺季）/ $12–16（其他情景）。前提：库存按销量比例配货、不停留。</li>
+      <li><b>中速品（D 60–90 天）→ 持平区，逐 SKU 测算</b>：正好压在分水岭两侧，一两个星期误差即翻盘，按真实动销数据单点核算。</li>
+      <li><b>慢销 / 备货 / 2027 预报（D &gt; 90 天）→ 一律留海外仓</b>：FBA 月度仓储 + 超龄 + 利用率 = 无底洞，海外仓滞留成本低、可发 FBM 控库存。</li>
+      <li><b>先压包装、再切 AGL（战略杠杆）</b>：M5 体积重 50.2lb 刚过 50lb 线，包装毫米级压缩回落「小号大件」→ FBA 尾程 $39 → $23.92（−$15/台），AGL 在 90 天危险品旺季下也能转赢。</li>
+      <li><b>到仓节奏避让旺季</b>：Q4 危险品仓储 $2.43 是普货 1.74 倍，能避开 10–12 月到仓就避；非旺 $0.78 时 AGL 几乎全天候赢。</li>
+    </ol>
+  </div>
+  <p class="foot"><b>一句话结论：</b>H2 物流「全盘按 AGL 跑」不可行；「按周转分流跑 AGL」可行——头程红利 $17.65/台 只属于 60 天内卖得掉的货，危险品 × 旺季 × 慢周转是 AGL 的禁区。</p>
+</section>
+
+<p class="foot">
+  <b>口径与局限：</b>① 主口径复现对比文件（M5 · 危险品锂电 · 超大件 50–70 · 500 台/柜 · 汇率 6.8 · 静态 90 天仓储），AGL 仓储按危险品·旺季 $2.43/cuft/月 全旺季口径（偏保守）；海外仓仓储按 ¥0.86/方/天 直算 $8.84（若 ÷6.8 折算则海外仓合计 $76.24，AGL 贵 $12.73，方向不变）。
+  ② 分水岭基于「滞留天数×月费率」线性外推，未建模逐日销量衰减——真实动销下 FBA 仓储低于静态上限，对 AGL 略有利。
+  ③ 未计资金占用、退货处理、低库存费、时效/转化率差异、以及 AGL 整柜的舱位/截单合规成本。
+  ④ 尾程 $39 = (37.32×3+40.13×3)/6 的 H2 混算，对比文件取 39。⑤ 复用资产：仿真模型 <b>scripts/agl_vs_forwarder_sim.py</b>、官方费率 <b>data/fba_us_cost_model.json</b>、收费明细 <b>output/fba_fee_detail.html</b>、AGL 差异看板 <b>output/agl_diff_dashboard.html</b>。
+</p>
+
+</div>
+</body>
+</html>
