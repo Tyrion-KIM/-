@@ -36,3 +36,15 @@ def test_personal_total_renormalizes_na():
     assert personal_total(pairs, task=80) == pytest.approx((75*27+92*5+80*30)/(32+30), abs=0.01)
     assert personal_total([(None, 70)], task=None) is None   # 全NA无任务
     assert personal_total([(100, 70)], task=None) == 100     # 无任务块不计入分母
+
+def test_team_is_five_stable_posts():
+    assert len(PEOPLE) == 5 and "张雨洁" not in PEOPLE
+
+def test_intern_work_merged_into_zheng():
+    for kid in ("K23", "K24", "K25"):
+        ind = next(i for i in INDICATORS if i.id == kid)
+        assert ind.person == "郑舒漫"
+    assert len([i for i in INDICATORS if i.person == "郑舒漫"]) == 7
+
+def test_zheng_weights_sum_70():
+    assert sum(i.weight for i in INDICATORS if i.person == "郑舒漫") == 70
