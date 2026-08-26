@@ -62,7 +62,7 @@ def test_render_html(sample_xlsx):
     data = read_month(sample_xlsx, "2026-09")
     html = render(compute_month(data))
     for kw in ["2026-09", "吴佳钒", "91.0", "红绿灯", "监控区", "任务块公示",
-               "张雨洁", "不排名", "截关装船"]:
+               "其他项（机动支援）不设卡", "截关装船"]:
         assert kw in html
     assert html.count('class="card light-green"') + \
            html.count('class="card light-amber"') + \

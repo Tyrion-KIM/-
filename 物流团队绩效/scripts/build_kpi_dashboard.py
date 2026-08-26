@@ -100,7 +100,7 @@ def _fmt(s):
 
 def render(cur, prev_totals=None):
     m = cur["month"]
-    ranked = [p for p in PEOPLE if p != "张雨洁" and cur["totals"].get(p) is not None]
+    ranked = [p for p in PEOPLE if cur["totals"].get(p) is not None]
     team_avg = sum(cur["totals"][p] for p in ranked) / len(ranked) if ranked else None
     def mom(p):
         if not prev_totals or cur["totals"].get(p) is None:
@@ -124,8 +124,7 @@ def render(cur, prev_totals=None):
     for p in PEOPLE:
         t = cur["totals"].get(p)
         cov = cur["coverage"][p]
-        tag = ' <span class="tag">实习生·不排名</span>' if p == "张雨洁" else \
-              (' <span class="tag">主管</span>' if p == "金炜铮" else "")
+        tag = ' <span class="tag">主管</span>' if p == "金炜铮" else ""
         cards += (f'<div class="card {_light(t)}">'
                   f'<div class="name">{p}{tag}</div>'
                   f'<div class="big">{_fmt(t)}</div>'
@@ -164,8 +163,8 @@ section{{margin:20px 0}} h2{{font-size:15px;margin:0 0 8px}} .bar{{height:14px;b
 .tag{{background:#2c2c2a;color:#c3c2b7}}}}
 </style></head><body><div class="wrap">
 <h1>物流团队绩效看板 · {m}</h1>
-<div class="mut">绿≥85 · 黄70-84.9 · 红&lt;70 · NA灰（降级归一化）｜量化70+任务30｜实习生算分不排名</div>
-<section><h2>团队</h2><div class="card">团队总分（不含实习生）：{_fmt(team_avg)} 分</div>
+<div class="mut">绿≥85 · 黄70-84.9 · 红&lt;70 · NA灰（降级归一化）｜量化70+任务30｜其他项（机动支援）不设卡</div>
+<section><h2>团队</h2><div class="card">团队总分：{_fmt(team_avg)} 分</div>
 <div style="margin-top:8px">{cost_bar}</div></section>
 <section><h2>个人总分</h2><div class="grid">{cards}</div></section>
 <section><h2>业务线红绿灯矩阵（过程管理）</h2>
