@@ -4,6 +4,7 @@
 用法：python -X utf8 scripts/build_kpi_dashboard.py --month 2026-09 [--xlsx 物流团队绩效V1.xlsx] [--out output/]
 注意：不读 Excel 公式结果（无缓存值），一律按 kpi_model 重算。"""
 import argparse
+import re
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # 直跑兼容
@@ -14,14 +15,31 @@ from kpi_model import (INDICATORS, PEOPLE, SPECIALISTS, row_scores,
 ROOT = Path(__file__).resolve().parent.parent
 FIRST_ROW = 4
 GREEN, AMBER, RED, GRAY = "light-green", "light-amber", "light-red", "light-gray"
+MONTH_RE = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
+
+class MonthSheetError(ValueError):
+    """打分-YYYY-MM sheet 不存在。环比读取仅吞此异常 = 上月未建表（首月）。"""
 
 def _prev_month(m):
     y, mm = map(int, m.split("-"))
     return f"{y - 1}-12" if mm == 1 else f"{y}-{mm - 1:02d}"
 
 def read_month(xlsx, month):
+    if not MONTH_RE.match(month):
+        raise ValueError(f"月份格式应为 YYYY-MM（如 2026-09），收到：{month!r}")
     wb = load_workbook(xlsx, data_only=False)
-    ws = wb[f"打分-{month}"]
+    ws_name = f"打分-{month}"
+    if ws_name not in wb.sheetnames:
+        avail = [n for n in wb.sheetnames if n.startswith("打分-")]
+        hint = "、".join(avail) if avail else "无（请先复制「打分表模板」并重命名为 打分-YYYY-MM）"
+        raise MonthSheetError(f"工作簿里没有 {ws_name} sheet。现有打分表：{hint}")
+    ws = wb[ws_name]
+    b1 = ws["B1"].value
+    if b1 is None or str(b1).strip() != month:
+        disp = "空" if b1 is None else repr(b1)
+        raise ValueError(
+            f"{ws_name} 的 B1（绩效月份）应为 {month!r}，实际为 {disp}；"
+            "请检查是否复制了未更新的上月打分表")
     rows = {}
     for n, ind in enumerate(INDICATORS):
         r = FIRST_ROW + n
@@ -184,10 +202,11 @@ def main():
     data = read_month(a.xlsx, a.month)
     cur = compute_month(data)
     prev = None
+    pm = _prev_month(a.month)
     try:
-        prev = compute_month(read_month(a.xlsx, _prev_month(a.month)))["totals"]
-    except Exception:
-        pass
+        prev = compute_month(read_month(a.xlsx, pm))["totals"]
+    except MonthSheetError:
+        pass  # 上月打分表未建 → 环比显示「首月」
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
     f = out / f"kpi_dashboard_{a.month}.html"
     f.write_text(render(cur, prev), encoding="utf-8")

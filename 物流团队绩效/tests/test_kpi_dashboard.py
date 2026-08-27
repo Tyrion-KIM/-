@@ -3,7 +3,8 @@
 import pytest
 from openpyxl import load_workbook
 from scripts.build_kpi_template import build_workbook, OUT
-from scripts.build_kpi_dashboard import read_month, compute_month, render
+from scripts.build_kpi_dashboard import (MonthSheetError, read_month,
+                                         compute_month, render)
 
 @pytest.fixture(scope="module")
 def sample_xlsx(tmp_path_factory):
@@ -76,3 +77,44 @@ def test_cli_end_to_end(sample_xlsx, tmp_path):
                     "--xlsx", str(sample_xlsx), "--out", str(out.parent)],
                    check=True, cwd=str(OUT.parent))
     assert (tmp_path / "kpi_dashboard_2026-09.html").exists()
+
+# --- FUTURE-WORK ②：read_month 校验（月份串 / sheet 存在 / B1 一致 / 环比不吞错） ---
+
+@pytest.mark.parametrize("bad", ["2026-9", "202609", "2026-13"])
+def test_read_month_invalid_format(sample_xlsx, bad):
+    """月份串不是 YYYY-MM → ValueError，且不 load 工作簿。"""
+    with pytest.raises(ValueError, match=r"YYYY-MM"):
+        read_month(sample_xlsx, bad)
+
+def test_read_month_missing_sheet(sample_xlsx):
+    """打分-YYYY-MM sheet 不存在 → MonthSheetError，消息列出现有打分表。"""
+    with pytest.raises(MonthSheetError, match=r"打分-2026-10"):
+        read_month(sample_xlsx, "2026-10")
+
+@pytest.mark.parametrize("b1", ["2026-08", None, ""])
+def test_read_month_b1_mismatch(tmp_path, b1):
+    """B1 绩效月份 ≠ 目标月份（含空）→ ValueError，抓「复制上月没改 B1」。"""
+    p = tmp_path / "b1.xlsx"
+    wb = build_workbook()
+    ws = wb["打分表模板"]; ws.title = "打分-2026-09"; ws["B1"] = b1
+    wb.save(p)
+    with pytest.raises(ValueError, match="B1"):
+        read_month(p, "2026-09")
+
+def test_cli_prev_sheet_b1_mismatch_not_swallowed(tmp_path):
+    """上月打分表存在但 B1 错 → 环比不能静默吞掉，CLI 必须失败并报 B1。"""
+    import subprocess, sys
+    p = tmp_path / "bad_prev.xlsx"
+    wb = build_workbook()
+    for nm, b1 in (("打分-2026-08", "2026-09"), ("打分-2026-09", "2026-09")):
+        ws = wb.copy_worksheet(wb["打分表模板"])
+        ws.title = nm; ws["B1"] = b1
+    wb.remove(wb["打分表模板"])
+    wb.save(p)
+    out = tmp_path / "d2"
+    r = subprocess.run([sys.executable, "-X", "utf8",
+                        "scripts/build_kpi_dashboard.py", "--month", "2026-09",
+                        "--xlsx", str(p), "--out", str(out)],
+                       capture_output=True, text=True, cwd=str(OUT.parent))
+    assert r.returncode != 0
+    assert "B1" in r.stderr
