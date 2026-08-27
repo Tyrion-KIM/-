@@ -4,7 +4,8 @@
   "day0": "2026-10-01",
   "horizon": 545,
   "share_base": 0.25,
-  "generated": "2026-08-24"
+  "generated": "2026-08-27",
+  "note": "2026-08-26 口径升级: M 尾程=官方超大件 H2混算 $39×7.25; M 仓储=危险品大件 $2.43旺/$0.78非旺 (见 agl_h2_feasibility_conclusion.html)"
  },
  "matrix": {
   "G": {
@@ -194,39 +195,39 @@
      "clearance_day": 151
     },
     "B": {
-     "total": 216773,
+     "total": 324406,
      "sold": 574,
-     "per_delivered": 378,
-     "per_container_pc": 378,
-     "storage": 53292,
+     "per_delivered": 565,
+     "per_container_pc": 565,
+     "storage": 91270,
      "util_sur": 0,
      "aged_sur": 0,
      "removal": 0,
      "head": 70837,
-     "tail": 92644,
+     "tail": 162298,
      "leftover": 0,
      "clearance_day": 151
     },
     "C": {
-     "total": 187095,
+     "total": 265827,
      "sold": 574,
-     "per_delivered": 326,
-     "per_container_pc": 326,
-     "storage": 13369,
+     "per_delivered": 463,
+     "per_container_pc": 463,
+     "storage": 22446,
      "util_sur": 0,
      "aged_sur": 0,
      "removal": 0,
      "head": 81082,
-     "tail": 92644,
+     "tail": 162298,
      "leftover": 0,
      "clearance_day": 151
     },
     "B_fix": {
-     "total": 183854,
+     "total": 291487,
      "sold": 574,
-     "per_delivered": 320,
-     "per_container_pc": 320,
-     "storage": 53292,
+     "per_delivered": 508,
+     "per_container_pc": 508,
+     "storage": 91270,
      "util_sur": 0,
      "aged_sur": 0,
      "removal": 0,
@@ -250,39 +251,39 @@
      "clearance_day": 76
     },
     "B": {
-     "total": 193012,
+     "total": 284393,
      "sold": 574,
-     "per_delivered": 336,
-     "per_container_pc": 336,
-     "storage": 29531,
+     "per_delivered": 495,
+     "per_container_pc": 495,
+     "storage": 51257,
      "util_sur": 0,
      "aged_sur": 0,
      "removal": 0,
      "head": 70837,
-     "tail": 92644,
+     "tail": 162298,
      "leftover": 0,
      "clearance_day": 76
     },
     "C": {
-     "total": 187773,
+     "total": 268842,
      "sold": 574,
-     "per_delivered": 327,
-     "per_container_pc": 327,
-     "storage": 15514,
+     "per_delivered": 468,
+     "per_container_pc": 468,
+     "storage": 26928,
      "util_sur": 0,
      "aged_sur": 0,
      "removal": 0,
      "head": 79615,
-     "tail": 92644,
+     "tail": 162298,
      "leftover": 0,
      "clearance_day": 76
     },
     "B_fix": {
-     "total": 160093,
+     "total": 251474,
      "sold": 574,
-     "per_delivered": 279,
-     "per_container_pc": 279,
-     "storage": 29531,
+     "per_delivered": 438,
+     "per_container_pc": 438,
+     "storage": 51257,
      "util_sur": 0,
      "aged_sur": 0,
      "removal": 0,
@@ -306,39 +307,39 @@
      "clearance_day": 51
     },
     "B": {
-     "total": 183298,
+     "total": 267532,
      "sold": 574,
-     "per_delivered": 319,
-     "per_container_pc": 319,
-     "storage": 19817,
+     "per_delivered": 466,
+     "per_container_pc": 466,
+     "storage": 34396,
      "util_sur": 0,
      "aged_sur": 0,
      "removal": 0,
      "head": 70837,
-     "tail": 92644,
+     "tail": 162298,
      "leftover": 0,
      "clearance_day": 51
     },
     "C": {
-     "total": 188491,
+     "total": 270089,
      "sold": 574,
-     "per_delivered": 328,
-     "per_container_pc": 328,
-     "storage": 16233,
+     "per_delivered": 471,
+     "per_container_pc": 471,
+     "storage": 28176,
      "util_sur": 0,
      "aged_sur": 0,
      "removal": 0,
      "head": 79615,
-     "tail": 92644,
+     "tail": 162298,
      "leftover": 0,
      "clearance_day": 51
     },
     "B_fix": {
-     "total": 150379,
+     "total": 234613,
      "sold": 574,
-     "per_delivered": 262,
-     "per_container_pc": 262,
-     "storage": 19817,
+     "per_delivered": 409,
+     "per_container_pc": 409,
+     "storage": 34396,
      "util_sur": 0,
      "aged_sur": 0,
      "removal": 0,
@@ -538,19 +539,19 @@
   },
   "M": {
    "0.2": {
-    "mult": 0.274,
-    "ds_us": 1.673,
-    "days_of_supply": 343
+    "mult": 0.702,
+    "ds_us": 4.284,
+    "days_of_supply": 134
    },
    "0.25": {
-    "mult": 0.219,
-    "ds_us": 1.673,
-    "days_of_supply": 343
+    "mult": 0.562,
+    "ds_us": 4.284,
+    "days_of_supply": 134
    },
    "0.3": {
-    "mult": 0.183,
-    "ds_us": 1.673,
-    "days_of_supply": 343
+    "mult": 0.468,
+    "ds_us": 4.284,
+    "days_of_supply": 134
    }
   },
   "N": {
@@ -734,7 +735,7 @@
     "clear_day": 76,
     "aged_sur": 0,
     "aged_per_pc": 0,
-    "total_per_pc": 336
+    "total_per_pc": 495
    },
    {
     "policy": "equal_cover",
@@ -745,7 +746,7 @@
     "clear_day": 76,
     "aged_sur": 0,
     "aged_per_pc": 0,
-    "total_per_pc": 336
+    "total_per_pc": 495
    },
    {
     "policy": "equal_cover",
@@ -756,7 +757,7 @@
     "clear_day": 76,
     "aged_sur": 0,
     "aged_per_pc": 0,
-    "total_per_pc": 336
+    "total_per_pc": 495
    },
    {
     "policy": "equal_cover",
@@ -767,7 +768,7 @@
     "clear_day": 76,
     "aged_sur": 0,
     "aged_per_pc": 0,
-    "total_per_pc": 336
+    "total_per_pc": 495
    },
    {
     "policy": "equal_cover",
@@ -778,7 +779,7 @@
     "clear_day": 76,
     "aged_sur": 0,
     "aged_per_pc": 0,
-    "total_per_pc": 336
+    "total_per_pc": 495
    },
    {
     "policy": "equal_cover",
@@ -789,7 +790,7 @@
     "clear_day": 76,
     "aged_sur": 0,
     "aged_per_pc": 0,
-    "total_per_pc": 336
+    "total_per_pc": 495
    },
    {
     "policy": "equal_qty",
@@ -800,7 +801,7 @@
     "clear_day": 28,
     "aged_sur": 0,
     "aged_per_pc": 0,
-    "total_per_pc": 304
+    "total_per_pc": 439
    },
    {
     "policy": "equal_qty",
@@ -811,7 +812,7 @@
     "clear_day": 56,
     "aged_sur": 0,
     "aged_per_pc": 0,
-    "total_per_pc": 323
+    "total_per_pc": 472
    },
    {
     "policy": "equal_qty",
@@ -822,7 +823,7 @@
     "clear_day": 73,
     "aged_sur": 0,
     "aged_per_pc": 0,
-    "total_per_pc": 335
+    "total_per_pc": 493
    },
    {
     "policy": "equal_qty",
@@ -833,7 +834,7 @@
     "clear_day": 140,
     "aged_sur": 0,
     "aged_per_pc": 0,
-    "total_per_pc": 373
+    "total_per_pc": 557
    },
    {
     "policy": "equal_qty",
@@ -844,7 +845,7 @@
     "clear_day": 341,
     "aged_sur": 6190,
     "aged_per_pc": 65,
-    "total_per_pc": 574
+    "total_per_pc": 793
    },
    {
     "policy": "equal_qty",
@@ -855,7 +856,7 @@
     "clear_day": null,
     "aged_sur": 83841,
     "aged_per_pc": 876,
-    "total_per_pc": 1885
+    "total_per_pc": 2147
    }
   ],
   "N": [

@@ -49,13 +49,14 @@
 
 <h1>AGL 头程切换评估 — 库存冗余会不会吃掉降本？</h1>
 <div class="meta">口径：单件/整柜成本 RMB · 汇率 7.25 · 到仓日 2026-10-01（直接进入FBA仓储旺季10–12月）· 仿真时长 545 天
-· 数据源：钉钉《物流中心费用20260803V1》（基线谷仓与AGL报价）+ Amazon 2026 官方仓储/超龄/移除费率 · 生成 2026-08-19</div>
+· 数据源：钉钉《物流中心费用20260803V1》（基线谷仓与AGL报价）+ Amazon 2026 官方仓储/超龄/移除费率 · 生成 2026-08-27
+· ⚠️ v1.2 口径升级（2026-08-26）：M 尾程/FBA仓储已从旧版钉钉报价+普货仓储升级为 Amazon 官方费率（尾程 $39 超大件 + 危险品 $2.43 旺季）——M 结论由「稳赚」修正为「快销才赚」</div>
 
 <div class="cards">
-  <div class="card ok">
-    <h3>M系列 — 放心切 AGL 整柜</h3>
-    <div class="big">三情景全部省钱 10.2万~12.8万/柜</div>
-    <p>预期 76 天清柜，悲观 0.5x 也只要 151 天，全程不触发利用率/超龄附加费。盈亏平衡点仅预期销量的 22%（美国 1.67 件/天）。唯一的安全仓。</p>
+  <div class="card mid">
+    <h3>M系列 — AGL 整柜可走，但需快销</h3>
+    <div class="big">1.0x 省 2.9万，0.5x 反亏 0.55万</div>
+    <p>官方费率重算（尾程 $39 + 危险品仓储 $2.43）：1.0x 省 2.9万/柜、1.5x 省 4.4万，但 0.5x 已反亏 0.55万。盈亏平衡=预期销量 56%（美国 4.28件/天）、134 天清柜。分水岭=周转天数 D≈67天：快销走 AGL、慢销留谷仓，见 H2 结论。</p>
   </div>
   <div class="card mid">
     <h3>G系列 — 刀尖上，不建议整柜直发</h3>
@@ -121,7 +122,7 @@
         </tr></tbody>
   </table>
   <p class="note">B修正口径（海运只计一次）：悲观 0.5x 416,601 / 预期 1.0x 224,810 / 乐观 1.5x 203,661 —— 原表AGL行K、N两列重复计了同一笔海运价。</p>
-  <h3>M系列 <span class="tag">整柜574件 · 美国日销@1.0x≈7.63件 · 预期清仓75天</span></h3>
+  <h3>M系列 <span class="tag">整柜574件 · 美国日销@1.0x≈7.63件 · 预期清仓76天</span></h3>
   <table>
     <thead><tr>
       <th>情景</th><th>A 现状谷仓<br>(RMB)</th><th>B AGL整柜→FBA<br>(RMB)</th><th>Δ B−A</th>
@@ -132,12 +133,12 @@
         <tr>
           <td class="sc">悲观 0.5x</td>
           <td>318,890</td>
-          <td><b>216,773</b></td>
-          <td><span class="neg">-102,117</span></td>
-          <td>187,095</td>
-          <td><span class="neg">-131,795</span></td>
+          <td><b>324,406</b></td>
+          <td><span class="pos">+5,516</span></td>
+          <td>265,827</td>
+          <td><span class="neg">-53,063</span></td>
           <td>151天</td>
-          <td class="sub">53,292</td>
+          <td class="sub">91,270</td>
           <td class="sub">0</td>
           <td class="sub warn">0</td>
           <td class="sub warn">0</td>
@@ -145,12 +146,12 @@
         <tr>
           <td class="sc">预期 1.0x</td>
           <td>313,465</td>
-          <td><b>193,012</b></td>
-          <td><span class="neg">-120,453</span></td>
-          <td>187,773</td>
-          <td><span class="neg">-125,692</span></td>
+          <td><b>284,393</b></td>
+          <td><span class="neg">-29,072</span></td>
+          <td>268,842</td>
+          <td><span class="neg">-44,623</span></td>
           <td>76天</td>
-          <td class="sub">29,531</td>
+          <td class="sub">51,257</td>
           <td class="sub">0</td>
           <td class="sub warn">0</td>
           <td class="sub warn">0</td>
@@ -158,18 +159,18 @@
         <tr>
           <td class="sc">乐观 1.5x</td>
           <td>311,657</td>
-          <td><b>183,298</b></td>
-          <td><span class="neg">-128,359</span></td>
-          <td>188,491</td>
-          <td><span class="neg">-123,166</span></td>
+          <td><b>267,532</b></td>
+          <td><span class="neg">-44,125</span></td>
+          <td>270,089</td>
+          <td><span class="neg">-41,568</span></td>
           <td>51天</td>
-          <td class="sub">19,817</td>
+          <td class="sub">34,396</td>
           <td class="sub">0</td>
           <td class="sub warn">0</td>
           <td class="sub warn">0</td>
         </tr></tbody>
   </table>
-  <p class="note">B修正口径（海运只计一次）：悲观 0.5x 183,854 / 预期 1.0x 160,093 / 乐观 1.5x 150,379 —— 原表AGL行K、N两列重复计了同一笔海运价。</p>
+  <p class="note">B修正口径（海运只计一次）：悲观 0.5x 291,487 / 预期 1.0x 251,474 / 乐观 1.5x 234,613 —— 原表AGL行K、N两列重复计了同一笔海运价。</p>
   <h3>N系列 <span class="tag">整柜330件 · 美国日销@1.0x≈0.34件 · 预期清仓959天</span></h3>
   <table>
     <thead><tr>
@@ -221,7 +222,7 @@
   <p class="note">B修正口径（海运只计一次）：悲观 0.5x 1,611,112 / 预期 1.0x 1,264,818 / 乐观 1.5x 890,301 —— 原表AGL行K、N两列重复计了同一笔海运价。</p>
 
 <h2>② 图表</h2>
-<h3>G系列</h3><svg viewBox="0 0 760 264" xmlns="http://www.w3.org/2000/svg" role="img"><rect x="90" y="93.0" width="46" height="153.0" rx="3" fill="#8a93a6"/><text x="113" y="89" text-anchor="middle" font-size="11" fill="#4b5563">33.5万</text><rect x="144" y="40.6" width="46" height="205.4" rx="3" fill="#2f6fed"/><text x="167" y="37" text-anchor="middle" font-size="11" fill="#4b5563">45.0万</text><rect x="198" y="116.3" width="46" height="129.7" rx="3" fill="#0fa97f"/><text x="221" y="112" text-anchor="middle" font-size="11" fill="#4b5563">28.4万</text><text x="167" y="262" text-anchor="middle" font-size="12" fill="#374151">悲观 0.5x</text><rect x="284" y="100.2" width="46" height="145.8" rx="3" fill="#8a93a6"/><text x="307" y="96" text-anchor="middle" font-size="11" fill="#4b5563">31.9万</text><rect x="338" y="128.3" width="46" height="117.7" rx="3" fill="#2f6fed"/><text x="361" y="124" text-anchor="middle" font-size="11" fill="#4b5563">25.8万</text><rect x="392" y="117.4" width="46" height="128.6" rx="3" fill="#0fa97f"/><text x="415" y="113" text-anchor="middle" font-size="11" fill="#4b5563">28.2万</text><text x="361" y="262" text-anchor="middle" font-size="12" fill="#374151">预期 1.0x</text><rect x="478" y="102.6" width="46" height="143.4" rx="3" fill="#8a93a6"/><text x="501" y="99" text-anchor="middle" font-size="11" fill="#4b5563">31.4万</text><rect x="532" y="137.9" width="46" height="108.1" rx="3" fill="#2f6fed"/><text x="555" y="134" text-anchor="middle" font-size="11" fill="#4b5563">23.7万</text><rect x="586" y="116.7" width="46" height="129.3" rx="3" fill="#0fa97f"/><text x="609" y="113" text-anchor="middle" font-size="11" fill="#4b5563">28.3万</text><text x="555" y="262" text-anchor="middle" font-size="12" fill="#374151">乐观 1.5x</text><line x1="84" y1="188" x2="752" y2="188" stroke="#e5e7eb" stroke-dasharray="3,3"/><text x="80" y="192" text-anchor="end" font-size="10" fill="#9ca3af">13万</text><line x1="84" y1="131" x2="752" y2="131" stroke="#e5e7eb" stroke-dasharray="3,3"/><text x="80" y="135" text-anchor="end" font-size="10" fill="#9ca3af">25万</text><line x1="84" y1="74" x2="752" y2="74" stroke="#e5e7eb" stroke-dasharray="3,3"/><text x="80" y="78" text-anchor="end" font-size="10" fill="#9ca3af">38万</text><line x1="84" y1="16" x2="752" y2="16" stroke="#e5e7eb" stroke-dasharray="3,3"/><text x="80" y="20" text-anchor="end" font-size="10" fill="#9ca3af">50万</text><text x="20" y="131.0" font-size="12" fill="#374151" transform="rotate(-90 20 131.0)">整柜总成本 RMB</text><rect x="90" y="270" width="12" height="12" rx="2" fill="#8a93a6"/><text x="107" y="280" font-size="12" fill="#374151">A 现状谷仓</text><rect x="280" y="270" width="12" height="12" rx="2" fill="#2f6fed"/><text x="297" y="280" font-size="12" fill="#374151">B AGL整柜FBA</text><rect x="470" y="270" width="12" height="12" rx="2" fill="#0fa97f"/><text x="487" y="280" font-size="12" fill="#374151">C AGL散货LCL</text></svg><h3>M系列</h3><svg viewBox="0 0 760 264" xmlns="http://www.w3.org/2000/svg" role="img"><rect x="90" y="40.6" width="46" height="205.4" rx="3" fill="#8a93a6"/><text x="113" y="37" text-anchor="middle" font-size="11" fill="#4b5563">31.9万</text><rect x="144" y="106.4" width="46" height="139.6" rx="3" fill="#2f6fed"/><text x="167" y="102" text-anchor="middle" font-size="11" fill="#4b5563">21.7万</text><rect x="198" y="125.5" width="46" height="120.5" rx="3" fill="#0fa97f"/><text x="221" y="122" text-anchor="middle" font-size="11" fill="#4b5563">18.7万</text><text x="167" y="262" text-anchor="middle" font-size="12" fill="#374151">悲观 0.5x</text><rect x="284" y="44.1" width="46" height="201.9" rx="3" fill="#8a93a6"/><text x="307" y="40" text-anchor="middle" font-size="11" fill="#4b5563">31.3万</text><rect x="338" y="121.7" width="46" height="124.3" rx="3" fill="#2f6fed"/><text x="361" y="118" text-anchor="middle" font-size="11" fill="#4b5563">19.3万</text><rect x="392" y="125.1" width="46" height="120.9" rx="3" fill="#0fa97f"/><text x="415" y="121" text-anchor="middle" font-size="11" fill="#4b5563">18.8万</text><text x="361" y="262" text-anchor="middle" font-size="12" fill="#374151">预期 1.0x</text><rect x="478" y="45.3" width="46" height="200.7" rx="3" fill="#8a93a6"/><text x="501" y="41" text-anchor="middle" font-size="11" fill="#4b5563">31.2万</text><rect x="532" y="128.0" width="46" height="118.0" rx="3" fill="#2f6fed"/><text x="555" y="124" text-anchor="middle" font-size="11" fill="#4b5563">18.3万</text><rect x="586" y="124.6" width="46" height="121.4" rx="3" fill="#0fa97f"/><text x="609" y="121" text-anchor="middle" font-size="11" fill="#4b5563">18.8万</text><text x="555" y="262" text-anchor="middle" font-size="12" fill="#374151">乐观 1.5x</text><line x1="84" y1="188" x2="752" y2="188" stroke="#e5e7eb" stroke-dasharray="3,3"/><text x="80" y="192" text-anchor="end" font-size="10" fill="#9ca3af">9万</text><line x1="84" y1="131" x2="752" y2="131" stroke="#e5e7eb" stroke-dasharray="3,3"/><text x="80" y="135" text-anchor="end" font-size="10" fill="#9ca3af">18万</text><line x1="84" y1="74" x2="752" y2="74" stroke="#e5e7eb" stroke-dasharray="3,3"/><text x="80" y="78" text-anchor="end" font-size="10" fill="#9ca3af">27万</text><line x1="84" y1="16" x2="752" y2="16" stroke="#e5e7eb" stroke-dasharray="3,3"/><text x="80" y="20" text-anchor="end" font-size="10" fill="#9ca3af">36万</text><text x="20" y="131.0" font-size="12" fill="#374151" transform="rotate(-90 20 131.0)">整柜总成本 RMB</text><rect x="90" y="270" width="12" height="12" rx="2" fill="#8a93a6"/><text x="107" y="280" font-size="12" fill="#374151">A 现状谷仓</text><rect x="280" y="270" width="12" height="12" rx="2" fill="#2f6fed"/><text x="297" y="280" font-size="12" fill="#374151">B AGL整柜FBA</text><rect x="470" y="270" width="12" height="12" rx="2" fill="#0fa97f"/><text x="487" y="280" font-size="12" fill="#374151">C AGL散货LCL</text></svg><h3>N系列</h3><svg viewBox="0 0 760 264" xmlns="http://www.w3.org/2000/svg" role="img"><rect x="90" y="213.6" width="46" height="32.4" rx="3" fill="#8a93a6"/><text x="113" y="210" text-anchor="middle" font-size="11" fill="#4b5563">25.9万</text><rect x="144" y="40.6" width="46" height="205.4" rx="3" fill="#2f6fed"/><text x="167" y="37" text-anchor="middle" font-size="11" fill="#4b5563">164.4万</text><rect x="198" y="233.7" width="46" height="12.3" rx="3" fill="#0fa97f"/><text x="221" y="230" text-anchor="middle" font-size="11" fill="#4b5563">9.9万</text><text x="167" y="262" text-anchor="middle" font-size="12" fill="#374151">悲观 0.5x</text><rect x="284" y="211.3" width="46" height="34.7" rx="3" fill="#8a93a6"/><text x="307" y="207" text-anchor="middle" font-size="11" fill="#4b5563">27.8万</text><rect x="338" y="83.9" width="46" height="162.1" rx="3" fill="#2f6fed"/><text x="361" y="80" text-anchor="middle" font-size="11" fill="#4b5563">129.8万</text><rect x="392" y="224.0" width="46" height="22.0" rx="3" fill="#0fa97f"/><text x="415" y="220" text-anchor="middle" font-size="11" fill="#4b5563">17.6万</text><text x="361" y="262" text-anchor="middle" font-size="12" fill="#374151">预期 1.0x</text><rect x="478" y="208.9" width="46" height="37.1" rx="3" fill="#8a93a6"/><text x="501" y="205" text-anchor="middle" font-size="11" fill="#4b5563">29.7万</text><rect x="532" y="130.7" width="46" height="115.3" rx="3" fill="#2f6fed"/><text x="555" y="127" text-anchor="middle" font-size="11" fill="#4b5563">92.3万</text><rect x="586" y="212.8" width="46" height="33.2" rx="3" fill="#0fa97f"/><text x="609" y="209" text-anchor="middle" font-size="11" fill="#4b5563">26.6万</text><text x="555" y="262" text-anchor="middle" font-size="12" fill="#374151">乐观 1.5x</text><line x1="84" y1="188" x2="752" y2="188" stroke="#e5e7eb" stroke-dasharray="3,3"/><text x="80" y="192" text-anchor="end" font-size="10" fill="#9ca3af">46万</text><line x1="84" y1="131" x2="752" y2="131" stroke="#e5e7eb" stroke-dasharray="3,3"/><text x="80" y="135" text-anchor="end" font-size="10" fill="#9ca3af">92万</text><line x1="84" y1="74" x2="752" y2="74" stroke="#e5e7eb" stroke-dasharray="3,3"/><text x="80" y="78" text-anchor="end" font-size="10" fill="#9ca3af">138万</text><line x1="84" y1="16" x2="752" y2="16" stroke="#e5e7eb" stroke-dasharray="3,3"/><text x="80" y="20" text-anchor="end" font-size="10" fill="#9ca3af">184万</text><text x="20" y="131.0" font-size="12" fill="#374151" transform="rotate(-90 20 131.0)">整柜总成本 RMB</text><rect x="90" y="270" width="12" height="12" rx="2" fill="#8a93a6"/><text x="107" y="280" font-size="12" fill="#374151">A 现状谷仓</text><rect x="280" y="270" width="12" height="12" rx="2" fill="#2f6fed"/><text x="297" y="280" font-size="12" fill="#374151">B AGL整柜FBA</text><rect x="470" y="270" width="12" height="12" rx="2" fill="#0fa97f"/><text x="487" y="280" font-size="12" fill="#374151">C AGL散货LCL</text></svg>
+<h3>G系列</h3><svg viewBox="0 0 760 264" xmlns="http://www.w3.org/2000/svg" role="img"><rect x="90" y="93.0" width="46" height="153.0" rx="3" fill="#8a93a6"/><text x="113" y="89" text-anchor="middle" font-size="11" fill="#4b5563">33.5万</text><rect x="144" y="40.6" width="46" height="205.4" rx="3" fill="#2f6fed"/><text x="167" y="37" text-anchor="middle" font-size="11" fill="#4b5563">45.0万</text><rect x="198" y="116.3" width="46" height="129.7" rx="3" fill="#0fa97f"/><text x="221" y="112" text-anchor="middle" font-size="11" fill="#4b5563">28.4万</text><text x="167" y="262" text-anchor="middle" font-size="12" fill="#374151">悲观 0.5x</text><rect x="284" y="100.2" width="46" height="145.8" rx="3" fill="#8a93a6"/><text x="307" y="96" text-anchor="middle" font-size="11" fill="#4b5563">31.9万</text><rect x="338" y="128.3" width="46" height="117.7" rx="3" fill="#2f6fed"/><text x="361" y="124" text-anchor="middle" font-size="11" fill="#4b5563">25.8万</text><rect x="392" y="117.4" width="46" height="128.6" rx="3" fill="#0fa97f"/><text x="415" y="113" text-anchor="middle" font-size="11" fill="#4b5563">28.2万</text><text x="361" y="262" text-anchor="middle" font-size="12" fill="#374151">预期 1.0x</text><rect x="478" y="102.6" width="46" height="143.4" rx="3" fill="#8a93a6"/><text x="501" y="99" text-anchor="middle" font-size="11" fill="#4b5563">31.4万</text><rect x="532" y="137.9" width="46" height="108.1" rx="3" fill="#2f6fed"/><text x="555" y="134" text-anchor="middle" font-size="11" fill="#4b5563">23.7万</text><rect x="586" y="116.7" width="46" height="129.3" rx="3" fill="#0fa97f"/><text x="609" y="113" text-anchor="middle" font-size="11" fill="#4b5563">28.3万</text><text x="555" y="262" text-anchor="middle" font-size="12" fill="#374151">乐观 1.5x</text><line x1="84" y1="188" x2="752" y2="188" stroke="#e5e7eb" stroke-dasharray="3,3"/><text x="80" y="192" text-anchor="end" font-size="10" fill="#9ca3af">13万</text><line x1="84" y1="131" x2="752" y2="131" stroke="#e5e7eb" stroke-dasharray="3,3"/><text x="80" y="135" text-anchor="end" font-size="10" fill="#9ca3af">25万</text><line x1="84" y1="74" x2="752" y2="74" stroke="#e5e7eb" stroke-dasharray="3,3"/><text x="80" y="78" text-anchor="end" font-size="10" fill="#9ca3af">38万</text><line x1="84" y1="16" x2="752" y2="16" stroke="#e5e7eb" stroke-dasharray="3,3"/><text x="80" y="20" text-anchor="end" font-size="10" fill="#9ca3af">50万</text><text x="20" y="131.0" font-size="12" fill="#374151" transform="rotate(-90 20 131.0)">整柜总成本 RMB</text><rect x="90" y="270" width="12" height="12" rx="2" fill="#8a93a6"/><text x="107" y="280" font-size="12" fill="#374151">A 现状谷仓</text><rect x="280" y="270" width="12" height="12" rx="2" fill="#2f6fed"/><text x="297" y="280" font-size="12" fill="#374151">B AGL整柜FBA</text><rect x="470" y="270" width="12" height="12" rx="2" fill="#0fa97f"/><text x="487" y="280" font-size="12" fill="#374151">C AGL散货LCL</text></svg><h3>M系列</h3><svg viewBox="0 0 760 264" xmlns="http://www.w3.org/2000/svg" role="img"><rect x="90" y="44.1" width="46" height="201.9" rx="3" fill="#8a93a6"/><text x="113" y="40" text-anchor="middle" font-size="11" fill="#4b5563">31.9万</text><rect x="144" y="40.6" width="46" height="205.4" rx="3" fill="#2f6fed"/><text x="167" y="37" text-anchor="middle" font-size="11" fill="#4b5563">32.4万</text><rect x="198" y="77.7" width="46" height="168.3" rx="3" fill="#0fa97f"/><text x="221" y="74" text-anchor="middle" font-size="11" fill="#4b5563">26.6万</text><text x="167" y="262" text-anchor="middle" font-size="12" fill="#374151">悲观 0.5x</text><rect x="284" y="47.6" width="46" height="198.4" rx="3" fill="#8a93a6"/><text x="307" y="44" text-anchor="middle" font-size="11" fill="#4b5563">31.3万</text><rect x="338" y="66.0" width="46" height="180.0" rx="3" fill="#2f6fed"/><text x="361" y="62" text-anchor="middle" font-size="11" fill="#4b5563">28.4万</text><rect x="392" y="75.8" width="46" height="170.2" rx="3" fill="#0fa97f"/><text x="415" y="72" text-anchor="middle" font-size="11" fill="#4b5563">26.9万</text><text x="361" y="262" text-anchor="middle" font-size="12" fill="#374151">预期 1.0x</text><rect x="478" y="48.7" width="46" height="197.3" rx="3" fill="#8a93a6"/><text x="501" y="45" text-anchor="middle" font-size="11" fill="#4b5563">31.2万</text><rect x="532" y="76.6" width="46" height="169.4" rx="3" fill="#2f6fed"/><text x="555" y="73" text-anchor="middle" font-size="11" fill="#4b5563">26.8万</text><rect x="586" y="75.0" width="46" height="171.0" rx="3" fill="#0fa97f"/><text x="609" y="71" text-anchor="middle" font-size="11" fill="#4b5563">27.0万</text><text x="555" y="262" text-anchor="middle" font-size="12" fill="#374151">乐观 1.5x</text><line x1="84" y1="188" x2="752" y2="188" stroke="#e5e7eb" stroke-dasharray="3,3"/><text x="80" y="192" text-anchor="end" font-size="10" fill="#9ca3af">9万</text><line x1="84" y1="131" x2="752" y2="131" stroke="#e5e7eb" stroke-dasharray="3,3"/><text x="80" y="135" text-anchor="end" font-size="10" fill="#9ca3af">18万</text><line x1="84" y1="74" x2="752" y2="74" stroke="#e5e7eb" stroke-dasharray="3,3"/><text x="80" y="78" text-anchor="end" font-size="10" fill="#9ca3af">27万</text><line x1="84" y1="16" x2="752" y2="16" stroke="#e5e7eb" stroke-dasharray="3,3"/><text x="80" y="20" text-anchor="end" font-size="10" fill="#9ca3af">36万</text><text x="20" y="131.0" font-size="12" fill="#374151" transform="rotate(-90 20 131.0)">整柜总成本 RMB</text><rect x="90" y="270" width="12" height="12" rx="2" fill="#8a93a6"/><text x="107" y="280" font-size="12" fill="#374151">A 现状谷仓</text><rect x="280" y="270" width="12" height="12" rx="2" fill="#2f6fed"/><text x="297" y="280" font-size="12" fill="#374151">B AGL整柜FBA</text><rect x="470" y="270" width="12" height="12" rx="2" fill="#0fa97f"/><text x="487" y="280" font-size="12" fill="#374151">C AGL散货LCL</text></svg><h3>N系列</h3><svg viewBox="0 0 760 264" xmlns="http://www.w3.org/2000/svg" role="img"><rect x="90" y="213.6" width="46" height="32.4" rx="3" fill="#8a93a6"/><text x="113" y="210" text-anchor="middle" font-size="11" fill="#4b5563">25.9万</text><rect x="144" y="40.6" width="46" height="205.4" rx="3" fill="#2f6fed"/><text x="167" y="37" text-anchor="middle" font-size="11" fill="#4b5563">164.4万</text><rect x="198" y="233.7" width="46" height="12.3" rx="3" fill="#0fa97f"/><text x="221" y="230" text-anchor="middle" font-size="11" fill="#4b5563">9.9万</text><text x="167" y="262" text-anchor="middle" font-size="12" fill="#374151">悲观 0.5x</text><rect x="284" y="211.3" width="46" height="34.7" rx="3" fill="#8a93a6"/><text x="307" y="207" text-anchor="middle" font-size="11" fill="#4b5563">27.8万</text><rect x="338" y="83.9" width="46" height="162.1" rx="3" fill="#2f6fed"/><text x="361" y="80" text-anchor="middle" font-size="11" fill="#4b5563">129.8万</text><rect x="392" y="224.0" width="46" height="22.0" rx="3" fill="#0fa97f"/><text x="415" y="220" text-anchor="middle" font-size="11" fill="#4b5563">17.6万</text><text x="361" y="262" text-anchor="middle" font-size="12" fill="#374151">预期 1.0x</text><rect x="478" y="208.9" width="46" height="37.1" rx="3" fill="#8a93a6"/><text x="501" y="205" text-anchor="middle" font-size="11" fill="#4b5563">29.7万</text><rect x="532" y="130.7" width="46" height="115.3" rx="3" fill="#2f6fed"/><text x="555" y="127" text-anchor="middle" font-size="11" fill="#4b5563">92.3万</text><rect x="586" y="212.8" width="46" height="33.2" rx="3" fill="#0fa97f"/><text x="609" y="209" text-anchor="middle" font-size="11" fill="#4b5563">26.6万</text><text x="555" y="262" text-anchor="middle" font-size="12" fill="#374151">乐观 1.5x</text><line x1="84" y1="188" x2="752" y2="188" stroke="#e5e7eb" stroke-dasharray="3,3"/><text x="80" y="192" text-anchor="end" font-size="10" fill="#9ca3af">46万</text><line x1="84" y1="131" x2="752" y2="131" stroke="#e5e7eb" stroke-dasharray="3,3"/><text x="80" y="135" text-anchor="end" font-size="10" fill="#9ca3af">92万</text><line x1="84" y1="74" x2="752" y2="74" stroke="#e5e7eb" stroke-dasharray="3,3"/><text x="80" y="78" text-anchor="end" font-size="10" fill="#9ca3af">138万</text><line x1="84" y1="16" x2="752" y2="16" stroke="#e5e7eb" stroke-dasharray="3,3"/><text x="80" y="20" text-anchor="end" font-size="10" fill="#9ca3af">184万</text><text x="20" y="131.0" font-size="12" fill="#374151" transform="rotate(-90 20 131.0)">整柜总成本 RMB</text><rect x="90" y="270" width="12" height="12" rx="2" fill="#8a93a6"/><text x="107" y="280" font-size="12" fill="#374151">A 现状谷仓</text><rect x="280" y="270" width="12" height="12" rx="2" fill="#2f6fed"/><text x="297" y="280" font-size="12" fill="#374151">B AGL整柜FBA</text><rect x="470" y="270" width="12" height="12" rx="2" fill="#0fa97f"/><text x="487" y="280" font-size="12" fill="#374151">C AGL散货LCL</text></svg>
 
 <h2>③ 盈亏平衡 — 销量掉到多少，切AGL整柜就不划算？</h2>
 <table>
@@ -229,12 +230,12 @@
   <tbody>
     <tr><td class="sc">G系列</td><td>全站×0.2×0.798<br><span class='sub'>即美国 1.457 件/天</span></td><td>全站×0.25×0.639<br><span class='sub'>即美国 1.457 件/天</span></td><td>全站×0.3×0.532<br><span class='sub'>即美国 1.457 件/天</span></td>
     <td>1.46件/天（预期销量的64%）</td></tr>
-    <tr><td class="sc">M系列</td><td>全站×0.2×0.274<br><span class='sub'>即美国 1.673 件/天</span></td><td>全站×0.25×0.219<br><span class='sub'>即美国 1.673 件/天</span></td><td>全站×0.3×0.183<br><span class='sub'>即美国 1.673 件/天</span></td>
-    <td>1.67件/天（预期销量的22%）</td></tr>
+    <tr><td class="sc">M系列</td><td>全站×0.2×0.702<br><span class='sub'>即美国 4.284 件/天</span></td><td>全站×0.25×0.562<br><span class='sub'>即美国 4.284 件/天</span></td><td>全站×0.3×0.468<br><span class='sub'>即美国 4.284 件/天</span></td>
+    <td>4.28件/天（预期销量的56%）</td></tr>
     <tr><td class="sc">N系列</td><td class='warn'>区间内无交点<br><span class='sub'>0.05~4.0倍均亏</span></td><td>全站×0.25×3.647<br><span class='sub'>即美国 1.254 件/天</span></td><td>全站×0.3×3.039<br><span class='sub'>即美国 1.254 件/天</span></td>
     <td>1.25件/天（预期销量的365%）</td></tr></tbody>
 </table>
-<p class="note">平衡点本质由「柜量 ÷ 美国日销」决定：G 需 317 天内清完一柜、M 343 天、N 263 天才打平（N 还要 3.6 倍预期销量，等于宣判不可行）。占比假设只改变"倍数"读数，不改变绝对日销门槛。</p>
+<p class="note">平衡点本质由「柜量 ÷ 美国日销」决定：G 需 317 天内清完一柜、M 134 天、N 263 天才打平（N 还要 3.6 倍预期销量，等于宣判不可行）。占比假设只改变"倍数"读数，不改变绝对日销门槛。</p>
 
 <h2>④ 慢速SKU穿透 — 整柜的隐藏地雷（策略B，1.0x）</h2>
 <p class="note">同一柜货、同样的总销量，配货方式决定生死：按销量配货=每个SKU覆盖天数相同（风险分散）；平均分配货=每个SKU件数相同（慢SKU全部变超龄库存）。超龄附加费单位：RMB/件。</p>
@@ -298,37 +299,37 @@
           <td>14.0</td>
           <td>263</td><td>0</td>
           <td>96</td><td class="">0</td>
-          <td class="sub">304</td>
+          <td class="sub">439</td>
         </tr>
         <tr>
           <td>6.875</td>
           <td>129</td><td>0</td>
           <td>96</td><td class="">0</td>
-          <td class="sub">323</td>
+          <td class="sub">472</td>
         </tr>
         <tr>
           <td>5.25</td>
           <td>99</td><td>0</td>
           <td>96</td><td class="">0</td>
-          <td class="sub">335</td>
+          <td class="sub">493</td>
         </tr>
         <tr>
           <td>2.75</td>
           <td>52</td><td>0</td>
           <td>96</td><td class="">0</td>
-          <td class="sub">373</td>
+          <td class="sub">557</td>
         </tr>
         <tr>
           <td>1.125</td>
           <td>21</td><td>0</td>
           <td>96</td><td class="warn">65</td>
-          <td class="sub">574</td>
+          <td class="sub">793</td>
         </tr>
         <tr>
           <td>0.5</td>
           <td>9</td><td>0</td>
           <td>96</td><td class="warn">876</td>
-          <td class="sub">1,885</td>
+          <td class="sub">2,147</td>
         </tr></tbody>
   </table>
   <h3>N系列</h3>
@@ -358,7 +359,7 @@
 <h2>⑥ FBA 费用机制（2026 官方，本仿真采用）</h2>
 <div class="route">
   <div class="card"><h3 style="color:var(--blue)">月度仓储费（大件 $/cuft/月）</h3>
-    <p class="kv">非旺季1–9月：$0.56 · 旺季10–12月：<b>$1.40（2.5倍）</b><br>10月初到仓 = 前三个月全程旺季价。原表AGL行的90天仓储（G 56.88元）按非旺季估算，实际约 144 元。</p></div>
+    <p class="kv">普货：非旺季1–9月 $0.56 · 旺季10–12月 <b>$1.40（2.5倍）</b> · 危险品（M 锂电 Class9）：非旺 $0.78 · 旺 $2.43<br>10月初到仓 = 前三个月全程旺季价。M 按危险品口径计（官方费率），原表按普货 $1.40 估算被低估。</p></div>
   <div class="card"><h3 style="color:var(--blue)">仓储利用率附加费（大件）</h3>
     <p class="kv">供应>22周触发，只收库龄>30天的库存：<br>22–28周 +$0.23 · 28–36周 +$0.46 · 36–44周 +$0.63 · 44–52周 +$0.76 · >52周 +$1.26 /cuft/月<br>利用率=13周平均库存÷日销÷7，即「周数供应」。</p></div>
   <div class="card"><h3 style="color:var(--blue)">超龄附加费（≥181天，$/cuft/月）</h3>
@@ -369,8 +370,8 @@
 
 <h2>⑦ 建议路由（策略D：按系列分流）</h2>
 <div class="route">
-  <div class="card ok"><b>M系列 → AGL整柜直发FBA</b>
-    <p>每柜省 10~13 万，0.5x 悲观情景也省 10 万。注意配货按销量比例。</p></div>
+  <div class="card mid"><b>M系列 → 快销走 AGL 整柜直发FBA</b>
+    <p>官方费率口径：1.0x 省 2.9万/柜、1.5x 省 4.4万，但 0.5x 反亏 0.55万，盈亏平衡=预期销量 56%（4.28件/天）。仅当快销（周转 D≤~67天）走整柜，慢销留谷仓；配货按销量比例。</p></div>
   <div class="card mid"><b>G系列 → AGL散货LCL 45天批</b>
     <p>头程LCL≈$304/CBM(洛杉矶大件)与现谷仓海运价基本持平，但把冗余风险清零，三情景省 3~5 万；若坚持整柜，需日销≥1.46件/天且长尾SKU不随柜。可与M拼柜分摊。</p></div>
   <div class="card warn"><b>N系列 → 留谷仓 或 按需极小批</b>
@@ -380,6 +381,7 @@
 <h2>⑧ 假设与局限</h2>
 <div class="panel"><ul>
   <li>「物流中心费用20260803V1」AGL行 K列与N列重复计入同一笔海运价（32919/柜两处出现），主口径沿用原表（保守），修正口径已并列展示（B再省 G 3.3万/M 3.3万/N 3.3万每柜）。</li>
+  <li>⚠️ 2026-08-26 口径升级：M 尾程由钉钉报价 ¥161.4（$22.26）升级为 Amazon 官方超大件 H2 混算 $39×7.25=282.75元；M 仓储由普货大件升级为危险品大件 $2.43旺/$0.78非旺（M 为锂电 Class9）。重算后 M 由「三情景全赚 10.2~12.8万」修正为「0.5x 反亏 0.55万 / 1.0x 省 2.9万 / 1.5x 省 4.4万」，平衡点 22%→56%，分水岭=周转天数 D≈67 天。详见 output/agl_h2_feasibility_conclusion.html。</li>
   <li>谷仓仓储按 90天价÷3 折月、按天线性计提（无阶梯/旺季，谷仓侧口径）；FBA侧按官方月费率+旺季10–12月×按天计提。545天期末：A剩余库存留仓只计已发生仓储（终值未计），B剩余强制移除（已计移除费），C未发部分留工厂（零成本）。三口径不对称处已在结论中偏保守处理。</li>
   <li>利用率附加费按各系列独立近似（账户级合并为 22.4 周、略高于触发线，见⑤）；真实账单按全店大件分段合并计算。</li>
   <li>LCL价取 AGL 8.8 价卡 深圳→洛杉矶（超大超重件$304.2/CBM、一般大件$123.95~183.45取均值153.7），各CBM档同价；固定费$101.23/票按批量摊。美东(巴尔的摩)贵约13%。</li>
